@@ -1,0 +1,7 @@
+
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://ailawsolutions.pythonanywhere.com/$1" }
+  ]
+}
