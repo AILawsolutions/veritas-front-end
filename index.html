@@ -3,16 +3,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Veritas AI Legal Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Veritas Legal AI</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="container">
-    <h1>Veritas AI Legal Assistant</h1>
-    <div id="chat-box"></div>
-    <textarea id="user-input" placeholder="Type your legal prompt..."></textarea>
+    <header>
+      <h1>Veritas Legal AI</h1>
+      <p class="subtitle">Upload documents or ask legal questions below</p>
+    </header>
+
+    <div class="upload-area" id="drop-zone">
+      <input type="file" id="fileInput" />
+      <label for="fileInput">📁 Drag & drop file or click to browse</label>
+      <span id="file-name"></span>
+    </div>
+
+    <textarea id="user-input" placeholder="Type your legal prompt here..."></textarea>
     <button onclick="sendMessage()">Submit</button>
+
+    <div id="response"></div>
   </div>
   <script src="script.js"></script>
 </body>
