@@ -1,50 +1,100 @@
-<!-- veritas.html -->
+<!-- futuristic-veritas.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Veritas AI Legal Assistant</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Veritas AI - Legal Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto&display=swap" rel="stylesheet">
   <style>
     body {
-      margin: 0; font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #eee;
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #f1f1f1;
     }
+
     .container {
-      max-width: 700px; margin: 50px auto; padding: 20px; background: #1c1f26; border-radius: 8px;
+      max-width: 800px;
+      margin: 60px auto;
+      padding: 40px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(0,255,255,0.2);
+      backdrop-filter: blur(10px);
     }
+
     h1 {
-      text-align: center; color: #00ffcc;
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      color: #00ffc3;
+      font-size: 32px;
+      margin-bottom: 30px;
     }
+
     label {
-      display: block; margin: 20px 0 5px;
+      margin: 20px 0 10px;
+      font-weight: bold;
+      display: block;
+      color: #80ffea;
     }
-    input, textarea, button {
-      width: 100%; padding: 10px; border: none; border-radius: 4px; font-size: 16px;
-    }
+
     input, textarea {
-      background: #282c34; color: #fff;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 16px;
+      margin-bottom: 15px;
     }
+
     button {
-      margin-top: 20px; background: #00ffcc; color: #000; font-weight: bold; cursor: pointer;
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      font-weight: bold;
+      background: #00ffc3;
+      color: #001111;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
     }
+
+    button:hover {
+      background: #00bfa3;
+    }
+
     .response {
-      margin-top: 30px; padding: 15px; background: #111317; border-left: 4px solid #00ffcc;
+      margin-top: 20px;
+      padding: 20px;
+      background: #101010;
+      border-left: 4px solid #00ffc3;
+      white-space: pre-wrap;
     }
+
     .loading {
-      font-style: italic; color: #aaa;
+      font-style: italic;
+      color: #aaa;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>⚖️ Veritas: Legal Document Generator</h1>
+    <h1>⚖️ Veritas AI Legal Assistant</h1>
     <div id="question-block">
-      <label id="question-label">Click Start to begin legal intake</label>
-      <input type="text" id="answer" placeholder="Your answer here..." />
+      <label id="question-label">Click Start to begin intake</label>
+      <input type="text" id="answer" placeholder="Type your answer here..." />
       <button onclick="submitAnswer()">Submit</button>
     </div>
     <button onclick="startQuestions()">Start</button>
-    <div class="response" id="result-box" style="display:none;"></div>
+    <div class="response hidden" id="result-box"></div>
   </div>
 
   <script>
@@ -54,6 +104,7 @@
     async function startQuestions() {
       questionIndex = 0;
       answers.length = 0;
+      document.getElementById("result-box").classList.add("hidden");
       await fetchNextQuestion();
     }
 
@@ -82,7 +133,7 @@
     }
 
     async function requestPDF() {
-      document.getElementById("question-label").innerText = "🧠 Veritas is drafting your legal filing. Please wait...";
+      document.getElementById("question-label").innerText = "⏳ Generating your court-ready PDF...";
       document.getElementById("answer").style.display = "none";
       document.querySelector("button").style.display = "none";
 
@@ -92,6 +143,8 @@
         body: JSON.stringify({ answers })
       });
 
+      const resultBox = document.getElementById("result-box");
+
       if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
@@ -99,14 +152,13 @@
         link.href = url;
         link.download = "Veritas_Legal_Document.pdf";
         link.click();
-
-        document.getElementById("result-box").innerHTML = "✅ PDF downloaded.";
+        resultBox.innerHTML = "✅ PDF downloaded successfully.";
       } else {
         const error = await res.json();
-        document.getElementById("result-box").innerHTML = "❌ Error: " + error.message;
+        resultBox.innerHTML = "❌ Error: " + error.message;
       }
 
-      document.getElementById("result-box").style.display = "block";
+      resultBox.classList.remove("hidden");
     }
   </script>
 </body>
