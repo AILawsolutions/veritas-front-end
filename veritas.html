@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Veritas Legal Assistant</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+    .container { max-width: 700px; margin: 2rem auto; background: white; padding: 2rem; border-radius: 8px; }
+    h1 { text-align: center; color: #2c3e50; }
+    .chat-panel { margin-top: 20px; }
+    .chat-input { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
+    .send-btn { padding: 10px 20px; margin-top: 10px; font-size: 16px; cursor: pointer; background: #2c3e50; color: white; border: none; border-radius: 4px; }
+    .response-box { margin-top: 20px; font-size: 16px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Veritas AI Legal Assistant</h1>
+    <div class="chat-panel">
+      <input type="text" class="chat-input" placeholder="Your answer here..." />
+      <button class="send-btn">Send</button>
+    </div>
+    <div class="response-box"></div>
+  </div>
+
+  <script>
+    const questions = [
+      "What type of legal document do you want to create (e.g., Motion, Complaint, Contract)?",
+      "What is the jurisdiction and court?",
+      "Who are the parties involved and their roles?",
+      "Summarize the background facts relevant to this document.",
+      "List the legal issues or claims to include.",
+      "Do you want to request anything specific in the Conclusion (e.g., relief, dismissal)?",
+      "Attorney's full name, law firm, and contact info for the signature block?"
+    ];
+
+    let currentQuestion = 0;
+    let answers = [];
+
+    const chatInput = document.querySelector(".chat-input");
+    const sendButton = document.querySelector(".send-btn");
+    const responseBox = document.querySelector(".response-box");
+
+    function askNextQuestion() {
+      if (currentQuestion < questions.length) {
+        chatInput.placeholder = questions[currentQuestion];
+      } else {
+        fetch("https://ailawsolutions.pythonanywhere.com/generate-legal-pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ answers })
+        })
+        .then(res => {
+          if (!res.ok) throw new Error("Failed to generate PDF");
+          return res.blob();
+        })
+        .then(blob => {
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "Veritas_Document.pdf";
+          link.click();
+          responseBox.innerText = "📄 Your court document is ready for download!";
+        })
+        .catch(err => {
+          responseBox.innerText = "❌ Error: " + err.message;
+        });
+      }
+    }
+
+    sendButton.addEventListener("click", () => {
+      const answer = chatInput.value.trim();
+      if (!answer) return;
+      answers.push(answer);
+      chatInput.value = "";
+      currentQuestion++;
+      askNextQuestion();
+    });
+
+    askNextQuestion();
+  </script>
+</body>
+</html>
