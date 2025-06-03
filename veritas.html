@@ -1,105 +1,112 @@
+<!-- veritas.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Veritas AI Legal Assistant</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      font-family: 'Orbitron', sans-serif;
-      background-color: #0b0f1c;
-      color: #e3e3e3;
-      margin: 0;
-      padding: 0;
+      margin: 0; font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #eee;
     }
     .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 2rem;
+      max-width: 700px; margin: 50px auto; padding: 20px; background: #1c1f26; border-radius: 8px;
     }
     h1 {
-      text-align: center;
-      color: #00d8ff;
-      margin-bottom: 2rem;
+      text-align: center; color: #00ffcc;
     }
-    textarea, input[type="text"] {
-      width: 100%;
-      padding: 1rem;
-      background-color: #1c2230;
-      border: none;
-      color: #fff;
-      font-size: 1rem;
-      margin-bottom: 1rem;
+    label {
+      display: block; margin: 20px 0 5px;
+    }
+    input, textarea, button {
+      width: 100%; padding: 10px; border: none; border-radius: 4px; font-size: 16px;
+    }
+    input, textarea {
+      background: #282c34; color: #fff;
     }
     button {
-      padding: 1rem 2rem;
-      background-color: #00d8ff;
-      color: #0b0f1c;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
+      margin-top: 20px; background: #00ffcc; color: #000; font-weight: bold; cursor: pointer;
     }
-    .response-box {
-      margin-top: 2rem;
-      white-space: pre-wrap;
-      background-color: #1c2230;
-      padding: 1rem;
+    .response {
+      margin-top: 30px; padding: 15px; background: #111317; border-left: 4px solid #00ffcc;
     }
-    .loader {
-      margin-top: 1rem;
-      color: #00d8ff;
-      font-style: italic;
+    .loading {
+      font-style: italic; color: #aaa;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🧠 Veritas AI Legal Generator</h1>
-    <textarea id="prompt" rows="6" placeholder="Type your legal request (e.g., 'Draft a California Living Will')..."></textarea>
-    <button onclick="generatePDF()">Generate PDF</button>
-    <div id="loader" class="loader" style="display: none;">🌀 Thinking like a Supreme Court Justice...</div>
-    <div id="response" class="response-box"></div>
+    <h1>⚖️ Veritas: Legal Document Generator</h1>
+    <div id="question-block">
+      <label id="question-label">Click Start to begin legal intake</label>
+      <input type="text" id="answer" placeholder="Your answer here..." />
+      <button onclick="submitAnswer()">Submit</button>
+    </div>
+    <button onclick="startQuestions()">Start</button>
+    <div class="response" id="result-box" style="display:none;"></div>
   </div>
 
   <script>
-    async function generatePDF() {
-      const input = document.getElementById("prompt").value;
-      const responseBox = document.getElementById("response");
-      const loader = document.getElementById("loader");
+    let questionIndex = 0;
+    const answers = [];
 
-      if (!input) {
-        responseBox.innerText = "⚠️ Please enter a prompt!";
-        return;
+    async function startQuestions() {
+      questionIndex = 0;
+      answers.length = 0;
+      await fetchNextQuestion();
+    }
+
+    async function fetchNextQuestion() {
+      const res = await fetch("https://ailawsolutions.pythonanywhere.com/next-question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ index: questionIndex })
+      });
+      const data = await res.json();
+
+      if (data.done) {
+        await requestPDF();
+      } else {
+        document.getElementById("question-label").innerText = data.question;
+        document.getElementById("answer").value = "";
+      }
+    }
+
+    async function submitAnswer() {
+      const input = document.getElementById("answer").value;
+      if (!input.trim()) return;
+      answers.push(input.trim());
+      questionIndex++;
+      await fetchNextQuestion();
+    }
+
+    async function requestPDF() {
+      document.getElementById("question-label").innerText = "⏳ Veritas is generating your legal document...";
+      document.getElementById("answer").style.display = "none";
+      document.querySelector("button").style.display = "none";
+
+      const res = await fetch("https://ailawsolutions.pythonanywhere.com/generate-legal-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers })
+      });
+
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "Veritas_Legal_Document.pdf";
+        link.click();
+
+        document.getElementById("result-box").innerHTML = "✅ PDF downloaded.";
+      } else {
+        const error = await res.json();
+        document.getElementById("result-box").innerHTML = "❌ Error: " + error.message;
       }
 
-      responseBox.innerText = "";
-      loader.style.display = "block";
-
-      try {
-        const response = await fetch("https://ailawsolutions.pythonanywhere.com/generate-legal-pdf", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ answers: [input] })
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          responseBox.innerText = error.message;
-        } else {
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = "Veritas_Document.pdf";
-          link.click();
-          responseBox.innerText = "✅ PDF downloaded successfully.";
-        }
-      } catch (err) {
-        responseBox.innerText = "❌ Error generating PDF.";
-      } finally {
-        loader.style.display = "none";
-      }
+      document.getElementById("result-box").style.display = "block";
     }
   </script>
 </body>
