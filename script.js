@@ -1,13 +1,18 @@
-
 async function generateLegalDocument() {
+  const prompt = document.getElementById("legalPrompt").value;
+  const statusEl = document.getElementById("veritasStatus");
+
   const payload = {
-    prompt: "Draft a Motion to Compel Discovery",
+    prompt,
     state: "California",
     county: "Los Angeles",
-    format: "docx"  // Change to 'pdf' if needed
+    format: "docx"
   };
 
   try {
+    // 🔵 Show thinking message
+    statusEl.innerText = "🧠 Veritas is thinking...";
+
     const res = await fetch("https://veritas-ai-backend.vercel.app/generate-document", {
       method: "POST",
       headers: {
@@ -16,12 +21,14 @@ async function generateLegalDocument() {
       body: JSON.stringify(payload)
     });
 
+    // 🔴 Error handling
     if (!res.ok) {
       const err = await res.json();
-      alert("Error: " + err.message);
+      statusEl.innerText = "❌ Error: " + err.message;
       return;
     }
 
+    // ✅ Success
     const blob = await res.blob();
     const fileName = res.headers
       .get("Content-Disposition")
@@ -36,12 +43,9 @@ async function generateLegalDocument() {
     link.click();
     document.body.removeChild(link);
 
+    // ✅ Clear status
+    statusEl.innerText = "✅ Veritas finished. Document downloaded.";
   } catch (err) {
-    alert("Network error: " + err.message);
+    statusEl.innerText = "❌ Network error: " + err.message;
   }
 }
-
-document.getElementById("fileInput").addEventListener("change", function(e) {
-  const name = e.target.files[0] ? e.target.files[0].name : "";
-  document.getElementById("file-name").innerText = name;
-});
