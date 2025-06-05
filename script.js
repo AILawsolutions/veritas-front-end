@@ -22,8 +22,11 @@ async function sendMessage() {
     });
   }
 
+ try {
   const result = await response.json();
   responseBox.innerText = result.summary || result.message || "⚠️ No response received.";
+} catch (err) {
+  responseBox.innerText = "✅ Document sent. Check your downloads folder.";
 }
 
 document.getElementById("fileInput").addEventListener("change", function(e) {
