@@ -1,41 +1,3 @@
-
-async function sendMessage() {
-  const input = document.getElementById("user-input").value;
-  const file = document.getElementById("fileInput").files[0];
-  const responseBox = document.getElementById("response");
-
-  responseBox.innerText = "⏳ Processing...";
-  await new Promise(r => setTimeout(r, 10));  // Force DOM update before fetch starts
-
-  let response;
-  if (file) {
-    const formData = new FormData();
-    formData.append("file", file);
-    response = await fetch("https://ailawsolutions.pythonanywhere.com/analyze-upload", {
-      method: "POST",
-      body: formData
-    });
-  } else {
-    response = await fetch("https://ailawsolutions.pythonanywhere.com/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: input })
-    });
-  }
-
-  try {
-    const result = await response.json();
-    responseBox.innerText = result.summary || result.message || "⚠️ No response received.";
-  } catch (err) {
-    responseBox.innerText = "✅ Document sent. Check your downloads folder.";
-  }
-}
-
-document.getElementById("fileInput").addEventListener("change", function(e) {
-  const name = e.target.files[0] ? e.target.files[0].name : "";
-  document.getElementById("file-name").innerText = name;
-});
-
 async function generateLegalDocument() {
   const prompt = document.getElementById("user-input").value;
   const format = document.getElementById("fileFormat").value;
@@ -47,7 +9,7 @@ async function generateLegalDocument() {
   }
 
   responseBox.innerText = "🧠 Veritas is thinking...";
-  await new Promise(r => setTimeout(r, 10));  // Allow UI to update
+  await new Promise(r => setTimeout(r, 10)); // Let UI update
 
   const payload = {
     prompt,
@@ -59,23 +21,22 @@ async function generateLegalDocument() {
   try {
     const res = await fetch("https://veritas-ai-backend.vercel.app/generate-document", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
 
     if (!res.ok) {
-      const err = await res.json();
-      responseBox.innerText = "❌ Error: " + err.message;
+      // ⚠️ Only try to read JSON here if it's NOT a file
+      const errorJson = await res.json();
+      responseBox.innerText = "❌ Error: " + (errorJson.message || "Unknown error.");
       return;
     }
 
+    // ✅ This is a file, so no JSON parsing!
     const blob = await res.blob();
-    const fileName = res.headers
-      .get("Content-Disposition")
-      ?.split("filename=")[1]
-      ?.replace(/["']/g, "") || "Legal_Document";
+    const fileName =
+      res.headers.get("Content-Disposition")?.split("filename=")[1]?.replace(/["']/g, "") ||
+      "Legal_Document";
 
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
