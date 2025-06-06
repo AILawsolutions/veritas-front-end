@@ -1,155 +1,40 @@
-<!-- veritas.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Veritas AI Legal Assistant</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #0f1117, #1b1f2a);
-      color: #eee;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: 80px auto;
-      padding: 40px;
-      background: rgba(28, 31, 38, 0.95);
-      border-radius: 16px;
-      box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
-    }
-
-    h1 {
-      text-align: center;
-      color: #00ffcc;
-      font-size: 28px;
-      margin-bottom: 30px;
-    }
-
-    label {
-      display: block;
-      margin: 20px 0 10px;
-      font-weight: bold;
-      font-size: 16px;
-    }
-
-    input, textarea, button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      background: #2c2f39;
-      color: #fff;
-    }
-
-    input:focus, textarea:focus {
-      outline: 2px solid #00ffcc;
-    }
-
-    button {
-      margin-top: 20px;
-      background: #00ffcc;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    button:hover {
-      background: #00e6b8;
-    }
-
-    .response {
-      margin-top: 30px;
-      padding: 20px;
-      background: #111317;
-      border-left: 5px solid #00ffcc;
-      white-space: pre-line;
-    }
-
-    .loading {
-      font-style: italic;
-      color: #aaa;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veritas AI Legal Document Generator</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <div class="container">
-    <h1>⚖️ Veritas: AI Legal Document Generator</h1>
-    <div id="question-block">
-      <label id="question-label">Click Start to begin legal intake</label>
-      <input type="text" id="answer" placeholder="Your answer..." />
-      <button onclick="submitAnswer()">Submit</button>
+    <div class="container">
+        <h1>Veritas AI Legal Document Generator</h1>
+
+        <form id="documentForm">
+            <label for="prompt">Prompt:</label>
+            <textarea id="prompt" name="prompt" required></textarea>
+
+            <label for="state">State:</label>
+            <input type="text" id="state" name="state" value="california" required>
+
+            <label for="county">County:</label>
+            <input type="text" id="county" name="county" value="los angeles" required>
+
+            <label for="format">Format:</label>
+            <select id="format" name="format">
+                <option value="pdf">PDF</option>
+            </select>
+
+            <button type="submit">Generate Document</button>
+        </form>
+
+        <div id="status"></div>
     </div>
-    <button onclick="startQuestions()">Start</button>
-    <div class="response" id="result-box" style="display:none;"></div>
-  </div>
 
-  <script>
-    let questionIndex = 0;
-    const answers = [];
-
-    async function startQuestions() {
-      questionIndex = 0;
-      answers.length = 0;
-      await fetchNextQuestion();
-    }
-
-    async function fetchNextQuestion() {
-      const res = await fetch("https://ailawsolutions.pythonanywhere.com/next-question", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ index: questionIndex })
-      });
-      const data = await res.json();
-
-      if (data.done) {
-        await requestPDF();
-      } else {
-        document.getElementById("question-label").innerText = data.question;
-        document.getElementById("answer").value = "";
-      }
-    }
-
-    async function submitAnswer() {
-      const input = document.getElementById("answer").value;
-      if (!input.trim()) return;
-      answers.push(input.trim());
-      questionIndex++;
-      await fetchNextQuestion();
-    }
-
-    async function requestPDF() {
-      document.getElementById("question-label").innerText = "🧠 Veritas is drafting and formatting your court document...";
-      document.getElementById("answer").style.display = "none";
-      document.querySelector("button").style.display = "none";
-
-      const res = await fetch("https://ailawsolutions.pythonanywhere.com/generate-legal-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers })
-      });
-
-      if (res.ok) {
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "Veritas_Legal_Document.pdf";
-        link.click();
-
-        document.getElementById("result-box").innerText = "✅ Your court document has been downloaded as a PDF.";
-      } else {
-        const error = await res.json();
-        document.getElementById("result-box").innerText = "❌ Error: " + error.message;
-      }
-
-      document.getElementById("result-box").style.display = "block";
-    }
-  </script>
+    <script src="script.js"></script>
 </body>
+
 </html>
+
