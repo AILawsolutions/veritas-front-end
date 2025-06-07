@@ -1,63 +1,99 @@
-// Wait for the DOM to be ready
-document.addEventListener("DOMContentLoaded", () => {
+// Veritas - script.js (Lexis Killer Version)
 
-  const form = document.getElementById("veritas-form");
-  const statusDiv = document.getElementById("status");
+// API endpoint
+const API_URL = "https://AiLawSolutions.pythonanywhere.com/generate-document";
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
+// Guided questions (keep aligned with backend)
+const questions = [
+    "What type of document are you drafting? (e.g. Motion to Compel, Complaint)",
+    "Which U.S. state is this case filed in?",
+    "Which county in that state?",
+    "What is the name of the court? (e.g. Superior Court of Los Angeles County)",
+    "Who are the parties involved? (e.g. Plaintiff: Jane Smith; Defendant: Acme Corp)",
+    "Summarize the key facts of the case:",
+    "List the legal issues or arguments to be addressed:",
+    "What is your desired outcome or conclusion?",
+    "How would you like to sign the document? (Name and title)"
+];
 
-    // Get form values
-    const prompt = document.getElementById("prompt").value.trim();
-    const state = document.getElementById("state").value.trim().toLowerCase();
-    const county = document.getElementById("county").value.trim().toLowerCase();
-    const format = "pdf"; // we only support PDF for now
+// State
+let answers = [];
+let currentQuestion = 0;
 
-    // Basic validation
-    if (!prompt || !state || !county) {
-      statusDiv.textContent = "\u26A0\uFE0F Please fill out all fields.";
-      statusDiv.style.color = "red";
-      return;
+// DOM
+const chatContainer = document.getElementById("chat-container");
+const userInput = document.getElementById("user-input");
+const submitButton = document.getElementById("submit-button");
+
+// Init
+showMessage("Veritas", "Welcome to Veritas AI. Let's begin drafting your document.");
+askNextQuestion();
+
+// Handlers
+submitButton.addEventListener("click", handleSubmit);
+userInput.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") handleSubmit();
+});
+
+// Functions
+function showMessage(sender, message) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = sender === "Veritas" ? "veritas-message" : "user-message";
+    messageDiv.textContent = message;
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function askNextQuestion() {
+    if (currentQuestion < questions.length) {
+        showMessage("Veritas", questions[currentQuestion]);
+    } else {
+        submitToBackend();
     }
+}
 
-    // Show loading
-    statusDiv.textContent = "\u23F3 Generating document... Please wait.";
-    statusDiv.style.color = "black";
+function handleSubmit() {
+    const input = userInput.value.trim();
+    if (input === "") return;
+    showMessage("You", input);
+    answers.push(input);
+    userInput.value = "";
+    currentQuestion++;
+    askNextQuestion();
+}
 
-    try {
-      const response = await fetch("https://AiLawSolutions.pythonanywhere.com/generate-document", {
+function submitToBackend() {
+    showMessage("Veritas", "Generating your court-ready document... ⏳");
+
+    const payload = {
+        answers: answers
+    };
+
+    fetch(API_URL, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+            "Content-Type": "application/json"
         },
-        body: JSON.stringify({ prompt, state, county, format })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Unknown error.");
-      }
-
-      // Receive PDF as blob
-      const blob = await response.blob();
-
-      // Create temporary link to trigger download
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Veritas_Document.pdf";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-
-      statusDiv.textContent = "\u2705 Document generated and downloaded.";
-      statusDiv.style.color = "green";
-
-    } catch (error) {
-      console.error("Error generating document:", error);
-      statusDiv.textContent = `\u274C Error: ${error.message}`;
-      statusDiv.style.color = "red";
-    }
-  });
-});
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Backend error. Please check your inputs and try again.");
+        }
+        return response.blob();
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "Veritas_Document.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showMessage("Veritas", "✅ Document generated and downloaded. Ready to file.");
+    })
+    .catch(error => {
+        console.error(error);
+        showMessage("Veritas", "❌ An error occurred: " + error.message);
+    });
+}
