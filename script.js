@@ -1,99 +1,86 @@
-// Veritas - script.js (Lexis Killer Version)
+document.addEventListener("DOMContentLoaded", function () {
+    const statusEl = document.getElementById("status");
+    const formEl = document.getElementById("answer-form");
+    const inputEl = document.getElementById("answer-input");
+    const submitBtn = document.getElementById("submit-answer");
 
-// API endpoint
-const API_URL = "https://AiLawSolutions.pythonanywhere.com/generate-document";
+    let answers = [];
 
-// Guided questions (keep aligned with backend)
-const questions = [
-    "What type of document are you drafting? (e.g. Motion to Compel, Complaint)",
-    "Which U.S. state is this case filed in?",
-    "Which county in that state?",
-    "What is the name of the court? (e.g. Superior Court of Los Angeles County)",
-    "Who are the parties involved? (e.g. Plaintiff: Jane Smith; Defendant: Acme Corp)",
-    "Summarize the key facts of the case:",
-    "List the legal issues or arguments to be addressed:",
-    "What is your desired outcome or conclusion?",
-    "How would you like to sign the document? (Name and title)"
-];
+    // Function to fetch the first question
+    async function loadFirstQuestion() {
+        try {
+            const response = await fetch("https://AiLawSolutions.pythonanywhere.com/generate-guided", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: "Start guided document flow" })
+            });
 
-// State
-let answers = [];
-let currentQuestion = 0;
+            const data = await response.json();
 
-// DOM
-const chatContainer = document.getElementById("chat-container");
-const userInput = document.getElementById("user-input");
-const submitButton = document.getElementById("submit-button");
-
-// Init
-showMessage("Veritas", "Welcome to Veritas AI. Let's begin drafting your document.");
-askNextQuestion();
-
-// Handlers
-submitButton.addEventListener("click", handleSubmit);
-userInput.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") handleSubmit();
-});
-
-// Functions
-function showMessage(sender, message) {
-    const messageDiv = document.createElement("div");
-    messageDiv.className = sender === "Veritas" ? "veritas-message" : "user-message";
-    messageDiv.textContent = message;
-    chatContainer.appendChild(messageDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-function askNextQuestion() {
-    if (currentQuestion < questions.length) {
-        showMessage("Veritas", questions[currentQuestion]);
-    } else {
-        submitToBackend();
-    }
-}
-
-function handleSubmit() {
-    const input = userInput.value.trim();
-    if (input === "") return;
-    showMessage("You", input);
-    answers.push(input);
-    userInput.value = "";
-    currentQuestion++;
-    askNextQuestion();
-}
-
-function submitToBackend() {
-    showMessage("Veritas", "Generating your court-ready document... ⏳");
-
-    const payload = {
-        answers: answers
-    };
-
-    fetch(API_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("Backend error. Please check your inputs and try again.");
+            if (response.ok && data.question) {
+                statusEl.innerText = data.question;
+            } else {
+                statusEl.innerText = "❌ Failed to load first question.";
+                console.error("API error:", data);
+            }
+        } catch (error) {
+            statusEl.innerText = "❌ Error connecting to Veritas AI server.";
+            console.error("Connection error:", error);
         }
-        return response.blob();
-    })
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "Veritas_Document.pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        showMessage("Veritas", "✅ Document generated and downloaded. Ready to file.");
-    })
-    .catch(error => {
-        console.error(error);
-        showMessage("Veritas", "❌ An error occurred: " + error.message);
+    }
+
+    // Submit answer to backend
+    formEl.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const answer = inputEl.value.trim();
+
+        if (!answer) return;
+
+        // Add current answer to answers array
+        answers.push(answer);
+
+        // Clear input
+        inputEl.value = "";
+        submitBtn.disabled = true;
+        statusEl.innerText = "⏳ Processing...";
+
+        try {
+            const response = await fetch("https://AiLawSolutions.pythonanywhere.com/submit-guided", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ answers })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                if (data.next_question) {
+                    // Next question in the flow
+                    statusEl.innerText = data.next_question;
+                    submitBtn.disabled = false;
+                } else if (data.document_url) {
+                    // Flow is done — provide document
+                    statusEl.innerHTML = `
+                        ✅ Document ready:<br>
+                        <a href="${data.document_url}" target="_blank">Download Document</a>
+                    `;
+                    formEl.style.display = "none";
+                } else {
+                    statusEl.innerText = "❌ Unexpected response from server.";
+                    console.error("Unexpected API response:", data);
+                }
+            } else {
+                statusEl.innerText = "❌ Failed to submit answer.";
+                console.error("API error:", data);
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            statusEl.innerText = "❌ Error submitting answer.";
+            console.error("Connection error:", error);
+            submitBtn.disabled = false;
+        }
     });
-}
+
+    // Kick off the flow
+    loadFirstQuestion();
+});
