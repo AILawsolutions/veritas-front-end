@@ -1,40 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veritas AI Legal Document Generator</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Veritas AI Legal Generator</title>
+    <style>
+        body {
+            background-color: #010B15;
+            font-family: 'Times New Roman', serif;
+            color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        #chat-container {
+            width: 90%;
+            max-width: 800px;
+            background: #121E2A;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        .chat-message {
+            margin-bottom: 10px;
+        }
+        .user {
+            color: #00FFAA;
+        }
+        .ai {
+            color: #FFD700;
+        }
+        #user-input {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        #submit-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #00FFAA;
+            border: none;
+            border-radius: 5px;
+        }
+        #status {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #AAAAAA;
+        }
+    </style>
 </head>
-
 <body>
-    <div class="container">
-        <h1>Veritas AI Legal Document Generator</h1>
 
-        <form id="documentForm">
-            <label for="prompt">Prompt:</label>
-            <textarea id="prompt" name="prompt" required></textarea>
-
-            <label for="state">State:</label>
-            <input type="text" id="state" name="state" value="california" required>
-
-            <label for="county">County:</label>
-            <input type="text" id="county" name="county" value="los angeles" required>
-
-            <label for="format">Format:</label>
-            <select id="format" name="format">
-                <option value="pdf">PDF</option>
-            </select>
-
-            <button type="submit">Generate Document</button>
-        </form>
-
-        <div id="status"></div>
-    </div>
+    <h2>Veritas AI Legal Generator</h2>
+    <div id="chat-container"></div>
+    <input type="text" id="user-input" placeholder="Type your response here..." />
+    <button id="submit-button">Submit</button>
+    <p id="status">Loading first question...</p>
 
     <script src="script.js"></script>
-</body>
 
+</body>
 </html>
+
 
