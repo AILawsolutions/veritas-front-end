@@ -1,23 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>Veritas AI Legal Generator</title>
-    <script src="script.js" defer></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Veritas AI Legal Document Generator</title>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>Veritas AI Legal Generator</h1>
-    <textarea id="prompt" placeholder="Enter prompt here..."></textarea>
-    <br>
-    <input id="state" placeholder="State" />
-    <input id="county" placeholder="County" />
-    <select id="format">
-        <option value="pdf">PDF</option>
-        <option value="text">Plain Text</option>
-    </select>
-    <br>
-    <button onclick="generateDocument()">Generate Document</button>
-    <p id="status">Idle</p>
-    <pre id="output"></pre>
+    <div class="container">
+        <h1>Veritas AI Legal Document Generator</h1>
+        <textarea id="prompt" placeholder="Enter your legal prompt here..."></textarea>
+        <div>
+            <label for="state">State:</label>
+            <input type="text" id="state" placeholder="e.g. California" />
+            <label for="county">County:</label>
+            <input type="text" id="county" placeholder="e.g. Los Angeles" />
+            <label for="format">Format:</label>
+            <select id="format">
+                <option value="pdf">PDF</option>
+                <option value="docx">DOCX</option>
+            </select>
+        </div>
+        <button id="generateBtn">Generate Document</button>
+        <div id="spinner" class="spinner" style="display: none;"></div>
+        <p id="status"></p>
+        <div id="documentPreview" class="fade-in" style="display: none;"></div>
+        <a id="downloadLink" href="#" download style="display: none;">Download Legal Document</a>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
