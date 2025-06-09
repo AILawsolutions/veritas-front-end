@@ -1,27 +1,25 @@
-<!-- veritas.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Veritas AI Legal Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Veritas AI</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
     <div class="logo">VERITAS</div>
     <nav>
-      <a href="/">Home</a>
-      <a href="/pricing.html">Pricing</a>
-      <a href="/faq.html">FAQ</a>
-      <a href="/login.html">Login</a>
+      <a href="index.html">Home</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="login.html">Login</a>
     </nav>
   </header>
 
   <div class="veritas-container">
-    <h1>VERITAS</h1>
-    <h3>AI LEGAL ASSISTANT</h3>
+    <h1 class="veritas-title">VERITAS</h1>
+    <h3 class="veritas-subtitle">AI LEGAL DRAFTING ASSISTANT</h3>
 
     <div class="tab-bar">
       <button class="active">Document Upload</button>
@@ -31,19 +29,20 @@
     </div>
 
     <div class="chat-panel">
-      <textarea id="prompt" class="chat-input" placeholder="draft a motion for me..."></textarea>
+      <div class="chat-icon">💬</div>
+      <p id="status">How can I assist you today?</p>
+
+      <textarea id="prompt" class="chat-input" placeholder="Type your legal prompt here..."></textarea>
+
       <div class="chat-actions">
         <label class="file-label">
           <input type="file" id="file-upload" class="file-upload" />
           <div class="plus-btn">+</div>
         </label>
-        <select id="format">
-          <option value="pdf">PDF</option>
-          <option value="docx">DOCX</option>
-        </select>
-        <button class="send-btn" onclick="submitPrompt()">Send</button>
+        <button class="send-btn" onclick="submitPrompt()">Submit</button>
       </div>
-      <p id="status"></p>
+
+      <div id="response-container"></div>
     </div>
   </div>
 
