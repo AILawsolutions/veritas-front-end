@@ -1,48 +1,56 @@
-document.getElementById("generateBtn").addEventListener("click", async function () {
-    const prompt = document.getElementById("prompt").value.trim();
-    const state = document.getElementById("state").value.trim();
-    const county = document.getElementById("county").value.trim();
-    const format = document.getElementById("format").value;
+document.addEventListener("DOMContentLoaded", () => {
+  const sendBtn = document.getElementById("sendBtn");
+  const inputField = document.getElementById("userInput");
+  const responseBox = document.getElementById("responseBox");
+  const statusBox = document.getElementById("statusBox");
+  const downloadBtn = document.getElementById("downloadBtn");
 
-    if (!prompt || !state || !county) {
-        alert("Please fill in all fields.");
-        return;
-    }
+  sendBtn.addEventListener("click", async () => {
+    const prompt = inputField.value.trim();
+    if (!prompt) return;
 
-    document.getElementById("spinner").style.display = "block";
-    document.getElementById("status").innerText = "Drafting your document...";
-    document.getElementById("documentPreview").style.display = "none";
-    document.getElementById("downloadLink").style.display = "none";
+    responseBox.innerHTML = "";
+    statusBox.innerHTML = "📄 Drafting your document...";
+    downloadBtn.style.display = "none";
 
     try {
-        const response = await fetch("https://AiLawSolutions.pythonanywhere.com/generate-document", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                prompt: prompt,
-                state: state,
-                county: county,
-                format: format
-            })
-        });
+      const res = await fetch("https://AiLawSolutions.pythonanywhere.com/generate-document", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt,
+          state: "california",
+          county: "los angeles",
+          format: "pdf"
+        }),
+      });
 
-        if (!response.ok) throw new Error("Document generation failed.");
+      const blob = await res.blob();
 
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
+      if (blob.type !== "application/pdf") {
+        const errText = await blob.text();
+        statusBox.innerHTML = "❌ Error: " + errText;
+        return;
+      }
 
-        document.getElementById("documentPreview").style.display = "block";
-        document.getElementById("documentPreview").innerHTML = `
-            <iframe src="${url}" width="100%" height="600px"></iframe>
-        `;
-        document.getElementById("downloadLink").href = url;
-        document.getElementById("downloadLink").style.display = "inline-block";
-        document.getElementById("status").innerText = "✅ Document Ready";
+      // Show preview
+      const url = URL.createObjectURL(blob);
+      const iframe = document.createElement("iframe");
+      iframe.src = url;
+      iframe.style.width = "100%";
+      iframe.style.height = "600px";
+      iframe.style.border = "1px solid #444";
+      responseBox.appendChild(iframe);
 
-    } catch (error) {
-        console.error(error);
-        document.getElementById("status").innerText = "❌ An error occurred while generating the document.";
-    } finally {
-        document.getElementById("spinner").style.display = "none";
+      // Enable download
+      downloadBtn.href = url;
+      downloadBtn.download = "veritas_draft.pdf";
+      downloadBtn.style.display = "inline-block";
+
+      statusBox.innerHTML = "✅ Document ready";
+    } catch (err) {
+      statusBox.innerHTML = "❌ Failed to generate document.";
+      console.error(err);
     }
+  });
 });
