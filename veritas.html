@@ -6,37 +6,12 @@
   <title>Veritas - AI Law Solutions</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
-  <style>
-    .button-bar button {
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .question-box {
-      margin-bottom: 10px;
-    }
-    .question-box label {
-      font-weight: bold;
-    }
-    .draft-output {
-      width: 100%;
-      height: 300px;
-      margin-top: 20px;
-    }
-    .download-buttons {
-      margin-top: 10px;
-    }
-    .download-buttons button {
-      margin-right: 10px;
-    }
-  </style>
 </head>
 <body>
   <header>
     <div class="logo">Veritas</div>
     <nav>
-      <!-- Removed tabs; replaced below -->
+      <!-- Removed old nav buttons -->
     </nav>
   </header>
 
@@ -44,17 +19,32 @@
     <h1>VERITAS</h1>
     <h3>AI LEGAL DRAFTING ASSISTANT</h3>
 
-    <div class="button-bar">
-      <button onclick="loadAskVeritas()">Ask Veritas</button>
+    <div class="tab-bar">
+      <button class="active" onclick="loadAskVeritas()">Ask Veritas</button>
       <button onclick="loadGuidedDrafting()">Guided Drafting</button>
     </div>
 
-    <div id="main-content"></div>
+    <div id="tab-content"></div>
   </section>
 
   <script>
+    const questions = [
+      "What type of document are you drafting? (e.g., Motion, Notice, Complaint)",
+      "Which state is this court located in?",
+      "Which county is this court located in?",
+      "Which specific court is this for? (full court name)",
+      "Who are the parties involved in this case?",
+      "Summarize the key facts of the case.",
+      "What are the legal issues involved?",
+      "What conclusion or relief are you seeking from the court?",
+      "What is the attorney signature block? (name, firm, address, contact)"
+    ];
+
     function loadAskVeritas() {
-      document.getElementById("main-content").innerHTML = `
+      document.querySelectorAll(".tab-bar button").forEach(btn => btn.classList.remove("active"));
+      event.target.classList.add("active");
+
+      document.getElementById("tab-content").innerHTML = `
         <div class="chat-panel">
           <div class="chat-icon">💬</div>
           <textarea placeholder="How can I assist you today?" class="chat-input"></textarea>
@@ -70,43 +60,40 @@
     }
 
     function loadGuidedDrafting() {
-      document.getElementById("main-content").innerHTML = `
-        <form id="draft-form">
-          ${[
-            "What type of document are you drafting? (e.g., Motion, Notice, Complaint)",
-            "Which state is this court located in?",
-            "Which county is this court located in?",
-            "Which specific court is this for? (full court name)",
-            "Who are the parties involved in this case?",
-            "Summarize the key facts of the case.",
-            "What are the legal issues involved?",
-            "What conclusion or relief are you seeking from the court?",
-            "What is the attorney signature block? (name, firm, address, contact)"
-          ].map((q, i) => `
-            <div class="question-box">
-              <label for="q${i}">${q}</label><br/>
-              <textarea id="q${i}" rows="3" style="width: 100%;"></textarea>
-            </div>
-          `).join("")}
-          <button type="button" onclick="generateDocument()">Generate Document</button>
-        </form>
-        <h3>Generated Document</h3>
-        <textarea id="draft-output" class="draft-output" contenteditable="true"></textarea>
-        <div class="download-buttons">
-          <button onclick="downloadDraft('original')">Download Original</button>
-          <button onclick="downloadDraft('edited')">Download Edited</button>
+      document.querySelectorAll(".tab-bar button").forEach(btn => btn.classList.remove("active"));
+      event.target.classList.add("active");
+
+      let formHTML = questions.map((q, i) => `
+        <div class="chat-panel">
+          <div class="chat-icon">Q${i + 1}</div>
+          <textarea class="chat-input" placeholder="${q}" id="q${i}"></textarea>
+        </div>
+      `).join("");
+
+      formHTML += `
+        <div class="chat-panel">
+          <button class="send-btn" onclick="generateDocument()">Generate Document</button>
+        </div>
+        <div class="chat-panel">
+          <div class="chat-icon">📄</div>
+          <textarea id="draft-output" class="chat-input" style="height: 300px;"></textarea>
+          <div class="chat-actions">
+            <button class="send-btn" onclick="downloadDraft('original')">Download Original</button>
+            <button class="send-btn" onclick="downloadDraft('edited')">Download Edited</button>
+          </div>
         </div>
       `;
+
+      document.getElementById("tab-content").innerHTML = formHTML;
     }
 
     let lastGenerated = "";
 
     function generateDocument() {
-      const form = document.getElementById("draft-form");
-      const values = Array.from(form.querySelectorAll("textarea")).map(t => t.value.trim());
-      let draft = `Legal Document Draft\n\n`;
-      values.forEach((v, i) => {
-        draft += `Q${i + 1}: ${v}\n\n`;
+      let draft = "Legal Document Draft\n\n";
+      questions.forEach((q, i) => {
+        const val = document.getElementById(`q${i}`).value.trim();
+        draft += `${q}\n${val}\n\n`;
       });
       document.getElementById("draft-output").value = draft;
       lastGenerated = draft;
