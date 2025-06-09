@@ -1,0 +1,178 @@
+/* Reset some base styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Rajdhani', sans-serif;
+    background-color: #F8F9FA;
+    color: #212529;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #333;
+}
+
+header .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    background: linear-gradient(90deg, #9C27B0, #673AB7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 2px;
+}
+
+header nav a {
+    color: #212529;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+header nav a:hover {
+    background: linear-gradient(90deg, #9C27B0, #673AB7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+/* Main container */
+.veritas-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+/* Titles */
+.veritas-title {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 48px;
+    background: linear-gradient(90deg, #9C27B0, #673AB7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+.veritas-subtitle {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 30px;
+    color: #6c757d;
+}
+
+/* Tab bar */
+.tab-bar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.tab-bar button {
+    background-color: transparent;
+    border: 2px solid #F95454;
+    color: #212529;
+    padding: 10px 25px;
+    margin: 0 8px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tab-bar button.active,
+.tab-bar button:hover {
+    background-color: #9C27B0;
+    color: #0A0A0A;
+}
+
+/* Panel */
+.chat-panel {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #FFFFFF;
+}
+
+#status {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 15px;
+    color: #6c757d;
+}
+
+/* Question input boxes */
+.question-box {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.question-box label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #212529;
+}
+
+.question-box textarea,
+.question-box input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #F8F9FA;
+    color: #212529;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 14px;
+    resize: vertical;
+}
+
+/* Chat actions */
+.chat-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.send-btn {
+    background-color: #9C27B0;
+    color: #0A0A0A;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.send-btn:hover {
+    background-color: #673AB7;
+}
+
+/* Response container (document preview) */
+#response-container {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #F8F9FA;
+    color: #212529;
+    margin-top: 25px;
+    min-height: 200px;
+    white-space: pre-wrap;
+    font-family: 'Times New Roman', serif;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+.download-btn {
+    display: block;
+    background-color: #9C27B0;
+    color: #0A0A0A;
+    text-align: center;
+    padding: 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.download-btn:hover {
+    background-color: #673AB7;
+}
