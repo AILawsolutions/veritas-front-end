@@ -2,38 +2,55 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Law Solutions</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Veritas Document Generator</title>
 </head>
 <body>
-  <header>
-    <div class="logo">AI Law Solutions</div>
-    <nav>
-      <a href="veritas.html">Veritas</a>
-      <a href="pricing.html">Pricing</a>
-      <a href="login_checkbox_fixed.html">Sign Up/Login</a>
-    </nav>
-  </header>
+  <h1>Veritas PDF Generator</h1>
+  <form id="veritasForm">
+    <label for="answers">Enter your answers (JSON format):</label><br />
+    <textarea id="answers" name="answers" rows="10" cols="80">{
+  "answers": [
+    "Motion", "Notice", "Complaint",
+    "California", "Los Angeles", "Superior Court",
+    "John Doe vs Jane Smith", "Facts", "Issues", "Conclusion", "Signature"
+  ]
+}</textarea><br />
+    <button type="submit">Generate PDF</button>
+  </form>
+  <p id="status"></p>
 
-  <section class="hero">
-    <h1>Revolutionize Your Legal Work</h1>
-    <p>Meet the world’s most advanced AI legal tool.</p>
+  <script>
+    const form = document.getElementById("veritasForm");
+    const status = document.getElementById("status");
 
-    <img src="AA490A84-18BB-4E3B-9C6E-38E1025653B1.PNG" alt="Veritas Icon" class="hero-image"/>
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      status.textContent = "Generating...";
+      try {
+        const answersJson = JSON.parse(document.getElementById("answers").value);
 
-    <a class="cta" href="veritas.html">Get Started</a>
-  </section>
+        const response = await fetch("https://ailawsolutions.pythonanywhere.com/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(answersJson)
+        });
 
-  <section class="veritas-circuit">
-    <h2>VERITAS</h2>
-    <div class="circuit-icons">
-      <div class="icon">⚖️</div>
-      <div class="icon">📄</div>
-      <div class="icon">✔️</div>
-      <div class="icon">⚙️</div>
-    </div>
-  </section>
+        if (!response.ok) throw new Error("PDF generation failed.");
+
+        const blob = await response.blob();
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "veritas_output.pdf";
+        link.click();
+        status.textContent = "Download started.";
+      } catch (err) {
+        console.error(err);
+        status.textContent = "Error: " + err.message;
+      }
+    });
+  </script>
 </body>
 </html>
