@@ -21,28 +21,29 @@
     <h1 class="veritas-title">VERITAS</h1>
     <h3 class="veritas-subtitle">AI LEGAL DRAFTING ASSISTANT</h3>
 
-    <div class="tab-bar">
-      <button class="active">Document Upload</button>
-      <button>Drafting</button>
-      <button>Legal Strategist</button>
-      <button>Strategy Report</button>
-    </div>
-
     <div class="chat-panel">
       <div class="chat-icon">💬</div>
-      <p id="status">How can I assist you today?</p>
+      <p id="status">Please answer the guided questions below to generate your court document:</p>
 
-      <textarea id="prompt" class="chat-input" placeholder="Type your legal prompt here..."></textarea>
+      <div id="guided-questions">
+        <input type="text" id="q1" placeholder="1. What type of document are you drafting?" />
+        <input type="text" id="q2" placeholder="2. Which state is this court located in?" />
+        <input type="text" id="q3" placeholder="3. Which county is this court located in?" />
+        <input type="text" id="q4" placeholder="4. Which specific court is this for?" />
+        <input type="text" id="q5" placeholder="5. Who are the parties involved?" />
+        <textarea id="q6" placeholder="6. Summarize the key facts of the case."></textarea>
+        <textarea id="q7" placeholder="7. What are the legal issues involved?"></textarea>
+        <textarea id="q8" placeholder="8. What conclusion or relief are you seeking?"></textarea>
+        <textarea id="q9" placeholder="9. What is the attorney signature block?"></textarea>
+      </div>
 
       <div class="chat-actions">
-        <label class="file-label">
-          <input type="file" id="file-upload" class="file-upload" />
-          <div class="plus-btn">+</div>
-        </label>
-        <button class="send-btn" onclick="submitPrompt()">Submit</button>
+        <button class="send-btn" onclick="submitGuidedQuestions()">Submit</button>
       </div>
 
       <div id="response-container"></div>
+
+      <button id="download-btn" style="display:none; margin-top: 10px;">Download PDF</button>
     </div>
   </div>
 
