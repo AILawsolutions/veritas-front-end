@@ -5,6 +5,7 @@ async function submitPrompt() {
   const responseContainer = document.getElementById('response-container');
 
   status.textContent = '⏳ Drafting your document...';
+  responseContainer.innerHTML = ''; // Clear previous content
 
   try {
     let response;
@@ -39,13 +40,31 @@ async function submitPrompt() {
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "veritas_draft.pdf";
-    link.click();
+    // Show preview of PDF
+    const iframe = document.createElement("iframe");
+    iframe.src = url;
+    iframe.width = "100%";
+    iframe.height = "600px";
+    iframe.style.border = "1px solid #ccc";
 
-    status.textContent = "✅ Document ready and downloaded.";
-    responseContainer.innerHTML = `<p><strong>Success!</strong> Your court document has been downloaded.</p>`;
+    // Create Download button
+    const downloadButton = document.createElement("a");
+    downloadButton.href = url;
+    downloadButton.download = "veritas_draft.pdf";
+    downloadButton.textContent = "📥 Download PDF";
+    downloadButton.style.display = "inline-block";
+    downloadButton.style.marginTop = "15px";
+    downloadButton.style.padding = "10px 15px";
+    downloadButton.style.backgroundColor = "#4CAF50";
+    downloadButton.style.color = "white";
+    downloadButton.style.textDecoration = "none";
+    downloadButton.style.borderRadius = "5px";
+
+    // Display in response container
+    responseContainer.appendChild(iframe);
+    responseContainer.appendChild(downloadButton);
+
+    status.textContent = "✅ Document ready. Preview below.";
   } catch (error) {
     console.error(error);
     status.textContent = "❌ Error generating document.";
