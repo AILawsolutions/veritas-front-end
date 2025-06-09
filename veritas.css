@@ -164,3 +164,46 @@ h2 {
 #response-container button:hover {
   background-color: #00337a;
 }
+/* Guided Questions Style */
+#questions-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.question-field {
+  padding: 10px;
+  font-size: 1rem;
+  border: 2px solid #00ffff;
+  border-radius: 8px;
+  background-color: #0a0a0a;
+  color: #00ffff;
+}
+
+#response-container {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #1a1a1a;
+  color: white;
+  border-radius: 8px;
+  border: 2px solid #00ffff;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+#download-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #00ffff;
+  color: #000;
+  cursor: pointer;
+  display: none;
+}
+
+#download-btn:hover {
+  background-color: #00cccc;
+}
