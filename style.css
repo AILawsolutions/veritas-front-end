@@ -5,6 +5,7 @@ body {
   color: white;
   text-align: center;
 }
+
 header {
   display: flex;
   justify-content: space-between;
@@ -12,11 +13,13 @@ header {
   padding: 20px 40px;
   background-color: #010B15;
 }
+
 .logo {
   color: #00BFFF;
   font-size: 1.8rem;
   font-weight: bold;
 }
+
 nav a {
   color: white;
   text-decoration: none;
@@ -26,6 +29,7 @@ nav a {
 nav a:hover {
   text-decoration: underline;
 }
+
 .veritas-container h1 {
   font-size: 3.2rem;
   color: #00AEEF;
@@ -117,120 +121,9 @@ nav a:hover {
   font-weight: bold;
   font-size: 1rem;
 }
-.hero h1 {
-  font-size: 3.2rem;
-  margin-top: 40px;
-}
 
-.hero p {
-  font-size: 1.4rem;
-  margin: 20px 0;
-}
-
-.hero-image {
-  display: block;
-  margin: 30px auto;
-  width: 240px;
-  max-width: 90%;
-  height: auto;
-  border-radius: 14px;
-  box-shadow: 0 0 20px #00BFFF;
-}
-
-.cta {
-  background-color: #1E90FF;
-  color: white;
-  padding: 14px 30px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: bold;
-  margin-top: 30px;
-  display: inline-block;
-  font-size: 1.1rem;
-}
-
-.veritas-circuit h2 {
-  font-size: 2.4rem;
-  margin-top: 60px;
-  color: #00AEEF;
-}
-
-.circuit-icons {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  margin: 30px 0;
-}
-
-.icon {
-  background-color: #0a0f1c;
-  padding: 20px;
-  border-radius: 50%;
-  box-shadow: 0 0 10px #00BFFF;
-  font-size: 1.8rem;
-}
-.how-it-works-btn {
-  background-color: #00BFFF;
-  color: white;
-  padding: 14px 36px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-.how-it-works-btn:hover {
-  background-color: #1E90FF;
-}
-/* --- VERITAS: Document Spinner & Preview Styles --- */
-
-.spinner {
-    border: 8px solid #f3f3f3;
-    border-top: 8px solid #00BFFF; /* Matches your blue theme */
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;
-    margin: 20px auto;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.fade-in {
-    animation: fadeIn 1s ease-in forwards;
-    opacity: 0;
-}
-
-@keyframes fadeIn {
-    to { opacity: 1; }
-}
-
-#documentPreview iframe {
-    border: 2px solid #00BFFF;
-    border-radius: 8px;
-    box-shadow: 0 0 15px #00BFFF;
-    margin-top: 20px;
-    width: 100%;
-    max-height: 800px;
-}
-
-#downloadLink {
-    background-color: #00BFFF;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    display: inline-block;
-    margin: 20px auto;
-    font-size: 1.1rem;
-    transition: background-color 0.3s ease;
-}
-
-#downloadLink:hover {
-    background-color: #1E90FF;
+#status {
+  font-size: 1rem;
+  color: #00BFFF;
+  margin-bottom: 12px;
 }
