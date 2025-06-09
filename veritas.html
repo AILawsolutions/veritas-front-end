@@ -1,149 +1,51 @@
+<!-- veritas.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Veritas AI Legal Assistant</title>
-  <link rel="stylesheet" href="style.css"/>
-  <style>
-    body {
-      background: #010B15;
-      font-family: 'Orbitron', sans-serif;
-      color: white;
-      text-align: center;
-      margin: 0;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 40px;
-      background-color: #000814;
-    }
-    .logo {
-      font-size: 2rem;
-      color: #00BFFF;
-      font-weight: bold;
-    }
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin-left: 25px;
-      font-size: 1rem;
-    }
-    nav a:hover {
-      color: #00BFFF;
-    }
-
-    h1 {
-      font-size: 3.5rem;
-      color: #00BFFF;
-      margin-top: 40px;
-    }
-    h3 {
-      margin-top: -10px;
-      font-size: 1.2rem;
-      color: white;
-    }
-
-    .tabs {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin: 30px 0;
-    }
-    .tabs button {
-      background-color: #111a2f;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 12px 20px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-    .tabs button.active {
-      border-bottom: 3px solid #00BFFF;
-      color: #00BFFF;
-    }
-
-    #userInput {
-      width: 90%;
-      max-width: 600px;
-      height: 120px;
-      padding: 10px;
-      font-size: 1rem;
-      background-color: #0a0f1c;
-      color: white;
-      border-radius: 8px;
-      border: none;
-      margin-top: 20px;
-      box-shadow: inset 0 0 10px #00BFFF;
-    }
-
-    #sendBtn {
-      margin-top: 15px;
-      padding: 12px 30px;
-      background-color: #00BFFF;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-
-    #statusBox {
-      margin-top: 20px;
-      font-style: italic;
-      color: #00BFFF;
-    }
-
-    #responseBox {
-      margin-top: 30px;
-    }
-
-    #downloadBtn {
-      display: none;
-      margin-top: 20px;
-      background-color: #1E90FF;
-      color: white;
-      padding: 12px 24px;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
 </head>
 <body>
-
   <header>
     <div class="logo">VERITAS</div>
     <nav>
-      <a href="index.html">Home</a>
-      <a href="pricing.html">Pricing</a>
-      <a href="login.html">Login</a>
+      <a href="/">Home</a>
+      <a href="/pricing.html">Pricing</a>
+      <a href="/faq.html">FAQ</a>
+      <a href="/login.html">Login</a>
     </nav>
   </header>
 
-  <main>
+  <div class="veritas-container">
     <h1>VERITAS</h1>
     <h3>AI LEGAL DRAFTING ASSISTANT</h3>
 
-    <div class="tabs">
+    <div class="tab-bar">
       <button class="active">Document Upload</button>
       <button>Drafting</button>
       <button>Legal Strategist</button>
       <button>Strategy Report</button>
     </div>
 
-    <textarea id="userInput" placeholder="Type your legal request..."></textarea>
-    <br>
-    <button id="sendBtn">Send</button>
-
-    <p id="statusBox"></p>
-    <div id="responseBox"></div>
-    <a id="downloadBtn" class="cta">Download PDF</a>
-  </main>
+    <div class="chat-panel">
+      <textarea id="prompt" class="chat-input" placeholder="draft a motion for me..."></textarea>
+      <div class="chat-actions">
+        <label class="file-label">
+          <input type="file" id="file-upload" class="file-upload" />
+          <div class="plus-btn">+</div>
+        </label>
+        <select id="format">
+          <option value="pdf">PDF</option>
+          <option value="docx">DOCX</option>
+        </select>
+        <button class="send-btn" onclick="submitPrompt()">Send</button>
+      </div>
+      <p id="status"></p>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
