@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Veritas - AI Law Solutions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="logo">Veritas</div>
+    <nav></nav>
+  </header>
+
+  <section class="veritas-container">
+    <h1>VERITAS</h1>
+    <h3>AI LEGAL DRAFTING ASSISTANT</h3>
+
+    <div class="tab-bar">
+      <button class="active" onclick="loadAskVeritas()">Ask Veritas</button>
+      <button onclick="loadGuidedDrafting()">Guided Drafting</button>
+    </div>
+
+    <div id="tab-content"></div>
+  </section>
+
+  <script>
+    const questions = [
+      "What type of document are you drafting? (e.g., Motion, Notice, Complaint)",
+      "Which state is this court located in?",
+      "Which county is this court located in?",
+      "Which specific court is this for? (full court name)",
+      "Who are the parties involved in this case?",
+      "Summarize the key facts of the case.",
+      "What are the legal issues involved?",
+      "What conclusion or relief are you seeking from the court?",
+      "What is the attorney signature block? (name, firm, address, contact)"
+    ];
+
+    function loadAskVeritas() {
+      document.querySelectorAll(".tab-bar button").forEach(btn => btn.classList.remove("active"));
+      event.target.classList.add("active");
+
+      document.getElementById("tab-content").innerHTML = `
+        <div class="chat-panel">
+          <div class="chat-icon">💬</div>
+          <textarea placeholder="How can I assist you today?" class="chat-input"></textarea>
+          <div class="chat-actions">
+            <label class="file-label">
+              <span class="plus-btn">+</span>
+              <input type="file" accept=".pdf,.doc,.docx,image/*" class="file-upload" />
+            </label>
+            <button class="send-btn">Send</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function loadGuidedDrafting() {
+      document.querySelectorAll(".tab-bar button").forEach(btn => btn.classList.remove("active"));
+      event.target.classList.add("active");
+
+      let formHTML = questions.map((q, i) => `
+        <div class="chat-panel">
+          <label class="chat-icon">Q${i + 1}</label>
+          <label style="font-weight: bold; margin-bottom: 5px; display: block;">${q}</label>
+          <textarea class="chat-input" id="q${i}" placeholder="Enter your response..."></textarea>
+        </div>
+      `).join("");
+
+      formHTML += `
+        <div class="chat-panel">
+          <button class="send-btn" onclick="generateDocument()">Generate Document</button>
+        </div>
+        <div class="chat-panel">
+          <div class="chat-icon">📄</div>
+          <textarea id="draft-output" class="chat-input" style="height: 300px;"></textarea>
+          <div class="chat-actions">
+            <button class="send-btn" onclick="downloadDraft('original')">Download Original</button>
+            <button class="send-btn" onclick="downloadDraft('edited')">Download Edited</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("tab-content").innerHTML = formHTML;
+    }
+
+    let lastGenerated = "";
+
+    function generateDocument() {
+      let draft = "Legal Document Draft
+
+";
+      questions.forEach((q, i) => {
+        const val = document.getElementById(`q${i}`).value.trim();
+        draft += `${q}
+${val}
+
+`;
+      });
+      document.getElementById("draft-output").value = draft;
+      lastGenerated = draft;
+    }
+
+    function downloadDraft(type) {
+      const text = type === "original" ? lastGenerated : document.getElementById("draft-output").value;
+      const blob = new Blob([text], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = type === "original" ? "original_draft.txt" : "edited_draft.txt";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
