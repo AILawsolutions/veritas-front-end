@@ -3,43 +3,98 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Veritas AI</title>
+  <title>Veritas AI Legal Drafting</title>
   <link rel="stylesheet" href="veritas.css" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background-color: #0e0e0e;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .veritas-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #1e1e1e;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .tab-switcher {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      background: #292929;
+      border: none;
+      padding: 10px 20px;
+      color: white;
+      font-weight: bold;
+      margin: 0 10px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .tab-btn.active {
+      background: #007bff;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    textarea, input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+    }
+    button.submit-btn {
+      margin-top: 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+    #preview {
+      margin-top: 20px;
+      background-color: white;
+      color: black;
+      padding: 20px;
+      border-radius: 10px;
+      min-height: 300px;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <div class="logo">VERITAS</div>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="pricing.html">Pricing</a>
-      <a href="login_checkbox_fixed.html">Login</a>
-    </nav>
-  </header>
-
   <div class="veritas-container">
-    <h1 class="veritas-title">VERITAS</h1>
-    <h3 class="veritas-subtitle">AI LEGAL DRAFTING ASSISTANT</h3>
-
-    <div class="tab-bar">
-      <button id="guided-tab" class="active" onclick="switchTab('guided')">Guided Drafting</button>
-      <button id="chat-tab" onclick="switchTab('chat')">Ask Veritas</button>
+    <div class="tab-switcher">
+      <button class="tab-btn active" onclick="switchTab('guided')">Guided Drafting</button>
+      <button class="tab-btn" onclick="switchTab('ask')">Ask Veritas</button>
     </div>
 
-    <!-- Guided Drafting Panel -->
-    <div id="guided-panel" class="panel">
-      <p id="guided-question">Click "Start" to begin guided drafting.</p>
-      <textarea id="guided-answer" class="chat-input" placeholder="Type your answer here..."></textarea>
-      <div class="chat-actions">
-        <button onclick="nextGuidedQuestion()">Next</button>
-      </div>
-      <div id="guided-preview-container" style="display:none;">
-        <h3>Document Preview (Editable)</h3>
-        <div id="document-preview" contenteditable="true" class="document-preview"></div>
-        <button onclick="downloadEditedPDF()">Download Final PDF</button>
-      </div>
+    <div id="guided" class="tab-content active">
+      <div id="guided-form"></div>
+      <button class="submit-btn" onclick="submitGuided()">Generate Document</button>
+      <div contenteditable="true" id="preview"></div>
+      <button class="submit-btn" onclick="downloadEdited()">Download</button>
     </div>
 
-    <!-- Ask Veritas Panel -->
-    <div id="chat-panel" class="panel" style="display:none;">
-      <div class="chat-icon">
+    <div id="ask" class="tab-content">
+      <textarea id="ask-input" rows="6" placeholder="Ask Veritas your legal question..."></textarea>
+      <button class="submit-btn" onclick="submitAsk()">Submit</button>
+      <div id="ask-output"></div>
+    </div>
+  </div>
+
+  <script src="veritas.js"></script>
+</body>
+</html>
