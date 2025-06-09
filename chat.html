@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Lexorva - AI Legal Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body class="chat-body">
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <button class="new-chat-button">+ New Chat</button>
+        </div>
+        <div class="chat-history">
+            <div class="chat-session">📄 Drafting Motion</div>
+            <div class="chat-session">📄 Client Memo</div>
+            <div class="chat-session">📄 Strategy Report</div>
+        </div>
+    </div>
+
+    <main class="chat-main">
+        <header class="chat-header">
+            Hi there! I’m here to help you with that.
+        </header>
+
+        <div class="chat-content">
+            <div class="chat-question"><strong>1.</strong> What type of document are you drafting?</div>
+            <div class="chat-question"><strong>2.</strong> Which state is this court located in?</div>
+            <!-- More questions would follow in production -->
+        </div>
+
+        <footer class="chat-footer">
+            <div class="chat-input-area">
+                <button class="attach-button">+ attach</button>
+                <input type="text" class="chat-text-input" placeholder="Type your message here..." />
+                <button class="send-button">➤</button>
+            </div>
+            <div class="chat-footer-links">
+                <select class="language-select">
+                    <option>English</option>
+                    <option>Spanish</option>
+                </select>
+                <div class="footer-links">
+                    <a href="#">Terms of Use</a> | <a href="#">Privacy Policy</a>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+</body>
+</html>
