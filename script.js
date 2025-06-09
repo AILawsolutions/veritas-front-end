@@ -1,100 +1,70 @@
-const guidedQuestions = [
-  "What type of document are you drafting? (e.g., Motion, Notice, Complaint)",
-  "Which state is this court located in?",
-  "Which county is this court located in?",
-  "Which specific court is this for? (full court name)",
-  "Who are the parties involved in this case?",
-  "Summarize the key facts of the case.",
-  "What are the legal issues involved?",
-  "What conclusion or relief are you seeking from the court?",
-  "What is the attorney signature block? (name, firm, address, contact)"
-];
+async function submitPrompt() {
+    const answers = [];
 
-let currentQuestionIndex = 0;
-let answers = [];
-
-function showTab(tab) {
-  document.getElementById("guided-panel").style.display = (tab === "guided") ? "block" : "none";
-  document.getElementById("chat-panel").style.display = (tab === "chat") ? "block" : "none";
-
-  document.getElementById("guided-tab").classList.toggle("active", tab === "guided");
-  document.getElementById("chat-tab").classList.toggle("active", tab === "chat");
-}
-
-function showNextQuestion() {
-  if (currentQuestionIndex < guidedQuestions.length) {
-    document.getElementById("guided-question-container").innerHTML = `<p>${guidedQuestions[currentQuestionIndex]}</p>`;
-    document.getElementById("guided-answer").value = "";
-  } else {
-    document.getElementById("guided-question-container").style.display = "none";
-    document.getElementById("guided-answer").style.display = "none";
-    document.querySelector(".chat-actions").style.display = "none";
-    document.getElementById("guided-summary").style.display = "block";
-
-    let reviewHTML = "";
-    guidedQuestions.forEach((q, i) => {
-      reviewHTML += `<p><strong>${q}</strong><br>${answers[i]}</p>`;
+    document.querySelectorAll(".guided-question").forEach((input) => {
+        answers.push(input.value.trim());
     });
-    document.getElementById("guided-review").innerHTML = reviewHTML;
-  }
+
+    const status = document.getElementById('status');
+    const previewContainer = document.getElementById('preview-container');
+    const downloadButton = document.getElementById('download-btn');
+
+    status.textContent = '⏳ Drafting your document...';
+
+    try {
+        const response = await fetch("https://AiLawSolutions.pythonanywhere.com/render-html", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ answers }),
+        });
+
+        if (!response.ok) throw new Error("Server error");
+
+        const result = await response.json();
+
+        previewContainer.innerHTML = result.html;
+        previewContainer.contentEditable = true;
+        previewContainer.style.border = "2px solid #ccc";
+        previewContainer.style.padding = "20px";
+        previewContainer.style.marginTop = "20px";
+        previewContainer.style.backgroundColor = "#fff";
+        previewContainer.style.fontFamily = "Times New Roman, serif";
+        previewContainer.style.lineHeight = "2";
+
+        status.textContent = "✅ Document ready. You can edit it below.";
+        downloadButton.disabled = false;
+    } catch (error) {
+        console.error(error);
+        status.textContent = "❌ Error generating document.";
+    }
 }
 
-function submitGuidedAnswer() {
-  const answer = document.getElementById("guided-answer").value.trim();
-  if (answer === "") return;
+async function downloadPDF() {
+    const previewContainer = document.getElementById('preview-container');
+    const status = document.getElementById('status');
 
-  answers.push(answer);
-  currentQuestionIndex++;
-  showNextQuestion();
+    status.textContent = '⏳ Generating PDF...';
+
+    try {
+        const response = await fetch("https://AiLawSolutions.pythonanywhere.com/generate-pdf-from-html", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ html: previewContainer.innerHTML }),
+        });
+
+        if (!response.ok) throw new Error("Server error");
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "veritas_final_draft.pdf";
+        link.click();
+
+        status.textContent = "✅ PDF downloaded.";
+    } catch (error) {
+        console.error(error);
+        status.textContent = "❌ Error generating PDF.";
+    }
 }
-
-function generateDocument() {
-  fetch("https://AiLawSolutions.pythonanywhere.com/generate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ answers })
-  })
-  .then(response => response.blob())
-  .then(blob => {
-    const url = URL.createObjectURL(blob);
-    document.getElementById("preview-container").style.display = "block";
-    document.getElementById("document-preview").src = url;
-    window.generatedDocumentUrl = url;
-  })
-  .catch(err => alert("Error generating document: " + err.message));
-}
-
-function downloadDocument() {
-  const link = document.createElement("a");
-  link.href = window.generatedDocumentUrl;
-  link.download = "veritas_draft.pdf";
-  link.click();
-}
-
-function submitChat() {
-  const input = document.getElementById("chat-input").value.trim();
-  if (input === "") return;
-
-  const chatMessages = document.getElementById("chat-messages");
-  chatMessages.innerHTML += `<div class="user-message">${input}</div>`;
-  document.getElementById("chat-input").value = "";
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-
-  fetch("https://AiLawSolutions.pythonanywhere.com/analyze", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt: input, state: "default", county: "default" })
-  })
-  .then(response => response.blob())
-  .then(blob => blob.text())
-  .then(text => {
-    chatMessages.innerHTML += `<div class="bot-message">${text}</div>`;
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  })
-  .catch(err => {
-    chatMessages.innerHTML += `<div class="bot-message">Error: ${err.message}</div>`;
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  });
-}
-
-window.onload = showNextQuestion;
