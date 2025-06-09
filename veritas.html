@@ -3,98 +3,125 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Veritas AI Legal Drafting</title>
-  <link rel="stylesheet" href="veritas.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <title>Veritas - AI Law Solutions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
   <style>
-    body {
-      font-family: 'Rajdhani', sans-serif;
-      background-color: #0e0e0e;
-      color: #fff;
-      margin: 0;
-      padding: 0;
-    }
-    .veritas-container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 20px;
-      background-color: #1e1e1e;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
-    .tab-switcher {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    .tab-btn {
-      background: #292929;
-      border: none;
+    .button-bar button {
+      margin: 5px;
       padding: 10px 20px;
-      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .question-box {
+      margin-bottom: 10px;
+    }
+    .question-box label {
       font-weight: bold;
-      margin: 0 10px;
-      cursor: pointer;
-      border-radius: 5px;
     }
-    .tab-btn.active {
-      background: #007bff;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    textarea, input {
+    .draft-output {
       width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 5px;
-      border: none;
-      font-size: 16px;
-    }
-    button.submit-btn {
-      margin-top: 15px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-size: 16px;
-      border-radius: 5px;
-    }
-    #preview {
+      height: 300px;
       margin-top: 20px;
-      background-color: white;
-      color: black;
-      padding: 20px;
-      border-radius: 10px;
-      min-height: 300px;
+    }
+    .download-buttons {
+      margin-top: 10px;
+    }
+    .download-buttons button {
+      margin-right: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="veritas-container">
-    <div class="tab-switcher">
-      <button class="tab-btn active" onclick="switchTab('guided')">Guided Drafting</button>
-      <button class="tab-btn" onclick="switchTab('ask')">Ask Veritas</button>
+  <header>
+    <div class="logo">Veritas</div>
+    <nav>
+      <!-- Removed tabs; replaced below -->
+    </nav>
+  </header>
+
+  <section class="veritas-container">
+    <h1>VERITAS</h1>
+    <h3>AI LEGAL DRAFTING ASSISTANT</h3>
+
+    <div class="button-bar">
+      <button onclick="loadAskVeritas()">Ask Veritas</button>
+      <button onclick="loadGuidedDrafting()">Guided Drafting</button>
     </div>
 
-    <div id="guided" class="tab-content active">
-      <div id="guided-form"></div>
-      <button class="submit-btn" onclick="submitGuided()">Generate Document</button>
-      <div contenteditable="true" id="preview"></div>
-      <button class="submit-btn" onclick="downloadEdited()">Download</button>
-    </div>
+    <div id="main-content"></div>
+  </section>
 
-    <div id="ask" class="tab-content">
-      <textarea id="ask-input" rows="6" placeholder="Ask Veritas your legal question..."></textarea>
-      <button class="submit-btn" onclick="submitAsk()">Submit</button>
-      <div id="ask-output"></div>
-    </div>
-  </div>
+  <script>
+    function loadAskVeritas() {
+      document.getElementById("main-content").innerHTML = `
+        <div class="chat-panel">
+          <div class="chat-icon">💬</div>
+          <textarea placeholder="How can I assist you today?" class="chat-input"></textarea>
+          <div class="chat-actions">
+            <label class="file-label">
+              <span class="plus-btn">+</span>
+              <input type="file" accept=".pdf,.doc,.docx,image/*" class="file-upload" />
+            </label>
+            <button class="send-btn">Send</button>
+          </div>
+        </div>
+      `;
+    }
 
-  <script src="veritas.js"></script>
+    function loadGuidedDrafting() {
+      document.getElementById("main-content").innerHTML = `
+        <form id="draft-form">
+          ${[
+            "What type of document are you drafting? (e.g., Motion, Notice, Complaint)",
+            "Which state is this court located in?",
+            "Which county is this court located in?",
+            "Which specific court is this for? (full court name)",
+            "Who are the parties involved in this case?",
+            "Summarize the key facts of the case.",
+            "What are the legal issues involved?",
+            "What conclusion or relief are you seeking from the court?",
+            "What is the attorney signature block? (name, firm, address, contact)"
+          ].map((q, i) => `
+            <div class="question-box">
+              <label for="q${i}">${q}</label><br/>
+              <textarea id="q${i}" rows="3" style="width: 100%;"></textarea>
+            </div>
+          `).join("")}
+          <button type="button" onclick="generateDocument()">Generate Document</button>
+        </form>
+        <h3>Generated Document</h3>
+        <textarea id="draft-output" class="draft-output" contenteditable="true"></textarea>
+        <div class="download-buttons">
+          <button onclick="downloadDraft('original')">Download Original</button>
+          <button onclick="downloadDraft('edited')">Download Edited</button>
+        </div>
+      `;
+    }
+
+    let lastGenerated = "";
+
+    function generateDocument() {
+      const form = document.getElementById("draft-form");
+      const values = Array.from(form.querySelectorAll("textarea")).map(t => t.value.trim());
+      let draft = `Legal Document Draft\n\n`;
+      values.forEach((v, i) => {
+        draft += `Q${i + 1}: ${v}\n\n`;
+      });
+      document.getElementById("draft-output").value = draft;
+      lastGenerated = draft;
+    }
+
+    function downloadDraft(type) {
+      const text = type === "original" ? lastGenerated : document.getElementById("draft-output").value;
+      const blob = new Blob([text], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = type === "original" ? "original_draft.txt" : "edited_draft.txt";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
 </body>
 </html>
