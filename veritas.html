@@ -21,20 +21,31 @@
     <h3 class="veritas-subtitle">AI LEGAL DRAFTING ASSISTANT</h3>
 
     <div class="chat-panel">
-      <div class="chat-icon">💬</div>
-      <p id="status">Answer the guided questions below and click Submit.</p>
+    <div class="chat-icon">💬</div>
+    <p id="status">Answer the guided questions below and click Submit.</p>
 
-      <div id="guided-questions-form">
-        <input type="text" class="guided-question" placeholder="Document Type" />
-        <input type="text" class="guided-question" placeholder="State" />
-        <input type="text" class="guided-question" placeholder="County" />
-        <input type="text" class="guided-question" placeholder="Court Name" />
-        <input type="text" class="guided-question" placeholder="Parties Involved" />
-        <textarea class="guided-question" placeholder="Facts"></textarea>
-        <textarea class="guided-question" placeholder="Legal Issues"></textarea>
-        <textarea class="guided-question" placeholder="Conclusion / Relief Sought"></textarea>
-        <textarea class="guided-question" placeholder="Attorney Signature Block"></textarea>
-      </div>
+    <div id="guided-questions-form" style="display: flex; flex-direction: column; gap: 10px;">
+
+        <input type="text" class="chat-input guided-question" placeholder="Document Type" />
+        <input type="text" class="chat-input guided-question" placeholder="State" />
+        <input type="text" class="chat-input guided-question" placeholder="County" />
+        <input type="text" class="chat-input guided-question" placeholder="Court Name" />
+        <input type="text" class="chat-input guided-question" placeholder="Parties Involved" />
+        <textarea class="chat-input guided-question" placeholder="Facts"></textarea>
+        <textarea class="chat-input guided-question" placeholder="Legal Issues"></textarea>
+        <textarea class="chat-input guided-question" placeholder="Conclusion / Relief Sought"></textarea>
+        <textarea class="chat-input guided-question" placeholder="Attorney Signature Block"></textarea>
+
+    </div>
+
+    <button class="send-btn" onclick="submitPrompt()">Generate Document</button>
+
+    <div id="preview-container" style="margin-top: 20px; background: #fff; padding: 20px; border-radius: 8px;"></div>
+
+    <button id="download-btn" onclick="downloadPDF()" disabled style="margin-top: 10px; padding: 10px 20px; font-size: 16px;">Download Final PDF</button>
+</div>
+
+      
 
       <button class="send-btn" onclick="submitPrompt()">Submit</button>
 
