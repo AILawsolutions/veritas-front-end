@@ -1,136 +1,137 @@
-// EXISTING Quick Analyze (keep working)
-async function submitPrompt() {
-  const prompt = document.getElementById('prompt').value.trim();
-  const file = document.getElementById('file-upload').files[0];
-  const status = document.getElementById('status');
-  const responseContainer = document.getElementById('response-container');
+const apiBase = "https://AiLawSolutions.pythonanywhere.com";
 
-  status.textContent = '⏳ Drafting your document...';
-  responseContainer.innerHTML = '';
+// --- Guided Drafting Flow ---
 
-  try {
-    let response;
-
-    if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("prompt", prompt);
-      formData.append("state", "california");
-      formData.append("county", "los angeles");
-      formData.append("format", "pdf");
-
-      response = await fetch("https://AiLawSolutions.pythonanywhere.com/analyze-upload", {
-        method: "POST",
-        body: formData,
-      });
-    } else {
-      response = await fetch("https://AiLawSolutions.pythonanywhere.com/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          state: "california",
-          county: "los angeles",
-          format: "pdf"
-        }),
-      });
-    }
-
-    if (!response.ok) throw new Error("Server error");
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "veritas_draft.pdf";
-    link.click();
-
-    status.textContent = "✅ Document ready and downloaded.";
-    responseContainer.innerHTML = `<p><strong>Success!</strong> Your court document has been downloaded.</p>`;
-  } catch (error) {
-    console.error(error);
-    status.textContent = "❌ Error generating document.";
-    responseContainer.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
-  }
-}
-
-// -------------------
-// NEW: Guided Questions Flow
-// -------------------
-
+let currentQuestionIndex = 0;
 let guidedAnswers = [];
 let guidedQuestions = [];
-let currentQuestionIndex = 0;
 
-// Start guided flow
-async function startGuidedQuestions() {
-  guidedAnswers = [];
-  currentQuestionIndex = 0;
-
-  const response = await fetch('https://AiLawSolutions.pythonanywhere.com/questions');
+async function loadGuidedQuestions() {
+  const response = await fetch(`${apiBase}/questions`);
   const data = await response.json();
   guidedQuestions = data.questions;
+  currentQuestionIndex = 0;
+  guidedAnswers = new Array(guidedQuestions.length).fill("");
 
-  document.getElementById('guided-question-container').style.display = 'block';
   showCurrentQuestion();
 }
 
-// Show the current question
 function showCurrentQuestion() {
-  document.getElementById('guided-question').innerText = guidedQuestions[currentQuestionIndex];
-  document.getElementById('guided-answer').value = '';
-  document.getElementById('guided-status').innerText = `Question ${currentQuestionIndex + 1} of ${guidedQuestions.length}`;
-}
-
-// Go to next question or submit
-async function nextGuidedQuestion() {
-  const answer = document.getElementById('guided-answer').value.trim();
-  if (answer === '') {
-    alert("Please enter an answer before continuing.");
-    return;
-  }
-
-  guidedAnswers.push(answer);
-
-  currentQuestionIndex++;
+  const container = document.getElementById("response-container");
 
   if (currentQuestionIndex < guidedQuestions.length) {
-    showCurrentQuestion();
+    container.innerHTML = `
+      <div class="question-block">
+        <p><strong>Question ${currentQuestionIndex + 1} of ${guidedQuestions.length}:</strong></p>
+        <p>${guidedQuestions[currentQuestionIndex]}</p>
+        <textarea id="answer-input" class="chat-input">${guidedAnswers[currentQuestionIndex]}</textarea>
+        <div class="wizard-buttons">
+          ${currentQuestionIndex > 0 ? `<button onclick="prevQuestion()">Back</button>` : ""}
+          <button onclick="nextQuestion()">Next</button>
+        </div>
+      </div>
+    `;
   } else {
-    // Done, submit answers to /generate
-    document.getElementById('guided-status').innerText = "⏳ Generating your document...";
-    await submitGuidedAnswers();
+    // All questions answered — show preview and Download button
+    container.innerHTML = `
+      <p><strong>All questions answered. Ready to generate your document.</strong></p>
+      <button onclick="generateDocument()">Generate & Preview Document</button>
+      <div id="preview-container"></div>
+    `;
   }
 }
 
-// Submit answers and show preview
-async function submitGuidedAnswers() {
+function nextQuestion() {
+  const input = document.getElementById("answer-input").value.trim();
+  guidedAnswers[currentQuestionIndex] = input;
+
+  if (currentQuestionIndex < guidedQuestions.length) {
+    currentQuestionIndex++;
+    showCurrentQuestion();
+  }
+}
+
+function prevQuestion() {
+  const input = document.getElementById("answer-input").value.trim();
+  guidedAnswers[currentQuestionIndex] = input;
+
+  if (currentQuestionIndex > 0) {
+    currentQuestionIndex--;
+    showCurrentQuestion();
+  }
+}
+
+async function generateDocument() {
+  const container = document.getElementById("preview-container");
+  container.innerHTML = "<p>Generating document preview...</p>";
+
   try {
-    const response = await fetch("https://AiLawSolutions.pythonanywhere.com/generate", {
+    const response = await fetch(`${apiBase}/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers: guidedAnswers })
+      body: JSON.stringify({ answers: guidedAnswers }),
     });
 
-    if (!response.ok) throw new Error("Server error");
+    if (!response.ok) throw new Error("Server error generating document.");
 
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
 
-    // Show preview iframe
-    const previewFrame = document.getElementById('pdf-preview');
-    previewFrame.src = url;
-    previewFrame.style.display = 'block';
-
-    // Show download button
-    const downloadButton = document.getElementById('download-btn');
-    downloadButton.href = url;
-    downloadButton.style.display = 'inline-block';
-
-    document.getElementById('guided-status').innerText = "✅ Document ready!";
+    container.innerHTML = `
+      <iframe src="${url}" width="100%" height="600px"></iframe>
+      <a href="${url}" download="veritas_draft.pdf"><button>Download PDF</button></a>
+    `;
   } catch (error) {
-    console.error(error);
-    document.getElementById('guided-status').innerText = "❌ Error generating document.";
+    container.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
   }
 }
+
+// --- Ask Veritas Flow ---
+
+async function submitAskVeritas() {
+  const prompt = document.getElementById("ask-input").value.trim();
+  const askResponseContainer = document.getElementById("ask-response");
+
+  if (!prompt) return;
+
+  askResponseContainer.innerHTML = "<p>Generating response...</p>";
+
+  try {
+    const response = await fetch(`${apiBase}/analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, state: "", county: "" }),
+    });
+
+    if (!response.ok) throw new Error("Server error generating response.");
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    askResponseContainer.innerHTML = `
+      <iframe src="${url}" width="100%" height="600px"></iframe>
+      <a href="${url}" download="veritas_response.pdf"><button>Download PDF</button></a>
+    `;
+  } catch (error) {
+    askResponseContainer.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
+  }
+}
+
+// --- Init ---
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Start Guided Questions by default
+  loadGuidedQuestions();
+
+  // Tab switching (optional)
+  document.getElementById("guided-tab").addEventListener("click", () => {
+    loadGuidedQuestions();
+    document.getElementById("guided-panel").style.display = "block";
+    document.getElementById("ask-panel").style.display = "none";
+  });
+
+  document.getElementById("ask-tab").addEventListener("click", () => {
+    document.getElementById("guided-panel").style.display = "none";
+    document.getElementById("ask-panel").style.display = "block";
+  });
+});
