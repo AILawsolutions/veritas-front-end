@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Veritas AI</title>
   <link rel="stylesheet" href="veritas.css" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
@@ -11,53 +11,46 @@
   <header>
     <div class="logo">VERITAS</div>
     <nav>
-      <a href="#">Home</a>
-      <a href="#">Pricing</a>
-      <a href="#">Login</a>
+      <a href="index.html">Home</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="login_checkbox_fixed.html">Login</a>
     </nav>
   </header>
 
-  <main class="main-container">
-    <h1 class="title">VERITAS</h1>
-    <h3 class="subtitle">AI LEGAL DRAFTING ASSISTANT</h3>
+  <div class="veritas-container">
+    <h1 class="veritas-title">VERITAS</h1>
+    <h3 class="veritas-subtitle">AI LEGAL DRAFTING ASSISTANT</h3>
 
     <div class="tab-bar">
-      <button class="tab active" onclick="switchTab('guided')">Guided Drafting</button>
-      <button class="tab" onclick="switchTab('ask')">Ask Veritas</button>
+      <button id="guided-tab" class="active" onclick="switchTab('guided')">Guided Drafting</button>
+      <button id="chat-tab" onclick="switchTab('chat')">Ask Veritas</button>
     </div>
 
-    <div class="content" id="guided-section">
-      <form id="guided-form">
-        <div class="input-row">
-          <input type="text" name="doc_type" placeholder="1. Document Type" required>
-          <input type="text" name="state" placeholder="2. State" required>
-          <input type="text" name="county" placeholder="3. County" required>
-          <input type="text" name="court" placeholder="4. Court Name" required>
-        </div>
-        <div class="input-row">
-          <input type="text" name="parties" placeholder="5. Parties Involved" required>
-          <input type="text" name="facts" placeholder="6. Facts" required>
-          <input type="text" name="issues" placeholder="7. Legal Issues" required>
-        </div>
-        <div class="input-row">
-          <input type="text" name="relief" placeholder="8. Relief Sought" required>
-          <input type="text" name="signature" placeholder="9. Attorney Signature Block" required>
-        </div>
-        <button type="submit" class="submit-btn">Generate Document</button>
-      </form>
-      <h4>Document Preview:</h4>
-      <div id="preview" contenteditable="true" class="preview-box"></div>
-      <button onclick="downloadPDF()" class="download-btn">Download Final PDF</button>
-    </div>
-
-    <div class="content" id="ask-section" style="display:none;">
-      <div class="chat-box">
-        <textarea id="question" placeholder="Ask Veritas any legal question..."></textarea>
-        <button onclick="submitQuestion()" class="submit-btn">Ask</button>
+    <!-- Guided Drafting Panel -->
+    <div id="guided-panel" class="panel">
+      <p id="guided-question">Click "Start" to begin guided drafting.</p>
+      <textarea id="guided-answer" class="chat-input" placeholder="Type your answer here..."></textarea>
+      <div class="chat-actions">
+        <button onclick="nextGuidedQuestion()">Next</button>
       </div>
-      <div id="answer-box" class="preview-box"></div>
+      <div id="guided-preview-container" style="display:none;">
+        <h3>Document Preview (Editable)</h3>
+        <div id="document-preview" contenteditable="true" class="document-preview"></div>
+        <button onclick="downloadEditedPDF()">Download Final PDF</button>
+      </div>
     </div>
-  </main>
+
+    <!-- Ask Veritas Panel -->
+    <div id="chat-panel" class="panel" style="display:none;">
+      <div class="chat-icon">💬</div>
+      <p id="chat-status">How can I assist you today?</p>
+      <textarea id="chat-prompt" class="chat-input" placeholder="Ask any legal question..."></textarea>
+      <div class="chat-actions">
+        <button onclick="submitChat()">Send</button>
+      </div>
+      <div id="chat-response" class="chat-response"></div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
