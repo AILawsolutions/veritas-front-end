@@ -1,172 +1,178 @@
-/* Veritas AI Legal Drafting Assistant - Clean Matching CSS */
-
-/* Base styles */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Rajdhani', 'Orbitron', sans-serif;
-  background-color: #0b0f1a;
-  color: #f0f0f0;
-  text-align: center;
+/* Reset some base styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Rajdhani', sans-serif;
+    background-color: #0A0A0A;
+    color: #f2f2f2;
 }
 
 header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 40px;
-  background-color: #0b0f1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: #121212;
+    border-bottom: 1px solid #333;
 }
 
-.logo {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 28px;
-  color: #00aaff;
-  font-weight: bold;
+header .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    color: #F95454;
+    letter-spacing: 2px;
 }
 
-nav a {
-  color: #f0f0f0;
-  margin-left: 20px;
-  text-decoration: none;
-  font-weight: bold;
+header nav a {
+    color: #f2f2f2;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 16px;
+    transition: color 0.3s ease;
 }
 
-nav a:hover {
-  color: #00aaff;
+header nav a:hover {
+    color: #F95454;
 }
 
-/* Main Veritas Container */
+/* Main container */
 .veritas-container {
-  margin-top: 40px;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
 }
 
+/* Titles */
 .veritas-title {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 50px;
-  color: #00aaff;
-  margin-bottom: 10px;
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 48px;
+    color: #F95454;
+    margin-bottom: 10px;
 }
 
 .veritas-subtitle {
-  font-size: 18px;
-  margin-bottom: 30px;
-  color: #f0f0f0;
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 30px;
+    color: #ccc;
 }
 
-/* Tabs */
+/* Tab bar */
 .tab-bar {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
 }
 
 .tab-bar button {
-  background-color: #1a1f2e;
-  border: none;
-  padding: 12px 20px;
-  margin: 0 5px;
-  border-radius: 25px;
-  color: #f0f0f0;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    background-color: transparent;
+    border: 2px solid #F95454;
+    color: #f2f2f2;
+    padding: 10px 25px;
+    margin: 0 8px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.tab-bar button.active {
-  background-color: #00aaff;
-  color: #0b0f1a;
-}
-
+.tab-bar button.active,
 .tab-bar button:hover {
-  background-color: #0077cc;
+    background-color: #F95454;
+    color: #0A0A0A;
 }
 
-/* Chat Panel */
+/* Panel */
 .chat-panel {
-  background-color: #1a1f2e;
-  border-radius: 16px;
-  padding: 30px;
-  max-width: 600px;
-  margin: 0 auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.4);
-}
-
-.chat-icon {
-  font-size: 40px;
-  margin-bottom: 15px;
-}
-
-.chat-instructions {
-  font-size: 16px;
-  margin-bottom: 20px;
-}
-
-/* Guided Drafting Form */
-.guided-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.guided-form input,
-.guided-form textarea {
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  font-size: 14px;
-}
-
-.guided-form textarea {
-  min-height: 80px;
-}
-
-/* Buttons */
-button.send-btn, button.generate-btn, button.download-btn {
-  background: linear-gradient(to right, #00aaff, #00ccff);
-  border: none;
-  padding: 12px 25px;
-  border-radius: 25px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #0b0f1a;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-button.send-btn:hover,
-button.generate-btn:hover,
-button.download-btn:hover {
-  transform: scale(1.05);
-}
-
-/* Document Preview */
-#document-preview {
-  margin-top: 20px;
-  background-color: #ffffff;
-  color: #000000;
-  padding: 20px;
-  border-radius: 12px;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-  min-height: 300px;
-  overflow-y: auto;
-  text-align: left;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .tab-bar {
-    flex-direction: column;
-  }
-
-  .tab-bar button {
-    margin: 5px 0;
-  }
-
-  .chat-panel {
+    border: 1px solid #333;
+    border-radius: 8px;
     padding: 20px;
-  }
+    background-color: #1A1A1A;
+}
+
+#status {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 15px;
+    color: #aaa;
+}
+
+/* Question input boxes */
+.question-box {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.question-box label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #f2f2f2;
+}
+
+.question-box textarea,
+.question-box input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #0A0A0A;
+    color: #f2f2f2;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-size: 14px;
+    resize: vertical;
+}
+
+/* Chat actions */
+.chat-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.send-btn {
+    background-color: #F95454;
+    color: #0A0A0A;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.send-btn:hover {
+    background-color: #ff6666;
+}
+
+/* Response container (document preview) */
+#response-container {
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #0A0A0A;
+    color: #f2f2f2;
+    margin-top: 25px;
+    min-height: 200px;
+    white-space: pre-wrap;
+    font-family: 'Times New Roman', serif;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+.download-btn {
+    display: block;
+    background-color: #F95454;
+    color: #0A0A0A;
+    text-align: center;
+    padding: 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.download-btn:hover {
+    background-color: #ff6666;
 }
