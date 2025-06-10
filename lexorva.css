@@ -148,7 +148,7 @@ body {
   }
   /* NavBar FULL mobile fix */
   .nav-links {
-    position: static; /* no longer absolute */
+    position: static;
     margin-top: 10px;
     display: flex;
     flex-direction: column;
@@ -158,15 +158,19 @@ body {
   }
   .nav-links a,
   .nav-links .button {
-    display: block; /* force block */
-    width: 80%; /* nice button size */
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
     text-align: center;
-    padding: 10px;
+    padding: 12px;
     border: 2px solid #8B5CF6;
     border-radius: 999px;
     color: #8B5CF6;
     font-weight: bold;
     text-decoration: none;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
   }
   .nav-links a:hover,
   .nav-links .button:hover {
