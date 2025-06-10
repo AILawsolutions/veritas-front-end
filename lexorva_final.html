@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>LEXORVA - AI Legal Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="lexorva.css" />
+    <style>
+    .response-heading {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      color: #8E44EC;
+      font-weight: bold;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+    .response-box {
+      width: 100%;
+      height: 300px;
+      padding: 12px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      resize: none;
+    }
+    .guided-question {
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+    }
+    .guided-question input, .guided-question select {
+      padding: 8px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    </style>
+</head>
+<body>
+    <header class="top-header">
+        <div class="logo">LEXORVA</div>
+        <div class="subtitle">AI LEGAL ASSISTANT</div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="login.html">Login / Signup</a>
+        </nav>
+    </header>
+
+    <!-- Mode Switch -->
+    <div class="toggle-top">
+        <button id="askToggle" class="toggle-button active" onclick="toggleMode('ask')">💬 Ask Lexorva</button>
+        <button id="draftToggle" class="toggle-button" onclick="toggleMode('draft')">✏️ Drafting</button>
+    </div>
+
+    <!-- Main content -->
+    <main class="main-centered">
+        <!-- Guided Drafting Panel -->
+        <section id="guidedPanel" class="hidden">
+            <h3 class="response-heading">Guided Drafting Questions</h3>
+            <form id="draftForm">
+                <div class="guided-question">
+                    <label>Document Type</label>
+                    <input type="text" name="Document Type">
+                </div>
+                <div class="guided-question">
+                    <label>State</label>
+                    <input type="text" name="State">
+                </div>
+                <div class="guided-question">
+                    <label>County</label>
+                    <input type="text" name="County">
+                </div>
+                <div class="guided-question">
+                    <label>Court Name</label>
+                    <input type="text" name="Court Name">
+                </div>
+                <div class="guided-question">
+                    <label>Parties Involved</label>
+                    <input type="text" name="Parties Involved">
+                </div>
+                <div class="guided-question">
+                    <label>Key Facts</label>
+                    <input type="text" name="Key Facts">
+                </div>
+                <div class="guided-question">
+                    <label>Legal Issues</label>
+                    <input type="text" name="Legal Issues">
+                </div>
+                <div class="guided-question">
+                    <label>Conclusion / Relief Sought</label>
+                    <input type="text" name="Conclusion / Relief Sought">
+                </div>
+                <div class="guided-question">
+                    <label>Attorney Signature Block</label>
+                    <input type="text" name="Attorney Signature Block">
+                </div>
+            </form>
+        </section>
+
+        <!-- Central Input -->
+        <textarea id="mainInput" class="ask-input" placeholder="Type your legal question or drafting instructions..."></textarea>
+        <div class="button-row">
+            <label for="uploadFile" class="styled-button">Upload</label>
+            <input type="file" id="uploadFile" accept=".pdf,.docx,.txt,.png,.jpg" hidden>
+            <button id="mainSubmit" class="styled-button">Submit</button>
+        </div>
+
+        <!-- Response Box -->
+        <h3 class="response-heading" id="responseHeading">LEXORVA Response</h3>
+        <textarea id="mainResponse" class="response-box" placeholder="LEXORVA's response will appear here..."></textarea>
+        <div class="button-row hidden" id="downloadRow">
+            <button id="downloadPDF" class="styled-button">Download PDF</button>
+        </div>
+    </main>
+
+    <script src="script_final.js"></script>
+</body>
+</html>
