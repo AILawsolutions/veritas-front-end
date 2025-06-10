@@ -146,7 +146,7 @@ body {
     flex-direction: column;
     align-items: center;
   }
-  /* NavBar fix on mobile */
+  /* NavBar FULL mobile fix */
   .nav-links {
     position: static; /* no longer absolute */
     margin-top: 10px;
@@ -154,18 +154,20 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 10px;
-  }
-  /* Stack Pricing first, Login/Signup below */
-  .nav-links a:first-child {
-    order: 1;
-  }
-  .nav-links a:nth-child(2) {
-    order: 2;
-  }
-  .nav-links a:nth-child(3) {
-    order: 3;
+    width: 100%; /* force full width */
   }
   .nav-links a {
-    margin: 0;
+    display: block; /* force block */
+    width: 80%; /* nice button size */
+    text-align: center;
+    padding: 10px;
+    border: 2px solid #8B5CF6;
+    border-radius: 999px;
+    color: #8B5CF6;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  .nav-links a:hover {
+    background: #F3EBFF;
   }
 }
