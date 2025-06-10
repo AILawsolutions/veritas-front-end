@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LEXORVA - AI Legal Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="lexorva.css" />
+</head>
+<body>
+  <header class="top-header">
+    <div class="logo">LEXORVA</div>
+    <div class="subtitle">AI LEGAL ASSISTANT</div>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="login.html">Login / Signup</a>
+    </nav>
+  </header>
+
+  <!-- Ask/Drafting toggle always visible at top -->
+  <div class="toggle-top">
+    <button id="askToggle" class="toggle-button active">💬 Ask Lexorva</button>
+    <button id="draftToggle" class="toggle-button">✏️ Drafting</button>
+  </div>
+
+  <!-- Main content centered below -->
+  <main class="main-centered">
+    <section class="ask-section" id="askSection">
+      <textarea class="ask-input" placeholder="Enter your request…"></textarea>
+      <div class="button-row">
+        <!-- Upload styled as button -->
+        <label for="uploadFile" class="styled-button">Upload</label>
+        <input type="file" id="uploadFile" accept=".pdf,.docx,.txt,.png,.jpg" hidden>
+        <button id="askSubmit" class="styled-button">Submit</button>
+      </div>
+      <div id="askResponse" class="response-box"></div>
+    </section>
+
+    <section class="draft-section hidden" id="draftSection">
+      <h2 class="draft-header">Guided Drafting</h2>
+      <p class="draft-subtext">Optional prompts to improve your draft</p>
+      <form id="draftForm" class="draft-form">
+        <input type="text" name="Document Type" placeholder="Document Type">
+        <select name="State"><option>Select State</option></select>
+        <select name="County"><option>Select County</option></select>
+        <input type="text" name="Court Name" placeholder="Court Name">
+        <input type="text" name="Parties Involved" placeholder="Parties Involved">
+        <input type="text" name="Key Facts" placeholder="Key Facts">
+        <input type="text" name="Legal Issues" placeholder="Legal Issues">
+        <input type="text" name="Conclusion / Relief Sought" placeholder="Conclusion / Relief Sought">
+      </form>
+      <div class="button-row">
+        <button id="draftSubmit" class="styled-button">Submit</button>
+        <button id="downloadPDF" class="styled-button" disabled>Download PDF</button>
+      </div>
+      <div id="draftResponse" class="response-box"></div>
+    </section>
+  </main>
+
+  <!-- Load lexorva.js -->
+  <script src="static/js/lexorva.js"></script>
+</body>
+</html><section id="askSection">
+
+</section>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LEXORVA - AI Legal Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="lexorva.css" />
+</head>
+<body>
+  <header class="top-header">
+    <div class="logo">LEXORVA</div>
+    <div class="subtitle">AI LEGAL ASSISTANT</div>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="login.html">Login / Signup</a>
+    </nav>
+  </header>
+
+  <!-- Ask/Drafting toggle always visible at top -->
+  <div class="toggle-top">
+    <button id="askToggle" class="toggle-button active">💬 Ask Lexorva</button>
+    <button id="draftToggle" class="toggle-button">✏️ Drafting</button>
+  </div>
+
+  <!-- Main content centered below -->
+  <main class="main-centered">
+    <section class="ask-section" id="askSection">
+      <textarea class="ask-input" placeholder="Enter your request…"></textarea>
+      <div class="button-row">
+        <!-- Upload styled as button -->
+        <label for="uploadFile" class="styled-button">Upload</label>
+        <input type="file" id="uploadFile" accept=".pdf,.docx,.txt,.png,.jpg" hidden>
+        <button id="askSubmit" class="styled-button">Submit</button>
+      </div>
+      <div id="askResponse" class="response-box"></div>
+    </section>
+
+    <section class="draft-section hidden" id="draftSection">
+      <section id="draftSection" class="hidden">
+
+</section>
+ta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LEXORVA - AI Legal Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="lexorva.css" />
+</head>
+<body>
+  <header class="top-header">
+    <div class="logo">LEXORVA</div>
+    <div class="subtitle">AI LEGAL ASSISTANT</div>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="login.html">Login / Signup</a>
+    </nav>
+  </header>
+
+  <!-- Ask/Drafting toggle always visible at top -->
+  <div class="toggle-top">
+    <button id="askToggle" class="toggle-button active">💬 Ask Lexorva</button>
+    <button id="draftToggle" class="toggle-button">✏️ Drafting</button>
+  </div>
+
+  <!-- Main content centered below -->
+  <main class="main-centered">
+    <section class="ask-section" id="askSection">
+      <textarea class="ask-input" placeholder="Enter your request…"></textarea>
+      <div class="button-row">
+        <!-- Upload styled as button -->
+        <label for="uploadFile" class="styled-button">Upload</label>
+        <input type="file" id="uploadFile" accept=".pdf,.docx,.txt,.png,.jpg" hidden>
+        <button id="askSubmit" class="styled-button">Submit</button>
+      </div>
+      <div id="askResponse" class="response-box"></div>
+    </section>
+
+    <section class="draft-section hidden" id="draftSection">
+      <h2 class="draft-header">Guided Drafting</h2>
+      <p class="draft-subtext">Optional prompts to improve your draft</p>
+      <form id="draftForm" class="draft-form">
+        <input type="text" name="Document Type" placeholder="Document Type">
+        <select name="State"><option>Select State</option></select>
+        <select name="County"><option>Select County</option></select>
+        <input type="text" name="Court Name" placeholder="Court Name">
+        <input type="text" name="Parties Involved" placeholder="Parties Involved">
+        <input type="text" name="Key Facts" placeholder="Key Facts">
+        <input type="text" name="Legal Issues" placeholder="Legal Issues">
+        <input type="text" name="Conclusion / Relief Sought" placeholder="Conclusion / Relief Sought">
+      </form>
+      <div class="button-row">
+        <button id="draftSubmit" class="styled-button">Submit</button>
+        <button id="downloadPDF" class="styled-button" disabled>Download PDF</button>
+      </div>
+      <div id="draftResponse" class="response-box"></div>
+    </section>
+  </main>
+
+  <!-- Load lexorva.js -->
+  <script src="static/js/lexorva.js"></script>
+</body>
+</html>
