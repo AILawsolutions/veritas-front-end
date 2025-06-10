@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Lexorva</title>
+    <title>LEXORVA - A Legal Assistant</title>
     <link rel="stylesheet" href="lexorva.css" />
 </head>
 <body>
@@ -21,11 +20,13 @@
     </nav>
 
     <main class="main-container">
-        <h1 class="page-title">Lexorva AI Legal Assistant</h1>
-
         <div class="mode-switch">
             <button id="askMode" class="mode-button active">Ask Lexorva</button>
             <button id="draftMode" class="mode-button">Drafting</button>
+        </div>
+
+        <div class="input-section">
+            <textarea id="mainInput" placeholder="Enter your legal question..."></textarea>
         </div>
 
         <div id="questionsPanel" class="questions-panel hidden">
@@ -43,24 +44,25 @@
             </div>
         </div>
 
-        <textarea id="mainInput" class="input-box" placeholder="Enter your legal question or drafting request..."></textarea>
-
-        <div class="upload-section">
-            <label for="fileUpload" class="upload-button">Upload</label>
+        <div class="button-row">
+            <label for="fileUpload" class="purple-button">Upload</label>
             <input type="file" id="fileUpload" class="hidden" />
-        </div>
-
-        <div class="response-container">
-            <textarea id="responseBox" placeholder="Lexorva will display the response here... (you can edit before downloading)"></textarea>
-        </div>
-
-        <div class="action-buttons">
             <button id="submitButton" class="purple-button">Submit</button>
+        </div>
+
+        <h3 class="response-title">LEXORVA Response</h3>
+        <div class="response-container">
+            <textarea id="responseBox" placeholder="LEXORVA's response will appear here..."></textarea>
+        </div>
+
+        <div class="button-row">
             <button id="downloadPDF" class="purple-button hidden">Download PDF</button>
         </div>
 
     </main>
 
-    <script src="script_final.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
