@@ -178,3 +178,10 @@ body {
     background: #F3EBFF;
   }
 }
+.response-heading {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    color: linear-gradient(...) /* if you want a gradient text — I can show you that too */
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
