@@ -154,9 +154,10 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    width: 100%; /* force full width */
+    width: 100%;
   }
-  .nav-links a {
+  .nav-links a,
+  .nav-links .button {
     display: block; /* force block */
     width: 80%; /* nice button size */
     text-align: center;
@@ -167,7 +168,8 @@ body {
     font-weight: bold;
     text-decoration: none;
   }
-  .nav-links a:hover {
+  .nav-links a:hover,
+  .nav-links .button:hover {
     background: #F3EBFF;
   }
 }
