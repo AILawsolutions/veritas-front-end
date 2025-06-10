@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lexorva</title>
+    <link rel="stylesheet" href="lexorva.css" />
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-brand">LEXORVA</div>
+        <div class="navbar-links">
+            <a href="index.html">Home</a>
+            <a href="veritas.html">Veritas</a>
+            <a href="lexorva.html" class="active">Lexorva</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <h1 class="page-title">Lexorva AI Legal Assistant</h1>
+
+        <div class="mode-switch">
+            <button id="askMode" class="mode-button active">Ask Lexorva</button>
+            <button id="draftMode" class="mode-button">Drafting</button>
+        </div>
+
+        <div id="questionsPanel" class="questions-panel hidden">
+            <h2>Drafting Questions</h2>
+            <div class="questions-grid">
+                <input type="text" placeholder="1. What type of document?" />
+                <input type="text" placeholder="2. Jurisdiction / Court?" />
+                <input type="text" placeholder="3. Case number (if applicable)?" />
+                <input type="text" placeholder="4. Parties involved?" />
+                <input type="text" placeholder="5. Desired outcome?" />
+                <input type="text" placeholder="6. Key facts to include?" />
+                <input type="text" placeholder="7. Legal arguments to emphasize?" />
+                <input type="text" placeholder="8. Supporting documents?" />
+                <input type="text" placeholder="9. Additional notes / context?" />
+            </div>
+        </div>
+
+        <textarea id="mainInput" class="input-box" placeholder="Enter your legal question or drafting request..."></textarea>
+
+        <div class="upload-section">
+            <label for="fileUpload" class="upload-button">Upload</label>
+            <input type="file" id="fileUpload" class="hidden" />
+        </div>
+
+        <div class="response-container">
+            <textarea id="responseBox" placeholder="Lexorva will display the response here... (you can edit before downloading)"></textarea>
+        </div>
+
+        <div class="action-buttons">
+            <button id="submitButton" class="purple-button">Submit</button>
+            <button id="downloadPDF" class="purple-button hidden">Download PDF</button>
+        </div>
+
+    </main>
+
+    <script src="script_final.js"></script>
+</body>
+</html>
