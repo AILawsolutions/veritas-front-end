@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LEXORVA - AI Legal Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="lexorva.css" />
+</head>
+<body>
+  <header class="top-header">
+    <div class="logo">LEXORVA</div>
+    <div class="subtitle">AI LEGAL ASSISTANT</div>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="login.html">Login / Signup</a>
+    </nav>
+  </header>
+
+  <!-- Mode toggle buttons -->
+  <div class="toggle-top">
+    <button id="askToggle" class="toggle-button active" onclick="toggleMode('ask')">💬 Ask Lexorva</button>
+    <button id="draftToggle" class="toggle-button" onclick="toggleMode('draft')">✏️ Drafting</button>
+  </div>
+
+  <!-- Main content -->
+  <main class="main-centered">
+    <!-- Ask Lexorva Section -->
+    <section class="ask-section" id="askSection">
+      <textarea id="askInput" class="ask-input" placeholder="Enter your legal question…"></textarea>
+      <div class="button-row">
+        <label for="uploadFileAsk" class="styled-button">Upload</label>
+        <input type="file" id="uploadFileAsk" accept=".pdf,.docx,.txt,.png,.jpg" hidden>
+        <button id="askSubmit" class="styled-button">Submit</button>
+      </div>
+      <textarea id="askResponse" class="editable-response" placeholder="AI Response will appear here…" readonly></textarea>
+      <button id="askDownloadPDF" class="styled-button hidden">Download PDF</button>
+    </section>
+
+    <!-- Drafting Section -->
+    <section class="draft-section hidden" id="draftSection">
+      <h2 class="draft-header">Guided Drafting</h2>
+      <p class="draft-subtext">Optional prompts to improve your draft</p>
+      <form class="draft-form" id="draftForm">
+        <input type="text" name="answer0" placeholder="Document Type">
+        <input type="text" name="answer1" placeholder="State">
+        <input type="text" name="answer2" placeholder="County">
+        <input type="text" name="answer3" placeholder="Court Name">
+        <input type="text" name="answer4" placeholder="Parties Involved">
+        <input type="text" name="answer5" placeholder="Key Facts">
+        <input type="text" name="answer6" placeholder="Legal Issues">
+        <input type="text" name="answer7" placeholder="Conclusion / Relief Sought">
+        <input type="text" name="answer8" placeholder="Attorney Signature Block">
+      </form>
+      <div class="button-row">
+        <label for="uploadFileDraft" class="styled-button">Upload</label>
+        <input type="file" id="uploadFileDraft" accept=".pdf,.docx,.txt,.png,.jpg" hidden>
+        <button id="draftSubmit" class="styled-button">Submit</button>
+      </div>
+      <textarea id="draftResponse" class="editable-response" placeholder="AI Drafted Document will appear here…" readonly></textarea>
+      <button id="draftDownloadPDF" class="styled-button hidden">Download PDF</button>
+    </section>
+  </main>
+
+  <script src="lexorva.js"></script>
+</body>
+</html>
