@@ -21,6 +21,7 @@ let draftingQuestions = [
 ];
 let draftingAnswers = [];
 let currentDraftingIndex = 0;
+let latestPdfBlobUrl = null; // store latest PDF blob URL
 
 // Event listeners
 sendButton.addEventListener('click', sendMessage);
@@ -58,7 +59,6 @@ function addMessage(text, className) {
     chatHistory.appendChild(msg);
     chatHistory.scrollTop = chatHistory.scrollHeight;
 
-    // Store in chat memory
     chatMessages.push({ role: className.includes('user') ? 'user' : 'ai', content: text });
 }
 
@@ -97,26 +97,121 @@ function handleDraftingAnswer(answer) {
     if (currentDraftingIndex < draftingQuestions.length) {
         addMessage(draftingQuestions[currentDraftingIndex], 'ai-message');
     } else {
-        // Drafting complete → generate PDF preview
         draftingFlowActive = false;
-        generateDraftingPDFPreview();
+        generateDraftingPDF();
     }
 }
 
-function generateDraftingPDFPreview() {
+function generateDraftingPDF() {
+    thinkingBar.style.display = 'block';
+
+    fetch('https://AiLawSolutions.pythonanywhere.com/render-html', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: draftingAnswers })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const html = data?.html;
+        if (!html) throw new Error("No HTML returned.");
+
+        // Now generate PDF
+        return fetch('https://AiLawSolutions.pythonanywhere.com/generate-pdf-from-html', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ html: html })
+        });
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        thinkingBar.style.display = 'none';
+        latestPdfBlobUrl = URL.createObjectURL(blob);
+        showPdfPreview();
+    })
+    .catch(error => {
+        console.error('Error in Drafting PDF:', error);
+        thinkingBar.style.display = 'none';
+        addMessage('Error: Failed to generate PDF.', 'ai-message');
+    });
+}
+
+function showPdfPreview() {
     const msg = document.createElement('div');
     msg.className = 'pdf-preview';
     msg.innerHTML = `
         <strong>[PDF]</strong> Drafted_Document.pdf<br/>
-        <button onclick="alert('View PDF')">View</button>
-        <button onclick="alert('Edit PDF')">Edit</button>
-        <button onclick="alert('Download PDF')">Download</button>
+        <button onclick="viewPdf()">View</button>
+        <button onclick="editPdf()">Edit</button>
+        <button onclick="downloadPdf()">Download</button>
     `;
     chatHistory.appendChild(msg);
     chatHistory.scrollTop = chatHistory.scrollHeight;
+}
 
-    // Store in chat memory
-    chatMessages.push({ role: 'ai', content: '[PDF] Drafted_Document.pdf' });
+function viewPdf() {
+    if (!latestPdfBlobUrl) return;
+
+    const modal = document.createElement('div');
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100vw';
+    modal.style.height = '100vh';
+    modal.style.background = 'rgba(0,0,0,0.7)';
+    modal.style.display = 'flex';
+    modal.style.justifyContent = 'center';
+    modal.style.alignItems = 'center';
+    modal.style.zIndex = '1000';
+    modal.innerHTML = `
+        <div style="width: 80%; height: 80%; background: white; padding: 10px; position: relative;">
+            <iframe src="${latestPdfBlobUrl}" style="width: 100%; height: 100%; border: none;"></iframe>
+            <button onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: 10px; right: 10px;">Close</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function editPdf() {
+    if (!latestPdfBlobUrl) return;
+
+    // Simple phase 1 → show PDF as editable HTML text (safe fallback, not PDF.js yet)
+    fetch(latestPdfBlobUrl)
+    .then(response => response.text())
+    .then(text => {
+        const modal = document.createElement('div');
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100vw';
+        modal.style.height = '100vh';
+        modal.style.background = 'rgba(0,0,0,0.7)';
+        modal.style.display = 'flex';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '1000';
+        modal.innerHTML = `
+            <div style="width: 80%; height: 80%; background: white; padding: 10px; position: relative; overflow: auto;">
+                <div contenteditable="true" style="width: 100%; height: 100%; border: 1px solid #ccc; padding: 10px;">${text}</div>
+                <button onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: 10px; right: 10px;">Close</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    })
+    .catch(error => {
+        console.error('Error fetching PDF for edit:', error);
+        alert('Failed to load PDF for editing.');
+    });
+}
+
+function downloadPdf() {
+    if (!latestPdfBlobUrl) return;
+
+    const link = document.createElement('a');
+    link.href = latestPdfBlobUrl;
+    link.download = 'Drafted_Document.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function handleFileUpload() {
@@ -125,13 +220,12 @@ function handleFileUpload() {
 
     addMessage(`Uploaded file: ${file.name}`, 'user-message');
 
-    // Example: Lexorva responds to uploaded file
     thinkingBar.style.display = 'block';
 
     const formData = new FormData();
     formData.append('file', file);
 
-    fetch('/analyze-upload', {
+    fetch('https://AiLawSolutions.pythonanywhere.com/analyze-upload', {
         method: 'POST',
         body: formData
     })
@@ -147,6 +241,5 @@ function handleFileUpload() {
         addMessage('Error: Failed to analyze uploaded document.', 'ai-message');
     });
 
-    // Reset file input
     fileUploadInput.value = '';
 }
