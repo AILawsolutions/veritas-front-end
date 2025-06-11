@@ -1,198 +1,153 @@
-/* lexorva.css */
-
-/* Reset + base */
 body {
     margin: 0;
-    padding: 0;
-    font-family: 'Orbitron', 'Helvetica Neue', Arial, sans-serif;
-    background-color: #F7F7F7;
-    color: #222222;
-}
-
-/* Navbar */
-.navbar {
+    font-family: Arial, sans-serif;
+    background: #f9f9f9;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #FFFFFF;
-    padding: 15px 30px;
-    border-bottom: 2px solid #AA00FF;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex-direction: column;
+    height: 100vh;
 }
 
-.navbar-brand {
-    color: #AA00FF;
-    font-size: 1.8rem;
-    font-weight: bold;
-}
-
-.navbar-links a {
-    color: #222222;
-    text-decoration: none;
-    margin-left: 20px;
-    transition: color 0.3s, border-bottom 0.3s;
-    border-bottom: 2px solid transparent;
-    padding-bottom: 5px;
-    font-weight: bold;
-}
-
-.navbar-links a:hover,
-.navbar-links a.active {
-    color: #AA00FF;
-    border-bottom: 2px solid #AA00FF;
-}
-
-/* Main container */
-.main-container {
-    max-width: 1000px;
-    margin: 40px auto;
-    padding: 0 20px;
+.header {
     text-align: center;
-}
-
-/* Mode switch */
-.mode-switch {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.mode-button {
-    background-color: #EEEEEE;
-    border: 2px solid #AA00FF;
-    color: #222222;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: bold;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.mode-button:hover {
-    background-color: #AA00FF;
-    color: #FFFFFF;
-}
-
-.mode-button.active {
-    background-color: #AA00FF;
-    color: #FFFFFF;
-}
-
-/* Input section */
-.input-section {
-    margin-bottom: 20px;
-}
-
-#mainInput {
-    width: 100%;
-    height: 120px;
     padding: 15px;
-    border-radius: 10px;
-    border: 2px solid #AA00FF;
-    background-color: #FFFFFF;
-    color: #222222;
-    font-size: 1rem;
-    resize: vertical;
+    font-size: 32px;
+    font-weight: bold;
+    color: #8A4FFF;
+    border-bottom: 1px solid #eee;
 }
 
-/* Questions panel */
-.questions-panel {
-    background-color: #FFFFFF;
-    border: 2px solid #AA00FF;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    text-align: left;
-}
-
-.questions-panel h2 {
-    color: #AA00FF;
-    margin-bottom: 15px;
-    font-size: 1.5rem;
-}
-
-.questions-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.questions-grid input {
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #CCCCCC;
-    background-color: #FAFAFA;
-    color: #222222;
-    font-size: 1rem;
-}
-
-/* Button row */
-.button-row {
+.main {
     display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+    flex: 1;
+    overflow: hidden;
 }
 
-/* Purple button */
-.purple-button {
-    background-color: #AA00FF;
-    color: #FFFFFF;
-    padding: 12px 25px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: bold;
-    border: none;
-    transition: background-color 0.3s, transform 0.3s;
-    display: inline-block;
-}
-
-.purple-button:hover {
-    background-color: #BB33FF;
-    transform: scale(1.05);
-}
-
-/* Response title */
-.response-title {
-    font-size: 1.5rem;
-    color: #AA00FF;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-/* Response container */
-.response-container {
-    margin-bottom: 20px;
-}
-
-#responseBox {
-    width: 100%;
-    height: 300px;
+/* Drafting Guide */
+.drafting-guide {
+    width: 250px;
+    background: #fff;
+    border-right: 1px solid #eee;
     padding: 15px;
-    border-radius: 10px;
-    border: 2px solid #AA00FF;
-    background-color: #FFFFFF;
-    color: #222222;
-    font-size: 1rem;
-    resize: vertical;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Utility */
-.hidden {
+.drafting-guide h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.drafting-guide ol {
+    padding-left: 20px;
+    margin-bottom: 20px;
+}
+
+.drafting-guide a {
+    color: #8A4FFF;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Chat Section */
+.chat-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+.chat-history {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 10px;
+}
+
+.message {
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 10px;
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+.user-message {
+    align-self: flex-end;
+    background: #f0eaff;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+.ai-message {
+    align-self: flex-start;
+    background: #fff;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+/* Thinking Bar */
+.thinking {
     display: none;
+    text-align: center;
+    color: #8A4FFF;
+    padding: 5px;
+    font-style: italic;
+    animation: dots 1s steps(5, end) infinite;
+}
+
+@keyframes dots {
+    0%, 20% {
+        content: "Thinking.";
+    }
+    40% {
+        content: "Thinking..";
+    }
+    60% {
+        content: "Thinking...";
+    }
+}
+
+/* Input Bar */
+.input-bar {
+    display: flex;
+    border-top: 1px solid #eee;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.input-bar input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.input-bar button {
+    margin-left: 10px;
+    padding: 10px 15px;
+    background: #8A4FFF;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .questions-grid {
-        grid-template-columns: 1fr;
+    .main {
+        flex-direction: column;
     }
 
-    .button-row {
-        flex-direction: column;
+    .drafting-guide {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #eee;
     }
 }
