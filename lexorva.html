@@ -3,66 +3,44 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>LEXORVA - A Legal Assistant</title>
+    <title>LEXORVA</title>
     <link rel="stylesheet" href="lexorva.css" />
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="navbar-brand">LEXORVA</div>
-        <div class="navbar-links">
-            <a href="index.html">Home</a>
-            <a href="veritas.html">Veritas</a>
-            <a href="lexorva.html" class="active">Lexorva</a>
-            <a href="pricing.html">Pricing</a>
-            <a href="contact.html">Contact</a>
-        </div>
-    </nav>
+    <div class="header">LEXORVA</div>
 
-    <main class="main-container">
-        <div class="mode-switch">
-            <button id="askMode" class="mode-button active">Ask Lexorva</button>
-            <button id="draftMode" class="mode-button">Drafting</button>
+    <div class="main">
+        <!-- Drafting Guide Panel -->
+        <div class="drafting-guide" id="draftingGuide">
+            <h3>Optional Questions</h3>
+            <ol>
+                <li>Document Type</li>
+                <li>State</li>
+                <li>County</li>
+                <li>Court Name</li>
+                <li>Parties Involved</li>
+                <li>Key Facts</li>
+                <li>Legal Issues</li>
+                <li>Conclusion / Relief Sought</li>
+                <li>Attorney Signature Block (or Additional Notes)</li>
+            </ol>
+            <a href="#" id="downloadPdf">📄 Download PDF</a>
         </div>
 
-        <div class="input-section">
-            <textarea id="mainInput" placeholder="Enter your legal question..."></textarea>
-        </div>
-
-        <div id="questionsPanel" class="questions-panel hidden">
-            <h2>Drafting Questions</h2>
-            <div class="questions-grid">
-                <input type="text" placeholder="1. What type of document?" />
-                <input type="text" placeholder="2. Jurisdiction / Court?" />
-                <input type="text" placeholder="3. Case number (if applicable)?" />
-                <input type="text" placeholder="4. Parties involved?" />
-                <input type="text" placeholder="5. Desired outcome?" />
-                <input type="text" placeholder="6. Key facts to include?" />
-                <input type="text" placeholder="7. Legal arguments to emphasize?" />
-                <input type="text" placeholder="8. Supporting documents?" />
-                <input type="text" placeholder="9. Additional notes / context?" />
+        <!-- Chat Section -->
+        <div class="chat-section" id="chatSection">
+            <div class="chat-history" id="chatHistory">
+                <!-- Messages will go here -->
+            </div>
+            <div class="thinking" id="thinking">...</div>
+            <div class="input-bar">
+                <input type="text" id="chatInput" placeholder="Message Lexorva..." />
+                <button id="sendButton">➤</button>
             </div>
         </div>
+    </div>
 
-        <div class="button-row">
-            <label for="fileUpload" class="purple-button">Upload</label>
-            <input type="file" id="fileUpload" class="hidden" />
-            <button id="submitButton" class="purple-button">Submit</button>
-        </div>
-
-        <h3 class="response-title">LEXORVA Response</h3>
-        <div class="response-container">
-            <textarea id="responseBox" placeholder="LEXORVA's response will appear here..."></textarea>
-        </div>
-
-        <div class="button-row">
-            <button id="downloadPDF" class="purple-button hidden">Download PDF</button>
-        </div>
-
-    </main>
-
-    <!-- jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="script.js"></script>
+    <script src="lexorva.js"></script>
 </body>
 </html>
