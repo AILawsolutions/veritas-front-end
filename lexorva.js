@@ -4,9 +4,7 @@ const sendButton = document.getElementById('sendButton');
 const thinkingBar = document.getElementById('thinking');
 const fileUploadInput = document.getElementById('fileUpload');
 
-let chatMessages = []; // Store chat memory
-
-// Drafting flow state
+let chatMessages = [];
 let draftingFlowActive = false;
 let draftingQuestions = [
     "Document Type",
@@ -21,7 +19,7 @@ let draftingQuestions = [
 ];
 let draftingAnswers = [];
 let currentDraftingIndex = 0;
-let latestPdfBlobUrl = null; // store latest PDF blob URL
+let lastDraftedHtml = "";
 
 // Event listeners
 sendButton.addEventListener('click', sendMessage);
@@ -30,7 +28,9 @@ chatInput.addEventListener('keypress', function(e) {
         sendMessage();
     }
 });
-fileUploadInput.addEventListener('change', handleFileUpload);
+if (fileUploadInput) {
+    fileUploadInput.addEventListener('change', handleFileUpload);
+}
 
 function sendMessage() {
     const text = chatInput.value.trim();
@@ -98,11 +98,11 @@ function handleDraftingAnswer(answer) {
         addMessage(draftingQuestions[currentDraftingIndex], 'ai-message');
     } else {
         draftingFlowActive = false;
-        generateDraftingPDF();
+        generateRealDraftingHTML();
     }
 }
 
-function generateDraftingPDF() {
+function generateRealDraftingHTML() {
     thinkingBar.style.display = 'block';
 
     fetch('https://AiLawSolutions.pythonanywhere.com/render-html', {
@@ -112,106 +112,96 @@ function generateDraftingPDF() {
     })
     .then(response => response.json())
     .then(data => {
-        const html = data?.html;
-        if (!html) throw new Error("No HTML returned.");
-
-        // Now generate PDF
-        return fetch('https://AiLawSolutions.pythonanywhere.com/generate-pdf-from-html', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ html: html })
-        });
-    })
-    .then(response => response.blob())
-    .then(blob => {
         thinkingBar.style.display = 'none';
-        latestPdfBlobUrl = URL.createObjectURL(blob);
-        showPdfPreview();
+        if (data?.html) {
+            lastDraftedHtml = data.html;
+            addPdfPreview();
+        } else {
+            addMessage('Error: Failed to generate PDF.', 'ai-message');
+        }
     })
     .catch(error => {
-        console.error('Error in Drafting PDF:', error);
+        console.error('Error generating PDF:', error);
         thinkingBar.style.display = 'none';
         addMessage('Error: Failed to generate PDF.', 'ai-message');
     });
 }
 
-function showPdfPreview() {
+function addPdfPreview() {
     const msg = document.createElement('div');
     msg.className = 'pdf-preview';
     msg.innerHTML = `
-        <strong>[PDF]</strong> Drafted_Document.pdf<br/>
-        <button onclick="viewPdf()">View</button>
-        <button onclick="editPdf()">Edit</button>
-        <button onclick="downloadPdf()">Download</button>
+        <strong>[PDF]</strong> Court_Document.pdf<br/>
+        <button onclick="viewPDF()">View</button>
+        <button onclick="editPDF()">Edit</button>
+        <button onclick="downloadPDF()">Download</button>
     `;
     chatHistory.appendChild(msg);
     chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    chatMessages.push({ role: 'ai', content: '[PDF] Court_Document.pdf' });
 }
 
-function viewPdf() {
-    if (!latestPdfBlobUrl) return;
-
+function viewPDF() {
     const modal = document.createElement('div');
-    modal.style.position = 'fixed';
-    modal.style.top = '0';
-    modal.style.left = '0';
-    modal.style.width = '100vw';
-    modal.style.height = '100vh';
-    modal.style.background = 'rgba(0,0,0,0.7)';
-    modal.style.display = 'flex';
-    modal.style.justifyContent = 'center';
-    modal.style.alignItems = 'center';
-    modal.style.zIndex = '1000';
+    modal.className = 'pdf-modal';
     modal.innerHTML = `
-        <div style="width: 80%; height: 80%; background: white; padding: 10px; position: relative;">
-            <iframe src="${latestPdfBlobUrl}" style="width: 100%; height: 100%; border: none;"></iframe>
-            <button onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: 10px; right: 10px;">Close</button>
+        <div style="background:#fff; padding:20px; border-radius:8px; max-height:80vh; overflow:auto;">
+            <h3>View PDF</h3>
+            <div style="border:1px solid #ccc; padding:10px; font-family:Times New Roman; white-space:pre-wrap;">${lastDraftedHtml}</div>
+            <br/><button onclick="this.parentElement.parentElement.remove()">Close</button>
         </div>
     `;
     document.body.appendChild(modal);
 }
 
-function editPdf() {
-    if (!latestPdfBlobUrl) return;
-
-    // Simple phase 1 → show PDF as editable HTML text (safe fallback, not PDF.js yet)
-    fetch(latestPdfBlobUrl)
-    .then(response => response.text())
-    .then(text => {
-        const modal = document.createElement('div');
-        modal.style.position = 'fixed';
-        modal.style.top = '0';
-        modal.style.left = '0';
-        modal.style.width = '100vw';
-        modal.style.height = '100vh';
-        modal.style.background = 'rgba(0,0,0,0.7)';
-        modal.style.display = 'flex';
-        modal.style.justifyContent = 'center';
-        modal.style.alignItems = 'center';
-        modal.style.zIndex = '1000';
-        modal.innerHTML = `
-            <div style="width: 80%; height: 80%; background: white; padding: 10px; position: relative; overflow: auto;">
-                <div contenteditable="true" style="width: 100%; height: 100%; border: 1px solid #ccc; padding: 10px;">${text}</div>
-                <button onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: 10px; right: 10px;">Close</button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    })
-    .catch(error => {
-        console.error('Error fetching PDF for edit:', error);
-        alert('Failed to load PDF for editing.');
-    });
+function editPDF() {
+    const modal = document.createElement('div');
+    modal.className = 'pdf-modal';
+    modal.innerHTML = `
+        <div style="background:#fff; padding:20px; border-radius:8px; max-height:80vh; overflow:auto;">
+            <h3>Edit PDF</h3>
+            <textarea id="editArea" style="width:100%; height:400px;">${lastDraftedHtml}</textarea>
+            <br/>
+            <button onclick="saveEdit()">Save & Close</button>
+            <button onclick="this.parentElement.parentElement.remove()">Cancel</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
 }
 
-function downloadPdf() {
-    if (!latestPdfBlobUrl) return;
+function saveEdit() {
+    const newHtml = document.getElementById('editArea').value;
+    lastDraftedHtml = newHtml;
+    document.querySelector('.pdf-modal').remove();
+}
 
-    const link = document.createElement('a');
-    link.href = latestPdfBlobUrl;
-    link.download = 'Drafted_Document.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+function downloadPDF() {
+    thinkingBar.style.display = 'block';
+
+    fetch('https://AiLawSolutions.pythonanywhere.com/generate-pdf-from-html', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: lastDraftedHtml })
+    })
+    .then(response => {
+        thinkingBar.style.display = 'none';
+        return response.blob();
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Court_Document.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    })
+    .catch(error => {
+        console.error('Error downloading PDF:', error);
+        thinkingBar.style.display = 'none';
+        addMessage('Error: Failed to download PDF.', 'ai-message');
+    });
 }
 
 function handleFileUpload() {
@@ -236,7 +226,7 @@ function handleFileUpload() {
         addMessage(aiResponse, 'ai-message');
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Error analyzing upload:', error);
         thinkingBar.style.display = 'none';
         addMessage('Error: Failed to analyze uploaded document.', 'ai-message');
     });
