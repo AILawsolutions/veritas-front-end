@@ -65,7 +65,7 @@ function addMessage(text, className) {
 function callLexorvaAPI(promptText) {
     thinkingBar.style.display = 'block';
 
-    fetch('/proxy', {
+    fetch('https://AiLawSolutions.pythonanywhere.com/proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: promptText })
