@@ -1,106 +1,53 @@
-// script.js
+const chatHistory = document.getElementById('chatHistory');
+const chatInput = document.getElementById('chatInput');
+const sendButton = document.getElementById('sendButton');
+const thinkingBar = document.getElementById('thinking');
 
-// Mode buttons
-const askModeButton = document.getElementById('askMode');
-const draftModeButton = document.getElementById('draftMode');
-const questionsPanel = document.getElementById('questionsPanel');
-const downloadPDFButton = document.getElementById('downloadPDF');
-const fileUploadInput = document.getElementById('fileUpload');
-const mainInput = document.getElementById('mainInput');
-const responseBox = document.getElementById('responseBox');
-const submitButton = document.getElementById('submitButton');
-
-// Current mode state
-let currentMode = 'ask';
-
-// Mode switch handlers
-askModeButton.addEventListener('click', () => {
-    currentMode = 'ask';
-    askModeButton.classList.add('active');
-    draftModeButton.classList.remove('active');
-    questionsPanel.classList.add('hidden');
-    downloadPDFButton.classList.add('hidden');
-});
-
-draftModeButton.addEventListener('click', () => {
-    currentMode = 'draft';
-    draftModeButton.classList.add('active');
-    askModeButton.classList.remove('active');
-    questionsPanel.classList.remove('hidden');
-    downloadPDFButton.classList.remove('hidden');
-});
-
-// Upload button behavior
-const uploadButtonLabel = document.querySelector('.purple-button[for="fileUpload"]') || document.querySelector('label[for="fileUpload"]');
-uploadButtonLabel.addEventListener('click', () => {
-    fileUploadInput.click();
-});
-
-fileUploadInput.addEventListener('change', () => {
-    const file = fileUploadInput.files[0];
-    if (file) {
-        responseBox.value = `File "${file.name}" uploaded. Ready for processing.`;
+// Simulate sending message
+sendButton.addEventListener('click', sendMessage);
+chatInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
     }
 });
 
-// Submit button behavior
-submitButton.addEventListener('click', async () => {
-    let userInput = '';
+function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
 
-    if (currentMode === 'ask') {
-        userInput = mainInput.value.trim();
-    } else if (currentMode === 'draft') {
-        const questions = document.querySelectorAll('.questions-grid input');
-        userInput = 'Drafting request:\n\n';
-        questions.forEach((input, index) => {
-            userInput += `Q${index + 1}: ${input.value}\n`;
-        });
-    }
+    // Add user message
+    addMessage(text, 'user-message');
+    chatInput.value = '';
 
-    if (userInput === '') {
-        alert('Please enter your question or complete the drafting fields.');
-        return;
-    }
-
-    responseBox.value = 'LEXORVA is processing your request... Please wait.';
-
-    try {
-        // Call your Lexorva backend endpoint (replace '/proxy' with your real endpoint)
-        const response = await fetch('/proxy', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                prompt: userInput
-            })
-        });
-
-        const data = await response.json();
-
-        if (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
-            responseBox.value = data.choices[0].message.content;
-        } else {
-            responseBox.value = 'Error: Received unexpected response format.';
+    // Simulate AI thinking and response
+    thinkingBar.style.display = 'block';
+    setTimeout(() => {
+        thinkingBar.style.display = 'none';
+        addMessage(`Lexorva response to: "${text}"`, 'ai-message');
+        // If user says "draft" → show PDF preview example
+        if (text.toLowerCase().includes('draft')) {
+            addPdfPreview();
         }
-    } catch (error) {
-        console.error('Error submitting to Lexorva:', error);
-        responseBox.value = 'Error: Failed to communicate with Lexorva.';
-    }
-});
+    }, 2000);
+}
 
-// Download PDF behavior
-downloadPDFButton.addEventListener('click', () => {
-    const { jsPDF } = window.jspdf;
+function addMessage(text, className) {
+    const msg = document.createElement('div');
+    msg.className = `message ${className}`;
+    msg.innerText = text;
+    chatHistory.appendChild(msg);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+}
 
-    const doc = new jsPDF();
-    const text = responseBox.value;
-
-    const splitText = doc.splitTextToSize(text, 180);
-
-    doc.setFont('Helvetica');
-    doc.setFontSize(12);
-    doc.text(splitText, 15, 20);
-
-    doc.save('Lexorva_Document.pdf');
-});
+function addPdfPreview() {
+    const msg = document.createElement('div');
+    msg.className = 'message ai-message';
+    msg.innerHTML = `
+        <strong>[PDF]</strong> Motion_to_Dismiss_Ohio.pdf<br/>
+        <button onclick="alert('View PDF')">View</button>
+        <button onclick="alert('Edit PDF')">Edit</button>
+        <button onclick="alert('Download PDF')">Download</button>
+    `;
+    chatHistory.appendChild(msg);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+}
