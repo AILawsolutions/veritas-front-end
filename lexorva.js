@@ -4,7 +4,9 @@ const sendButton = document.getElementById('sendButton');
 const thinkingBar = document.getElementById('thinking');
 const fileUploadInput = document.getElementById('fileUpload');
 
-let chatMessages = [];
+let chatMessages = []; // Store chat memory
+
+// Drafting flow state
 let draftingFlowActive = false;
 let draftingQuestions = [
     "Document Type",
@@ -19,7 +21,6 @@ let draftingQuestions = [
 ];
 let draftingAnswers = [];
 let currentDraftingIndex = 0;
-let lastDraftedHtml = "";
 
 // Event listeners
 sendButton.addEventListener('click', sendMessage);
@@ -59,6 +60,7 @@ function addMessage(text, className) {
     chatHistory.appendChild(msg);
     chatHistory.scrollTop = chatHistory.scrollHeight;
 
+    // Store in chat memory
     chatMessages.push({ role: className.includes('user') ? 'user' : 'ai', content: text });
 }
 
@@ -97,12 +99,13 @@ function handleDraftingAnswer(answer) {
     if (currentDraftingIndex < draftingQuestions.length) {
         addMessage(draftingQuestions[currentDraftingIndex], 'ai-message');
     } else {
+        // Drafting complete → generate PDF preview
         draftingFlowActive = false;
-        generateRealDraftingHTML();
+        generateDraftingPDFPreview();
     }
 }
 
-function generateRealDraftingHTML() {
+function generateDraftingPDFPreview() {
     thinkingBar.style.display = 'block';
 
     fetch('https://AiLawSolutions.pythonanywhere.com/render-html', {
@@ -112,95 +115,49 @@ function generateRealDraftingHTML() {
     })
     .then(response => response.json())
     .then(data => {
+        const htmlContent = data?.html || '';
+        if (!htmlContent) throw new Error('Failed to render HTML.');
+
+        // Now generate the PDF from HTML:
+        return fetch('https://AiLawSolutions.pythonanywhere.com/generate-pdf-from-html', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ html: htmlContent })
+        });
+    })
+    .then(response => {
         thinkingBar.style.display = 'none';
-        if (data?.html) {
-            lastDraftedHtml = data.html;
-            addPdfPreview();
-        } else {
-            addMessage('Error: Failed to generate PDF.', 'ai-message');
+
+        if (!response.ok) {
+            throw new Error('Failed to generate PDF.');
         }
+
+        // Create blob URL for PDF preview:
+        return response.blob().then(pdfBlob => {
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+
+            // Show PDF block in chat:
+            const msg = document.createElement('div');
+            msg.className = 'pdf-preview';
+            msg.innerHTML = `
+                <strong>[PDF]</strong> Drafted_Document.pdf<br/>
+                <button onclick="window.open('${pdfUrl}', '_blank')">View</button>
+                <button onclick="alert('Edit PDF feature coming soon.')">Edit</button>
+                <a href="${pdfUrl}" download="Drafted_Document.pdf">
+                    <button>Download</button>
+                </a>
+            `;
+            chatHistory.appendChild(msg);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            // Save to chat memory:
+            chatMessages.push({ role: 'ai', content: '[PDF] Drafted_Document.pdf' });
+        });
     })
     .catch(error => {
         console.error('Error generating PDF:', error);
         thinkingBar.style.display = 'none';
         addMessage('Error: Failed to generate PDF.', 'ai-message');
-    });
-}
-
-function addPdfPreview() {
-    const msg = document.createElement('div');
-    msg.className = 'pdf-preview';
-    msg.innerHTML = `
-        <strong>[PDF]</strong> Court_Document.pdf<br/>
-        <button onclick="viewPDF()">View</button>
-        <button onclick="editPDF()">Edit</button>
-        <button onclick="downloadPDF()">Download</button>
-    `;
-    chatHistory.appendChild(msg);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-
-    chatMessages.push({ role: 'ai', content: '[PDF] Court_Document.pdf' });
-}
-
-function viewPDF() {
-    const modal = document.createElement('div');
-    modal.className = 'pdf-modal';
-    modal.innerHTML = `
-        <div style="background:#fff; padding:20px; border-radius:8px; max-height:80vh; overflow:auto;">
-            <h3>View PDF</h3>
-            <div style="border:1px solid #ccc; padding:10px; font-family:Times New Roman; white-space:pre-wrap;">${lastDraftedHtml}</div>
-            <br/><button onclick="this.parentElement.parentElement.remove()">Close</button>
-        </div>
-    `;
-    document.body.appendChild(modal);
-}
-
-function editPDF() {
-    const modal = document.createElement('div');
-    modal.className = 'pdf-modal';
-    modal.innerHTML = `
-        <div style="background:#fff; padding:20px; border-radius:8px; max-height:80vh; overflow:auto;">
-            <h3>Edit PDF</h3>
-            <textarea id="editArea" style="width:100%; height:400px;">${lastDraftedHtml}</textarea>
-            <br/>
-            <button onclick="saveEdit()">Save & Close</button>
-            <button onclick="this.parentElement.parentElement.remove()">Cancel</button>
-        </div>
-    `;
-    document.body.appendChild(modal);
-}
-
-function saveEdit() {
-    const newHtml = document.getElementById('editArea').value;
-    lastDraftedHtml = newHtml;
-    document.querySelector('.pdf-modal').remove();
-}
-
-function downloadPDF() {
-    thinkingBar.style.display = 'block';
-
-    fetch('https://AiLawSolutions.pythonanywhere.com/generate-pdf-from-html', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html: lastDraftedHtml })
-    })
-    .then(response => {
-        thinkingBar.style.display = 'none';
-        return response.blob();
-    })
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'Court_Document.pdf';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-    })
-    .catch(error => {
-        console.error('Error downloading PDF:', error);
-        thinkingBar.style.display = 'none';
-        addMessage('Error: Failed to download PDF.', 'ai-message');
     });
 }
 
@@ -226,7 +183,7 @@ function handleFileUpload() {
         addMessage(aiResponse, 'ai-message');
     })
     .catch(error => {
-        console.error('Error analyzing upload:', error);
+        console.error('Error:', error);
         thinkingBar.style.display = 'none';
         addMessage('Error: Failed to analyze uploaded document.', 'ai-message');
     });
