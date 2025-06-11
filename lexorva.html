@@ -8,22 +8,32 @@
 </head>
 <body>
 
-    <div class="header">LEXORVA</div>
+    <!-- Header matches homepage -->
+    <nav class="navbar">
+        <div class="navbar-brand">LEXORVA</div>
+        <div class="navbar-links">
+            <a href="index.html">Home</a>
+            <a href="veritas.html">Veritas</a>
+            <a href="lexorva.html" class="active">Lexorva</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
 
     <div class="main">
         <!-- Drafting Guide Panel -->
         <div class="drafting-guide" id="draftingGuide">
-            <h3>Optional Questions</h3>
+            <h3>Drafting Guide</h3>
             <ol>
-                <li>Document Type</li>
-                <li>State</li>
-                <li>County</li>
-                <li>Court Name</li>
-                <li>Parties Involved</li>
-                <li>Key Facts</li>
-                <li>Legal Issues</li>
-                <li>Conclusion / Relief Sought</li>
-                <li>Attorney Signature Block (or Additional Notes)</li>
+                <li><input type="text" id="q1" placeholder="Document Type" /></li>
+                <li><input type="text" id="q2" placeholder="State" /></li>
+                <li><input type="text" id="q3" placeholder="County" /></li>
+                <li><input type="text" id="q4" placeholder="Court Name" /></li>
+                <li><input type="text" id="q5" placeholder="Parties Involved" /></li>
+                <li><input type="text" id="q6" placeholder="Key Facts" /></li>
+                <li><input type="text" id="q7" placeholder="Legal Issues" /></li>
+                <li><input type="text" id="q8" placeholder="Conclusion / Relief Sought" /></li>
+                <li><input type="text" id="q9" placeholder="Attorney Signature Block or Notes" /></li>
             </ol>
             <a href="#" id="downloadPdf">📄 Download PDF</a>
         </div>
@@ -33,8 +43,12 @@
             <div class="chat-history" id="chatHistory">
                 <!-- Messages will go here -->
             </div>
-            <div class="thinking" id="thinking">...</div>
+            <div class="thinking" id="thinking">Thinking<span class="dots"></span></div>
             <div class="input-bar">
+                <!-- Upload button -->
+                <label for="fileUpload" class="upload-button">➕</label>
+                <input type="file" id="fileUpload" style="display:none;" />
+                <!-- Chat input and send -->
                 <input type="text" id="chatInput" placeholder="Message Lexorva..." />
                 <button id="sendButton">➤</button>
             </div>
