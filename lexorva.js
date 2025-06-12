@@ -1,13 +1,11 @@
-// FINAL script.js for MASTER PLAN Lexorva AI
-// Works perfectly with your current app.py → LEXIS-NEXIS killer flow
+// script.js — FINAL MASTER PLAN COMPATIBLE
 
 const chatHistory = document.getElementById('chatHistory');
 const chatInput = document.getElementById('chatInput');
 const sendButton = document.getElementById('sendButton');
 const thinkingBar = document.getElementById('thinking');
 const fileUploadInput = document.getElementById('fileUpload');
-
-let chatMessages = []; // Store chat memory
+const downloadPDFButton = document.getElementById('downloadPDF');
 
 // Drafting flow state
 let draftingFlowActive = false;
@@ -33,6 +31,7 @@ chatInput.addEventListener('keypress', function(e) {
     }
 });
 fileUploadInput.addEventListener('change', handleFileUpload);
+downloadPDFButton.addEventListener('click', downloadPDF);
 
 function sendMessage() {
     const text = chatInput.value.trim();
@@ -60,9 +59,6 @@ function addMessage(text, className) {
     msg.innerText = text;
     chatHistory.appendChild(msg);
     chatHistory.scrollTop = chatHistory.scrollHeight;
-
-    // Store in chat memory
-    chatMessages.push({ role: className.includes('user') ? 'user' : 'ai', content: text });
 }
 
 function callLexorvaAPI(promptText) {
@@ -78,12 +74,11 @@ function callLexorvaAPI(promptText) {
         thinkingBar.style.display = 'none';
 
         if (data.error) {
-            addMessage(`Error: ${data.error}`, 'ai-message');
-            return;
+            addMessage('Error: ' + data.error, 'ai-message');
+        } else {
+            const aiResponse = data?.choices?.[0]?.message?.content || 'Error: Unexpected response';
+            addMessage(aiResponse, 'ai-message');
         }
-
-        const aiResponse = data?.choices?.[0]?.message?.content || 'Error: Unexpected response';
-        addMessage(aiResponse, 'ai-message');
     })
     .catch(error => {
         console.error('Error:', error);
@@ -108,11 +103,11 @@ function handleDraftingAnswer(answer) {
     } else {
         // Drafting complete → generate PDF preview
         draftingFlowActive = false;
-        generateDraftingPDF();
+        generateDraftingPDFPreview();
     }
 }
 
-function generateDraftingPDF() {
+function generateDraftingPDFPreview() {
     thinkingBar.style.display = 'block';
 
     fetch('/render-html', {
@@ -125,17 +120,15 @@ function generateDraftingPDF() {
         thinkingBar.style.display = 'none';
 
         if (data.error) {
-            addMessage(`Error: ${data.error}`, 'ai-message');
+            addMessage('Error: ' + data.error, 'ai-message');
             return;
         }
-
-        const htmlContent = data.html || '';
 
         // Show PDF preview block
         const msg = document.createElement('div');
         msg.className = 'pdf-preview';
         msg.innerHTML = `
-            <strong>[PDF]</strong> Drafted_Court_Document.pdf<br/>
+            <strong>[PDF]</strong> Court_Document.pdf<br/>
             <button onclick="viewPDF()">View</button>
             <button onclick="editPDF()">Edit</button>
             <button onclick="downloadPDF()">Download</button>
@@ -143,8 +136,8 @@ function generateDraftingPDF() {
         chatHistory.appendChild(msg);
         chatHistory.scrollTop = chatHistory.scrollHeight;
 
-        // Store latest HTML for export
-        latestDraftHTML = htmlContent;
+        // Save HTML for download
+        window.latestDraftHTML = data.html;
     })
     .catch(error => {
         console.error('Error:', error);
@@ -153,38 +146,23 @@ function generateDraftingPDF() {
     });
 }
 
-let latestDraftHTML = '';
-
-function viewPDF() {
-    if (!latestDraftHTML) return alert('No PDF available yet.');
-
-    const pdfWindow = window.open('', '_blank');
-    pdfWindow.document.write(latestDraftHTML);
-    pdfWindow.document.close();
-}
-
-function editPDF() {
-    if (!latestDraftHTML) return alert('No PDF available yet.');
-
-    const blob = new Blob([latestDraftHTML], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-}
-
 function downloadPDF() {
-    if (!latestDraftHTML) return alert('No PDF available yet.');
+    if (!window.latestDraftHTML) {
+        alert('No PDF draft available.');
+        return;
+    }
 
     fetch('/generate-pdf-from-html', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html: latestDraftHTML })
+        body: JSON.stringify({ html: window.latestDraftHTML })
     })
     .then(response => response.blob())
     .then(blob => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'Drafted_Court_Document.pdf';
+        a.download = 'Court_Document.pdf';
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -194,6 +172,32 @@ function downloadPDF() {
         console.error('Error:', error);
         alert('Error: Failed to download PDF.');
     });
+}
+
+function viewPDF() {
+    if (!window.latestDraftHTML) {
+        alert('No PDF draft available.');
+        return;
+    }
+
+    fetch('/generate-pdf-from-html', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: window.latestDraftHTML })
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error: Failed to view PDF.');
+    });
+}
+
+function editPDF() {
+    alert('Edit PDF feature coming soon!');
 }
 
 function handleFileUpload() {
@@ -216,7 +220,7 @@ function handleFileUpload() {
         thinkingBar.style.display = 'none';
 
         if (data.error) {
-            addMessage(`Error: ${data.error}`, 'ai-message');
+            addMessage('Error: ' + data.error, 'ai-message');
             return;
         }
 
