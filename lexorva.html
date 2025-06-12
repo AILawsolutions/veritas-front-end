@@ -8,6 +8,8 @@
 
     <!-- Load Marked.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Load html2pdf.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -23,26 +25,13 @@
     </nav>
 
     <div class="main">
-        <!-- Drafting Guide Panel -->
-        <div class="drafting-guide" id="draftingGuide">
-            <h3>Drafting Guide</h3>
-            <ol>
-                <li><input type="text" id="q1" placeholder="Document Type" /></li>
-                <li><input type="text" id="q2" placeholder="State" /></li>
-                <li><input type="text" id="q3" placeholder="County" /></li>
-                <li><input type="text" id="q4" placeholder="Court Name" /></li>
-                <li><input type="text" id="q5" placeholder="Parties Involved" /></li>
-                <li><input type="text" id="q6" placeholder="Key Facts" /></li>
-                <li><input type="text" id="q7" placeholder="Legal Issues" /></li>
-                <li><input type="text" id="q8" placeholder="Conclusion / Relief Sought" /></li>
-                <li><input type="text" id="q9" placeholder="Attorney Signature Block or Notes" /></li>
-            </ol>
-            <a href="#" id="downloadPdf">📄 Download PDF</a>
-            <a href="#" id="saveChatPdf">💾 Save Chat as PDF</a> <!-- Added here -->
-        </div>
-
-        <!-- Chat Section -->
+        <!-- Chat Section ONLY -->
         <div class="chat-section" id="chatSection">
+            <!-- Save Chat as PDF button at top -->
+            <div style="text-align:right; margin-bottom: 10px;">
+                <a href="#" id="saveChatPdf">💾 Save Chat as PDF</a>
+            </div>
+
             <div class="chat-history" id="chatHistory">
                 <!-- Messages will go here -->
             </div>
