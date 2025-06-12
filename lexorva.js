@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const fileUploadInput = document.getElementById("fileUpload");
     const downloadPdfLink = document.getElementById("downloadPdf");
+    const saveChatPdfButton = document.getElementById("saveChatPdf");
 
     // Update this to your backend URL:
     const BACKEND_URL = "https://AiLawSolutions.pythonanywhere.com";
@@ -139,36 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Helper to append message to chat
-    function appendMessage(sender, text) {
-        const messageDiv = document.createElement("div");
-
-        // Map "user" → "user-message", "lexorva" → "ai-message"
-        const className = sender === "user" ? "user-message" : "ai-message";
-
-        messageDiv.classList.add(className);
-
-        // If it's Lexorva, parse Markdown → HTML using marked
-        if (sender === "lexorva") {
-            // Use marked.parse() to convert to clean HTML
-            messageDiv.innerHTML = marked.parse(text);
-        } else {
-            // For user message → plain text
-            messageDiv.textContent = text;
-        }
-
-        chatHistory.appendChild(messageDiv);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-
-    // Helper to show/hide "Thinking..."
-    function showThinking(show) {
-        thinkingIndicator.style.display = show ? "block" : "none";
-    }
-
-    // Save Chat as PDF button
-    const saveChatPdfButton = document.getElementById("saveChatPdf");
-
+    // Save Chat as PDF
     saveChatPdfButton.addEventListener("click", () => {
         const chatElement = document.getElementById("chatHistory");
 
@@ -182,4 +154,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
         html2pdf().set(opt).from(chatElement).save();
     });
+
+    // Helper to append message to chat
+    function appendMessage(sender, text) {
+        const messageDiv = document.createElement("div");
+
+        // Map "user" → "user-message", "lexorva" → "ai-message"
+        const className = sender === "user" ? "user-message" : "ai-message";
+
+        messageDiv.classList.add(className);
+
+        // If it's Lexorva, parse Markdown → HTML using marked
+        if (sender === "lexorva") {
+            messageDiv.innerHTML = marked.parse(text);
+        } else {
+            messageDiv.textContent = text;
+        }
+
+        chatHistory.appendChild(messageDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    // Helper to show/hide "Thinking..."
+    function showThinking(show) {
+        thinkingIndicator.style.display = show ? "block" : "none";
+    }
 });
