@@ -165,4 +165,21 @@ document.addEventListener("DOMContentLoaded", () => {
     function showThinking(show) {
         thinkingIndicator.style.display = show ? "block" : "none";
     }
+
+    // Save Chat as PDF button
+    const saveChatPdfButton = document.getElementById("saveChatPdf");
+
+    saveChatPdfButton.addEventListener("click", () => {
+        const chatElement = document.getElementById("chatHistory");
+
+        const opt = {
+            margin:       0.5,
+            filename:     'lexorva_chat.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(chatElement).save();
+    });
 });
