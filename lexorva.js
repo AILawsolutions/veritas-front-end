@@ -1,18 +1,20 @@
-// script.js — FULL MASTER PLAN VERSION
+// script.js
 
 // Elements
 const askModeButton = document.getElementById('askMode');
 const draftModeButton = document.getElementById('draftMode');
-const submitButton = document.getElementById('submitButton');
-const downloadPDFButton = document.getElementById('downloadPDF');
-const responseBox = document.getElementById('responseBox');
 const questionsPanel = document.getElementById('questionsPanel');
+const downloadPDFButton = document.getElementById('downloadPDF');
+const submitDraftButton = document.getElementById('submitDraft');
 const fileUploadInput = document.getElementById('fileUpload');
+const responseBox = document.getElementById('responseBox');
+const submitButton = document.getElementById('submitButton');
+const messageInput = document.getElementById('messageInput');
 
+// Current mode state
 let currentMode = 'ask';
-let latestHTMLContent = '';
 
-// MODE SWITCH
+// Mode switch handlers
 askModeButton.addEventListener('click', () => {
     currentMode = 'ask';
     askModeButton.classList.add('active');
@@ -31,154 +33,108 @@ draftModeButton.addEventListener('click', () => {
     responseBox.innerHTML = '';
 });
 
-// ASK LEXORVA FLOW
-async function sendAskLexorva(message) {
-    responseBox.innerHTML = '<em>Lexorva is thinking...</em>';
+// Submit Guided Drafting (Render PDF)
+submitDraftButton.addEventListener('click', async () => {
+    const docType = document.getElementById('docType').value;
+    const state = document.getElementById('state').value;
+    const county = document.getElementById('county').value;
+    const courtName = document.getElementById('courtName').value;
+    const parties = document.getElementById('parties').value;
+    const facts = document.getElementById('facts').value;
+    const legalIssues = document.getElementById('legalIssues').value;
+    const reliefSought = document.getElementById('reliefSought').value;
+    const signatureBlock = document.getElementById('signatureBlock').value;
+
+    responseBox.innerHTML = 'Generating document...';
 
     try {
-        const response = await fetch('/proxy', {
+        const response = await fetch('https://ailawsolutions.pythonanywhere.com/render-html', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_input: message })
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                docType,
+                state,
+                county,
+                courtName,
+                parties,
+                facts,
+                legalIssues,
+                reliefSought,
+                signatureBlock
+            })
         });
 
-        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-
-        const data = await response.json();
-        const lexorvaReply = data.reply || 'No response from Lexorva.';
-
-        responseBox.innerHTML = `<div class="lexorva-reply">${lexorvaReply}</div>`;
-    } catch (error) {
-        responseBox.innerHTML = `<div class="error">Error: Failed to communicate with Lexorva.</div>`;
-        console.error('Error communicating with Lexorva:', error);
-    }
-}
-
-// GUIDED DRAFTING FLOW
-async function generateDraftingPDF() {
-    responseBox.innerHTML = '<em>Generating court-formatted document...</em>';
-
-    const draftingData = {
-        document_type: document.getElementById('documentType').value,
-        state: document.getElementById('state').value,
-        county: document.getElementById('county').value,
-        court_name: document.getElementById('courtName').value,
-        parties_involved: document.getElementById('partiesInvolved').value,
-        key_facts: document.getElementById('keyFacts').value,
-        legal_issues: document.getElementById('legalIssues').value,
-        relief_sought: document.getElementById('reliefSought').value,
-        signature_block: document.getElementById('signatureBlock').value
-    };
-
-    try {
-        const response = await fetch('/render-html', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(draftingData)
-        });
-
-        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-
-        const data = await response.json();
-        latestHTMLContent = data.html || '';
-
-        responseBox.innerHTML = `
-            <iframe srcdoc="${latestHTMLContent}" style="width: 100%; height: 600px; border: 1px solid #ccc;"></iframe>
-        `;
-
-        downloadPDFButton.classList.remove('hidden');
-    } catch (error) {
-        responseBox.innerHTML = `<div class="error">Error: Failed to generate PDF.</div>`;
-        console.error('Error generating PDF:', error);
-    }
-}
-
-// DOWNLOAD PDF
-downloadPDFButton.addEventListener('click', async () => {
-    try {
-        const response = await fetch('/generate-pdf', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ html: latestHTMLContent })
-        });
-
-        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+        if (!response.ok) {
+            throw new Error('Failed to generate PDF.');
+        }
 
         const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob);
 
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'Lexorva_Court_Document.pdf';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.download = 'court_document.pdf';
+        downloadLink.click();
+
+        URL.revokeObjectURL(url);
+
+        responseBox.innerHTML = 'Document ready — downloaded.';
     } catch (error) {
-        alert('Error downloading PDF.');
-        console.error('PDF download error:', error);
+        responseBox.innerHTML = `Error: ${error.message}`;
     }
 });
 
-// EVIDENCE UPLOAD FLOW (PREPPED FOR MASTER PLAN)
-fileUploadInput.addEventListener('change', async () => {
-    const file = fileUploadInput.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    responseBox.innerHTML = '<em>Analyzing uploaded evidence...</em>';
-
-    try {
-        const response = await fetch('/analyze-upload', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-
-        const data = await response.json();
-        const analysisResult = data.analysis || 'No analysis result.';
-
-        responseBox.innerHTML = `<div class="lexorva-reply">${analysisResult}</div>`;
-    } catch (error) {
-        responseBox.innerHTML = `<div class="error">Error analyzing uploaded file.</div>`;
-        console.error('File upload analysis error:', error);
+// Submit Ask Lexorva message
+submitButton.addEventListener('click', sendAskLexorva);
+messageInput.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        sendAskLexorva();
     }
 });
 
-// STRATEGY REPORT FLOW (PREPPED FOR MASTER PLAN)
-async function generateStrategyReport() {
-    responseBox.innerHTML = '<em>Generating Strategy Report...</em>';
+async function sendAskLexorva() {
+    const message = messageInput.value.trim();
+    if (!message) return;
+
+    const userMessageDiv = document.createElement('div');
+    userMessageDiv.className = 'chat-entry user-entry';
+    userMessageDiv.innerText = message;
+    responseBox.appendChild(userMessageDiv);
+
+    messageInput.value = '';
+    responseBox.scrollTop = responseBox.scrollHeight;
 
     try {
-        const response = await fetch('/generate-report', {
+        const response = await fetch('https://ailawsolutions.pythonanywhere.com/ask', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({})
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message
+            })
         });
 
-        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+        if (!response.ok) {
+            throw new Error('Failed to communicate with Lexorva.');
+        }
 
         const data = await response.json();
-        const reportHTML = data.report_html || '';
+        const lexorvaResponse = data.reply || 'Error: No response from Lexorva.';
 
-        responseBox.innerHTML = `
-            <iframe srcdoc="${reportHTML}" style="width: 100%; height: 600px; border: 1px solid #ccc;"></iframe>
-        `;
+        const lexorvaMessageDiv = document.createElement('div');
+        lexorvaMessageDiv.className = 'chat-entry lexorva-entry';
+        lexorvaMessageDiv.innerText = lexorvaResponse;
+        responseBox.appendChild(lexorvaMessageDiv);
+
+        responseBox.scrollTop = responseBox.scrollHeight;
     } catch (error) {
-        responseBox.innerHTML = `<div class="error">Error: Failed to generate Strategy Report.</div>`;
-        console.error('Strategy Report error:', error);
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'chat-entry error-entry';
+        errorDiv.innerText = `Error: ${error.message}`;
+        responseBox.appendChild(errorDiv);
     }
 }
-
-// MESSAGE SUBMIT HANDLER
-submitButton.addEventListener('click', () => {
-    const userInput = document.getElementById('userInput').value;
-
-    if (currentMode === 'ask') {
-        sendAskLexorva(userInput);
-    } else if (currentMode === 'draft') {
-        generateDraftingPDF();
-    }
-});
