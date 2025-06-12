@@ -6,7 +6,7 @@ const questionsPanel = document.getElementById('questionsPanel');
 const downloadPDFButton = document.getElementById('downloadPDF');
 const fileUploadInput = document.getElementById('fileUpload');
 const responseBox = document.getElementById('responseBox');
-const submitButton = document.getElementById('submitButton');
+const submitButton = document.querySelector('.send-button');
 const messageInput = document.querySelector('input[placeholder="Message Lexorva..."]');
 
 let currentMode = 'ask';
