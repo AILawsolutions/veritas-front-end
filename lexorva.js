@@ -12,6 +12,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update this to your backend URL:
     const BACKEND_URL = "https://AiLawSolutions.pythonanywhere.com";
 
+    // Allow pressing Enter to send message
+    chatInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendButton.click();
+        }
+    });
+
     // Send plain chat message to /proxy
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
@@ -134,7 +142,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Helper to append message to chat
     function appendMessage(sender, text) {
         const messageDiv = document.createElement("div");
-        messageDiv.classList.add("message", sender);
+
+        // Map "user" → "user-message", "lexorva" → "ai-message"
+        const className = sender === "user" ? "user-message" : "ai-message";
+
+        messageDiv.classList.add(className);
         messageDiv.innerHTML = text;
         chatHistory.appendChild(messageDiv);
         chatHistory.scrollTop = chatHistory.scrollHeight;
