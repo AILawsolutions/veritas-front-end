@@ -147,7 +147,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const className = sender === "user" ? "user-message" : "ai-message";
 
         messageDiv.classList.add(className);
-        messageDiv.innerHTML = text;
+
+        // If it's Lexorva, parse Markdown → HTML using marked
+        if (sender === "lexorva") {
+            // Use marked.parse() to convert to clean HTML
+            messageDiv.innerHTML = marked.parse(text);
+        } else {
+            // For user message → plain text
+            messageDiv.textContent = text;
+        }
+
         chatHistory.appendChild(messageDiv);
         chatHistory.scrollTop = chatHistory.scrollHeight;
     }
