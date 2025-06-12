@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const thinkingIndicator = document.getElementById("thinking");
 
     const fileUploadInput = document.getElementById("fileUpload");
-    const downloadPdfLink = document.getElementById("downloadPdf");
     const saveChatPdfButton = document.getElementById("saveChatPdf");
 
     // Update this to your backend URL:
@@ -77,64 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } catch (error) {
             appendMessage("lexorva", "Error: Failed to communicate with Lexorva.");
-        } finally {
-            showThinking(false);
-        }
-    });
-
-    // Download PDF from Drafting Guide
-    downloadPdfLink.addEventListener("click", async (e) => {
-        e.preventDefault();
-
-        const answers = [
-            document.getElementById("q1").value.trim(),
-            document.getElementById("q2").value.trim(),
-            document.getElementById("q3").value.trim(),
-            document.getElementById("q4").value.trim(),
-            document.getElementById("q5").value.trim(),
-            document.getElementById("q6").value.trim(),
-            document.getElementById("q7").value.trim(),
-            document.getElementById("q8").value.trim(),
-            document.getElementById("q9").value.trim()
-        ];
-
-        showThinking(true);
-
-        try {
-            const htmlResponse = await fetch(`${BACKEND_URL}/render-html`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ answers })
-            });
-
-            const htmlData = await htmlResponse.json();
-
-            if (htmlData.error) {
-                appendMessage("lexorva", `Error: ${htmlData.error}`);
-                showThinking(false);
-                return;
-            }
-
-            const pdfResponse = await fetch(`${BACKEND_URL}/generate-pdf-from-html`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ html: htmlData.html })
-            });
-
-            const pdfBlob = await pdfResponse.blob();
-            const url = window.URL.createObjectURL(pdfBlob);
-
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "court_document.pdf";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-
-            appendMessage("lexorva", "✅ PDF downloaded successfully.");
-        } catch (error) {
-            appendMessage("lexorva", "Error: Failed to generate PDF.");
         } finally {
             showThinking(false);
         }
