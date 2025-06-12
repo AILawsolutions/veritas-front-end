@@ -110,24 +110,28 @@ body {
 .message {
     max-width: 70%;
     padding: 10px 15px;
-    border-radius: 10px;
     line-height: 1.5;
     font-size: 14px;
     word-wrap: break-word;
+    border: 1px solid #ccc;
 }
 
 .user-message {
     align-self: flex-end;
     background: #f0eaff;
     color: #333;
-    border: 1px solid #ccc;
+    border-radius: 20px 20px 0px 20px; /* Rounded style */
+    padding: 10px 15px;
+    max-width: 70%;
 }
 
 .ai-message {
     align-self: flex-start;
     background: #fff;
     color: #333;
-    border: 1px solid #ccc;
+    border-radius: 20px 20px 20px 0px; /* Rounded style */
+    padding: 10px 15px;
+    max-width: 70%;
 }
 
 /* PDF Preview Card */
