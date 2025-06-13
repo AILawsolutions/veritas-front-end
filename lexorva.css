@@ -1,4 +1,38 @@
-/* Reset and base styles */
+/* Top Navigation (match homepage) */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: transparent;
+}
+
+.logo-text {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #A84DF2, #C168F9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-links a.nav-button {
+    margin-left: 15px;
+    padding: 8px 16px;
+    border: 2px solid #A84DF2;
+    border-radius: 20px;
+    background-color: white;
+    color: #A84DF2;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-links a.nav-button:hover {
+    background-color: #A84DF2;
+    color: white;
+}
+
+/* Main Layout */
 body {
     margin: 0;
     font-family: 'Inter', sans-serif;
@@ -8,51 +42,11 @@ body {
     height: 100vh;
 }
 
-/* Navbar */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #fff;
-    padding: 15px 30px;
-    border-bottom: 1px solid #eee;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.navbar-brand {
-    font-size: 1.8rem;
-    font-weight: bold;
-    font-family: Orbitron, Arial, sans-serif;
-    background: linear-gradient(90deg, #A84DF2, #C168F9);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.navbar-links a {
-    color: #333;
-    text-decoration: none;
-    margin-left: 20px;
-    font-weight: bold;
-    border: 2px solid #A84DF2;
-    border-radius: 20px;
-    padding: 6px 14px;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.navbar-links a:hover,
-.navbar-links a.active {
-    background: linear-gradient(90deg, #A84DF2, #C168F9);
-    color: white !important;
-    -webkit-background-clip: unset;
-    -webkit-text-fill-color: unset;
-    border-color: transparent;
-}
-
-/* Main */
 .main {
     display: flex;
     flex: 1;
     overflow: hidden;
+    flex-direction: column;
 }
 
 /* Chat Section */
