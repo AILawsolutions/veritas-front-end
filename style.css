@@ -1,85 +1,73 @@
-/* RESET & BASE */
+/* Reset and base styles */
 body {
     margin: 0;
     padding: 0;
     background-color: #FFFFFF;
     font-family: 'Inter', sans-serif;
     color: #222222;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-/* TYPOGRAPHY */
-h1, h2 {
-    color: #000000;
-}
-
-p, span, div {
-    color: #222222;
-}
-
-.secondary-text {
-    color: #666666;
-}
-
-a {
-    color: #1F3A93;
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* TOP NAVIGATION */
+/* Top Navigation */
 .top-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 40px;
-    background-color: transparent;
-    border-bottom: 1px solid #eee;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E0E0E0;
 }
 
 .logo-text {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(90deg, #8A4FFF, #8A4FFF);
+    background: linear-gradient(135deg, #1F3A93 0%, #8A4FFF 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    color: transparent;
 }
 
 .nav-links a.nav-button {
     margin-left: 15px;
     padding: 8px 16px;
-    border: 2px solid #8A4FFF;
-    border-radius: 20px;
-    background-color: white;
-    color: #8A4FFF;
+    background-color: transparent;
+    color: #1F3A93;
     font-weight: 600;
     text-decoration: none;
-    transition: all 0.2s ease;
+    border: none;
+    border-radius: 0;
+    transition: border-bottom 0.3s ease;
 }
 
 .nav-links a.nav-button:hover,
 .nav-links a.nav-button.active {
-    border-color: #1F3A93;
+    border-bottom: 2px solid #1F3A93;
     color: #1F3A93;
-    border-bottom: 3px solid #1F3A93;
-    background-color: white;
 }
 
-/* HERO SECTION */
+/* Hero Section */
 .hero-section {
     text-align: center;
     padding: 60px 20px;
+    flex-grow: 1;
+}
+
+.hero-title {
+    font-size: 32px;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 20px;
 }
 
 .hero-lexorva {
     font-size: 64px;
     font-weight: 700;
-    background: linear-gradient(135deg, #8A4FFF 0%, #FF8C00 100%);
+    background: linear-gradient(135deg, #1F3A93 0%, #8A4FFF 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    color: transparent;
     margin-bottom: 10px;
 }
 
@@ -90,7 +78,7 @@ a:hover {
     margin-bottom: 40px;
 }
 
-/* CARDS */
+/* Cards */
 .cards-container {
     display: flex;
     justify-content: center;
@@ -101,8 +89,8 @@ a:hover {
 
 .card {
     background-color: #FFFFFF;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    border-radius: 8px;
     padding: 20px;
     max-width: 320px;
     text-align: left;
@@ -121,113 +109,43 @@ a:hover {
     color: #222222;
 }
 
-/* CTA BUTTONS */
+/* CTA Button */
 .cta-button {
     display: inline-block;
     padding: 12px 24px;
-    background: linear-gradient(135deg, #8A4FFF 0%, #FF8C00 100%);
-    color: white;
+    background: linear-gradient(135deg, #1F3A93 0%, #8A4FFF 100%);
+    color: #FFFFFF;
     font-weight: 600;
-    border-radius: 30px;
+    border-radius: 8px;
     text-decoration: none;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: background 0.3s ease;
+    margin-bottom: 10px;
 }
 
 .cta-button:hover {
-    opacity: 0.9;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    background: linear-gradient(135deg, #1F3A93 0%, #9B5FFF 100%);
 }
 
+/* Upgrade Plan — secondary small text */
 .upgrade-link {
     display: block;
-    color: #8A4FFF;
+    color: #666666;
+    font-size: 14px;
     text-decoration: none;
-    font-weight: 600;
     margin-top: 10px;
-    text-align: center;
 }
 
-.upgrade-link:hover {
-    text-decoration: underline;
-}
-
-/* FOOTER */
+/* Footer */
 .footer {
     text-align: center;
     padding: 20px;
     font-size: 14px;
     color: #666666;
-    border-top: 1px solid #eee;
+    border-top: 1px solid #E0E0E0;
 }
 
-/* CHAT AREA / VERITAS */
-.chat-main {
-    background-color: #FFFFFF;
-}
-
-.chat-history {
-    background-color: #FFFFFF;
-}
-
-.ai-message {
-    align-self: flex-start;
-    background: #FFFFFF;
-    color: #000000;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 12px 16px;
-    max-width: 70%;
-}
-
-.user-message {
-    align-self: flex-end;
-    background: #f0f0f0;
-    color: #222222;
-    border-radius: 12px;
-    padding: 12px 16px;
-    max-width: 70%;
-}
-
-/* THINKING DOTS */
-.ai-message.typing::after {
-    content: "...";
-    font-weight: bold;
-    font-size: 18px;
-    margin-left: 8px;
-    color: #666666;
-    animation: blink 1s infinite;
-}
-
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-}
-
-/* PDF PREVIEW / LEGAL DOCUMENT */
-.legal-document {
-    font-family: "Times New Roman", serif;
-    font-size: 12pt;
-    line-height: 2;
-    margin: 1in;
-    color: #000000;
-}
-
-.legal-document h1 {
-    text-align: center;
-    font-weight: bold;
-}
-
-.legal-document h2 {
-    font-weight: bold;
-}
-
-.legal-document p {
-    margin-bottom: 1em;
-}
-
-/* RESPONSIVENESS */
+/* Responsive */
 @media (max-width: 768px) {
     .cards-container {
         flex-direction: column;
