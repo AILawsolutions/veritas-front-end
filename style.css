@@ -1,16 +1,18 @@
-/* Base Styles */
+/* ======= Base Styles ======= */
+
 body {
     margin: 0;
     padding: 0;
     background-color: #FFFFFF;
     font-family: 'Inter', sans-serif;
-    color: #333333;
+    color: #222222;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
-/* Nav Bar */
+/* ======= Top Navigation ======= */
+
 .top-nav {
     display: flex;
     justify-content: space-between;
@@ -22,7 +24,7 @@ body {
 .logo-text {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(135deg, #8A4FFF 0%, #1F3A93 100%);
+    background: linear-gradient(90deg, #8A4FFF, #1F3A93);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
@@ -33,7 +35,7 @@ body {
     text-decoration: none;
     padding: 8px 16px;
     font-weight: 600;
-    transition: all 0.3s ease;
+    font-size: 16px;
 }
 
 .nav-links a:hover {
@@ -41,31 +43,40 @@ body {
     transition: all 0.3s ease;
 }
 
-/* Hero Section */
+/* ======= Hero Section ======= */
+
 .hero-section {
     text-align: center;
     padding: 60px 20px;
     flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 
-.hero-title {
+.hero-headline {
     font-size: 36px;
-    font-weight: 700;
+    font-weight: bold;
     color: #000000;
     margin-bottom: 12px;
 }
 
-.hero-subtitle {
-    font-size: 20px;
-    font-weight: 400;
+.hero-lexorva {
+    font-size: 64px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #8A4FFF 0%, #1F3A93 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    margin-bottom: 8px;
+}
+
+.hero-subheadline {
+    font-size: 18px;
     color: #444444;
+    font-weight: normal;
     margin-bottom: 40px;
 }
 
-/* Cards */
+/* ======= Cards ======= */
+
 .cards-container {
     display: flex;
     justify-content: center;
@@ -96,19 +107,20 @@ body {
     line-height: 1.5;
 }
 
-/* CTA Button */
+/* ======= CTA Button ======= */
+
 .cta-button {
     display: inline-block;
     padding: 12px 24px;
     background: linear-gradient(135deg, #8A4FFF 0%, #1F3A93 100%);
     color: #FFFFFF;
-    font-weight: bold;
     border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
     text-decoration: none;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    cursor: pointer;
     transition: background 0.3s ease;
-    font-size: 16px;
+    cursor: pointer;
     margin-bottom: 12px;
 }
 
@@ -116,37 +128,48 @@ body {
     background: linear-gradient(135deg, #9B5CFF 0%, #2446B5 100%);
 }
 
-/* Upgrade Your Plan link */
+/* ======= Upgrade Your Plan Link ======= */
+
 .upgrade-link {
     font-size: 12px;
     color: #999999;
     text-align: center;
-    display: block;
     margin-top: 12px;
+    display: block;
+    text-decoration: none;
 }
 
-/* Footer (optional) */
+.upgrade-link:hover {
+    text-decoration: underline;
+}
+
+/* ======= Footer ======= */
+
 .footer {
     text-align: center;
     padding: 20px;
     font-size: 14px;
-    color: #666666;
+    color: #6c757d;
     border-top: 1px solid #E0E0E0;
-    margin-top: auto;
 }
 
-/* Responsive */
+/* ======= Responsive ======= */
+
 @media (max-width: 768px) {
     .cards-container {
         flex-direction: column;
         align-items: center;
     }
 
-    .hero-title {
+    .hero-lexorva {
+        font-size: 48px;
+    }
+
+    .hero-headline {
         font-size: 28px;
     }
 
-    .hero-subtitle {
-        font-size: 18px;
+    .cta-button {
+        width: auto;
     }
 }
