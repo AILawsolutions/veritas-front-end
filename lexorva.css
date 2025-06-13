@@ -8,7 +8,7 @@ body {
     height: 100vh;
 }
 
-/* Top Navigation - matches index */
+/* Top Navigation - same as index.html */
 .top-nav {
     display: flex;
     justify-content: space-between;
@@ -24,29 +24,30 @@ body {
     background: linear-gradient(90deg, #7b1fa2, #9c27b0, #ff6b3d);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
     color: transparent;
 }
 
 .nav-links a.nav-button {
     margin-left: 15px;
     padding: 8px 16px;
-    border: 2px solid #9c27b0;
+    border: 2px solid transparent;
     border-radius: 20px;
     background-color: white;
-    color: #9c27b0;
+    color: #7b1fa2;
     font-weight: 600;
     text-decoration: none;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    border: 2px solid #7b1fa2;
 }
 
 .nav-links a.nav-button:hover,
 .nav-links a.nav-button.active {
     background: linear-gradient(90deg, #7b1fa2, #9c27b0, #ff6b3d);
     color: white;
+    border-color: transparent;
 }
 
-/* Chat Section */
+/* Main Chat Section */
 .main {
     display: flex;
     flex: 1;
@@ -104,7 +105,7 @@ body {
     width: 1em;
     height: 1em;
     border-radius: 50%;
-    background: #9c27b0;
+    background: #7b1fa2;
     animation: blink 1s infinite;
     margin-left: 8px;
     vertical-align: middle;
@@ -147,11 +148,6 @@ body {
     border-radius: 50%;
     cursor: pointer;
     font-size: 18px;
-    transition: box-shadow 0.2s ease;
-}
-
-.input-bar button:hover {
-    box-shadow: 0 4px 12px rgba(123, 31, 162, 0.4);
 }
 
 /* Upload button */
@@ -159,7 +155,7 @@ body {
     margin-right: 10px;
     font-size: 20px;
     cursor: pointer;
-    color: #9c27b0;
+    color: #7b1fa2;
     user-select: none;
 }
 
