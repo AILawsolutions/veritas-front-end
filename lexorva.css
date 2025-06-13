@@ -1,147 +1,164 @@
-/* GLOBAL PAGE */
+/* Base styles */
 body {
     margin: 0;
-    padding: 0;
-    background-color: #f8f9fb; /* light background */
     font-family: 'Inter', sans-serif;
-    color: #222222;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
 
-/* HEADER */
+/* Top Navigation - COPY of index.html style */
 .top-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 40px;
-    background-color: #FFFFFF;
-    border-bottom: 1px solid #e0e0e0;
+    background-color: transparent;
+    border-bottom: 1px solid #eaeaea;
 }
 
 .logo-text {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(to right, #7b2ff7, #0b74de);
+    background: linear-gradient(90deg, #9C27B0, #673AB7);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    color: transparent;
 }
 
-/* NAV LINKS — FIXED to match your GOOD screenshot */
-.nav-links a {
-    background: linear-gradient(to right, #7b2ff7, #0b74de);
-    color: #ffffff;
+.nav-links a.nav-button {
+    margin-left: 15px;
     padding: 8px 16px;
+    border: 2px solid #A84DF2;
     border-radius: 20px;
+    background-color: white;
+    color: #A84DF2;
+    font-weight: 600;
     text-decoration: none;
-    margin-left: 8px;
-    font-weight: 500;
-    display: inline-block;
-    transition: background 0.3s ease;
+    transition: background-color 0.2s, color 0.2s;
 }
 
-.nav-links a:hover {
-    background: linear-gradient(to right, #9b5cff, #339cff);
+.nav-links a.nav-button:hover,
+.nav-links a.nav-button.active {
+    background-color: #A84DF2;
+    color: white;
 }
 
-/* MAIN CHAT SECTION */
+/* Chat Section */
 .main {
     display: flex;
+    flex: 1;
+    overflow: hidden;
     flex-direction: column;
-    height: calc(100vh - 80px); /* full height minus header */
 }
 
 .chat-section {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 20px;
+    padding: 15px;
     box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .chat-history {
-    flex-grow: 1;
+    flex: 1;
     overflow-y: auto;
-    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 10px;
 }
 
-/* CHAT BUBBLES — this is the important part */
-.chat-message {
-    max-width: 70%;
-    margin-bottom: 12px;
-    padding: 12px 16px;
-    border-radius: 18px;
-    font-size: 16px;
-    line-height: 1.4;
-    word-wrap: break-word;
-}
-
-/* USER MESSAGE — gradient bubble right side */
-.chat-message.user {
+.user-message {
     align-self: flex-end;
-    background: linear-gradient(to right, #7b2ff7, #0b74de);
-    color: #FFFFFF;
-    text-align: left;
+    background: #f0eaff;
+    color: #333;
+    border-radius: 20px 20px 0px 20px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    max-width: 70%;
 }
 
-/* AI MESSAGE — light bubble left side */
-.chat-message.ai {
+.ai-message {
     align-self: flex-start;
-    background-color: #f0f0f0;
-    color: #000000;
-    text-align: left;
+    background: #fff;
+    color: #333;
+    border-radius: 20px 20px 20px 0px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    max-width: 70%;
+    position: relative;
 }
 
-/* INPUT BAR */
+/* Typing Animation */
+.ai-message.typing::after {
+    content: "";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    background: #A84DF2;
+    animation: blink 1s infinite;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* Thinking Bar (Hidden) */
+.thinking {
+    display: none;
+}
+
+/* Input Bar */
 .input-bar {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid #eee;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 .input-bar input[type="text"] {
-    flex-grow: 1;
+    flex: 1;
     padding: 12px 16px;
-    border: 1px solid #ced4da;
+    border: 1px solid #ccc;
     border-radius: 20px;
     font-size: 16px;
-    outline: none;
+    font-family: 'Inter', sans-serif;
 }
 
-.send-button {
-    margin-left: 12px;
+.input-bar button {
+    margin-left: 10px;
     padding: 12px 16px;
-    background: linear-gradient(to right, #7b2ff7, #0b74de);
+    background: linear-gradient(90deg, #A84DF2, #C168F9);
     color: white;
     border: none;
     border-radius: 50%;
-    font-size: 16px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s ease;
-}
-
-.send-button:hover {
-    background: linear-gradient(to right, #9b5cff, #339cff);
-}
-
-/* PLUS BUTTON — Keep this as is */
-.attach-button {
-    margin-right: 12px;
-    padding: 10px 14px;
-    background-color: #ffffff;
-    border: 2px solid #7b2ff7;
-    border-radius: 50%;
     font-size: 18px;
-    font-weight: bold;
-    color: #7b2ff7;
-    cursor: pointer;
-    transition: background 0.3s ease;
 }
 
-.attach-button:hover {
-    background-color: #f2f2f2;
+/* Upload button */
+.upload-button {
+    margin-right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #A84DF2;
+    user-select: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .main {
+        flex-direction: column;
+    }
 }
