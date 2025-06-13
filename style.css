@@ -62,7 +62,7 @@ body {
 .hero-lexorva {
     font-size: 64px;
     font-weight: 700;
-    background: linear-gradient(90deg, #FF7E5F, #9C27B0, #673AB7, #FF6F91);
+    background: linear-gradient(90deg, #FF7E5F, #FFB677, #9C27B0, #673AB7, #6A00FF);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
