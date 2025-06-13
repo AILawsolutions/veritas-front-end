@@ -22,7 +22,7 @@ body {
 .logo-text {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(90deg, #4B0082, #6A0DAD, #8A2BE2);
+    background: linear-gradient(90deg, #2E0854, #6A0DAD, #B19CD9);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -43,7 +43,7 @@ body {
 
 .nav-links a.nav-button:hover,
 .nav-links a.nav-button.active {
-    background: linear-gradient(90deg, #4B0082, #6A0DAD, #8A2BE2);
+    background: linear-gradient(90deg, #2E0854, #6A0DAD, #B19CD9);
     color: white;
 }
 
@@ -63,7 +63,7 @@ body {
 .hero-lexorva {
     font-size: 64px;
     font-weight: 700;
-    background: linear-gradient(90deg, #4B0082, #6A0DAD, #8A2BE2);
+    background: linear-gradient(90deg, #2E0854, #6A0DAD, #B19CD9);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -116,7 +116,7 @@ body {
 .cta-button {
     display: inline-block;
     padding: 12px 24px;
-    background: linear-gradient(90deg, #4B0082, #6A0DAD, #8A2BE2);
+    background: linear-gradient(90deg, #2E0854, #6A0DAD, #B19CD9);
     color: white;
     font-weight: 600;
     border-radius: 30px;
@@ -128,7 +128,7 @@ body {
 }
 
 .cta-button:hover {
-    box-shadow: 0 4px 12px rgba(74, 0, 130, 0.4);
+    box-shadow: 0 4px 12px rgba(46, 8, 84, 0.4);
 }
 
 .upgrade-link {
@@ -165,4 +165,4 @@ body {
     .hero-title {
         font-size: 24px;
     }
-}
+} a>
