@@ -1,4 +1,4 @@
-/* Reset and base styles */
+/* Base Styles */
 body {
     margin: 0;
     padding: 0;
@@ -10,65 +10,52 @@ body {
     min-height: 100vh;
 }
 
-/* Top Navigation */
+/* Nav Bar */
 .top-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 40px;
     background-color: #FFFFFF;
-    border-bottom: 1px solid #E0E0E0;
 }
 
 .logo-text {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(135deg, #1F3A93 0%, #376FDB 100%);
+    background: linear-gradient(135deg, #8A4FFF 0%, #1F3A93 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
 }
 
-.nav-links a.nav-button {
-    margin-left: 15px;
-    padding: 8px 16px;
-    background-color: transparent;
+.nav-links a {
     color: #1F3A93;
-    font-weight: 600;
     text-decoration: none;
-    border: none;
-    border-radius: 0;
+    padding: 8px 16px;
+    font-weight: 600;
     transition: all 0.3s ease;
 }
 
-.nav-links a.nav-button:hover,
-.nav-links a.nav-button.active {
+.nav-links a:hover {
     border-bottom: 2px solid #1F3A93;
-    color: #1F3A93;
+    transition: all 0.3s ease;
 }
 
 /* Hero Section */
 .hero-section {
     text-align: center;
-    padding: 100px 20px 80px 20px;
+    padding: 60px 20px;
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .hero-title {
-    font-size: 40px;
+    font-size: 36px;
     font-weight: 700;
     color: #000000;
-    margin-bottom: 20px;
-}
-
-.hero-lexorva {
-    font-size: 64px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #1F3A93 0%, #376FDB 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .hero-subtitle {
@@ -84,14 +71,14 @@ body {
     justify-content: center;
     gap: 20px;
     flex-wrap: wrap;
-    margin-bottom: 60px;
+    margin-bottom: 40px;
 }
 
 .card {
     background-color: #FFFFFF;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     border-radius: 8px;
-    padding: 24px;
+    padding: 20px;
     max-width: 320px;
     text-align: left;
 }
@@ -105,49 +92,47 @@ body {
 
 .card p {
     font-size: 16px;
+    color: #333333;
     line-height: 1.5;
-    color: #444444;
 }
 
 /* CTA Button */
 .cta-button {
     display: inline-block;
-    padding: 14px 28px;
-    background: linear-gradient(135deg, #1F3A93 0%, #376FDB 100%);
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #8A4FFF 0%, #1F3A93 100%);
     color: #FFFFFF;
-    font-weight: 600;
+    font-weight: bold;
     border-radius: 8px;
     text-decoration: none;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    cursor: pointer;
     transition: background 0.3s ease;
-    margin-bottom: 10px;
+    font-size: 16px;
+    margin-bottom: 12px;
 }
 
 .cta-button:hover {
-    background: linear-gradient(135deg, #2A4FB3 0%, #508BFF 100%);
+    background: linear-gradient(135deg, #9B5CFF 0%, #2446B5 100%);
 }
 
-/* Upgrade Plan link */
+/* Upgrade Your Plan link */
 .upgrade-link {
-    display: block;
     font-size: 12px;
     color: #999999;
     text-align: center;
+    display: block;
     margin-top: 12px;
-    text-decoration: none;
 }
 
-.upgrade-link:hover {
-    text-decoration: underline;
-}
-
-/* Footer */
+/* Footer (optional) */
 .footer {
     text-align: center;
     padding: 20px;
     font-size: 14px;
     color: #666666;
     border-top: 1px solid #E0E0E0;
+    margin-top: auto;
 }
 
 /* Responsive */
@@ -157,11 +142,11 @@ body {
         align-items: center;
     }
 
-    .hero-lexorva {
-        font-size: 48px;
+    .hero-title {
+        font-size: 28px;
     }
 
-    .hero-title {
-        font-size: 32px;
+    .hero-subtitle {
+        font-size: 18px;
     }
 }
