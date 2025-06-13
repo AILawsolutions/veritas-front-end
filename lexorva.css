@@ -70,18 +70,16 @@ body {
     word-wrap: break-word;
 }
 
-/* USER bubble — right side — your gradient */
 .chat-message.user {
     align-self: flex-end;
-    background: linear-gradient(to right, #7b2ff7, #0b74de);
+    background: linear-gradient(to right, #7b2ff7, #0b74de); /* Gradient user bubble */
     color: #FFFFFF;
     text-align: left;
 }
 
-/* AI bubble — left side — light grey */
 .chat-message.ai {
     align-self: flex-start;
-    background-color: #f0f0f0;
+    background-color: #f0f0f0; /* Light grey AI bubble */
     color: #000000;
     text-align: left;
 }
@@ -94,7 +92,7 @@ body {
     border-top: 1px solid #e0e0e0;
 }
 
-.input-bar input[type="text"] {
+#chatInput {
     flex-grow: 1;
     padding: 12px 16px;
     border: 1px solid #ced4da;
@@ -103,11 +101,10 @@ body {
     outline: none;
 }
 
-/* SEND BUTTON — your gradient, circular */
-.send-button {
+#sendButton {
     margin-left: 12px;
     padding: 12px 16px;
-    background: linear-gradient(to right, #7b2ff7, #0b74de);
+    background: linear-gradient(to right, #7b2ff7, #0b74de); /* Gradient send button */
     color: white;
     border: none;
     border-radius: 50%;
@@ -119,16 +116,16 @@ body {
     transition: background 0.3s ease;
 }
 
-.send-button:hover {
+#sendButton:hover {
     background: linear-gradient(to right, #9b5cff, #339cff);
 }
 
-/* UPLOAD BUTTON — match style from your prior screenshot */
-.attach-button {
+/* UPLOAD BUTTON */
+.upload-button {
     margin-right: 12px;
     padding: 10px 14px;
     background-color: #ffffff;
-    border: 2px solid #7b2ff7; /* your gradient border color */
+    border: 2px solid #7b2ff7;
     border-radius: 50%;
     font-size: 18px;
     font-weight: bold;
@@ -137,6 +134,6 @@ body {
     transition: background 0.3s ease;
 }
 
-.attach-button:hover {
+.upload-button:hover {
     background-color: #f2f2f2;
 }
