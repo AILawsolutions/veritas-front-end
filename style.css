@@ -23,9 +23,11 @@ body {
 .logo-text {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(90deg, #A84DF2, #C168F9);
+    background: linear-gradient(90deg, #4B086D, #ACC0FE);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    color: transparent;
 }
 
 .nav-links a.nav-button {
