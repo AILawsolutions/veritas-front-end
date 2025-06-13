@@ -1,3 +1,4 @@
+/* Reset and base styles */
 body {
     margin: 0;
     font-family: 'Inter', sans-serif;
@@ -7,6 +8,7 @@ body {
     height: 100vh;
 }
 
+/* Navbar */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -31,18 +33,22 @@ body {
     text-decoration: none;
     margin-left: 20px;
     font-weight: bold;
-    border-bottom: 2px solid transparent;
-    padding-bottom: 5px;
+    border: 2px solid #A84DF2;
+    border-radius: 20px;
+    padding: 6px 14px;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 .navbar-links a:hover,
 .navbar-links a.active {
     background: linear-gradient(90deg, #A84DF2, #C168F9);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    border-bottom: 2px solid #A84DF2;
+    color: white !important;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+    border-color: transparent;
 }
 
+/* Main */
 .main {
     display: flex;
     flex: 1;
