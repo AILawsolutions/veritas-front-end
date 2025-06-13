@@ -1,4 +1,14 @@
-/* Top Navigation (match homepage) */
+/* Reset and base styles */
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Top Navigation (matching homepage) */
 .top-nav {
     display: flex;
     justify-content: space-between;
@@ -13,6 +23,7 @@
     background: linear-gradient(90deg, #A84DF2, #C168F9);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    font-family: Orbitron, Arial, sans-serif;
 }
 
 .nav-links a.nav-button {
@@ -21,32 +32,23 @@
     border: 2px solid #A84DF2;
     border-radius: 20px;
     background-color: white;
-    color: linear-gradient(90deg, #A84DF2, #C168F9);
+    color: #A84DF2;
     font-weight: 600;
     text-decoration: none;
     transition: background-color 0.2s, color 0.2s;
 }
 
-.nav-links a.nav-button:hover {
+.nav-links a.nav-button:hover,
+.nav-links a.nav-button.active {
     background-color: #A84DF2;
     color: white;
 }
 
-/* Main Layout */
-body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: #f9f9f9;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-}
-
+/* Main section */
 .main {
     display: flex;
     flex: 1;
     overflow: hidden;
-    flex-direction: column;
 }
 
 /* Chat Section */
@@ -100,7 +102,7 @@ body {
     width: 1em;
     height: 1em;
     border-radius: 50%;
-    background: linear-gradient(90deg, #A84DF2, #C168F9);
+    background: #A84DF2;
     animation: blink 1s infinite;
     margin-left: 8px;
     vertical-align: middle;
@@ -150,7 +152,7 @@ body {
     margin-right: 10px;
     font-size: 20px;
     cursor: pointer;
-    color: linear-gradient(90deg, #A84DF2, #C168F9);
+    color: #A84DF2;
     user-select: none;
 }
 
