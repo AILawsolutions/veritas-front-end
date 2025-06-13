@@ -29,26 +29,25 @@ body {
 }
 
 .navbar-links a {
-    margin-left: 20px;
-    font-weight: bold;
-    font-family: Orbitron, Arial, sans-serif;
     font-size: 16px;
+    font-weight: 600;
     text-decoration: none;
-    padding: 6px 12px;
-    border: 2px solid transparent;
-    border-radius: 20px;
+    margin-left: 20px;
+    padding: 5px 0;
     background: linear-gradient(90deg, #A84DF2, #C168F9);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    transition: all 0.2s ease;
+    border: none; /* no border */
+    transition: opacity 0.2s ease;
 }
 
 .navbar-links a:hover,
 .navbar-links a.active {
-    border: 2px solid #A84DF2;
-    background: linear-gradient(90deg, #A84DF2, #C168F9);
+    opacity: 0.8; /* subtle hover effect */
+    background: linear-gradient(90deg, #A84DF2, #C168F9); /* ensure gradient stays */
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    border: none; /* ensure no border even when active */
 }
 
 /* Main */
