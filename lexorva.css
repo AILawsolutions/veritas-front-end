@@ -23,33 +23,35 @@ body {
     font-size: 1.8rem;
     font-weight: bold;
     font-family: Orbitron, Arial, sans-serif;
-    background: linear-gradient(90deg, #9C27B0, #673AB7);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.navbar-links a {
-    color: #333;
-    text-decoration: none;
-    margin-left: 20px;
-    font-weight: bold;
-    border: 2px solid #A84DF2;
-    border-radius: 20px;
-    padding: 6px 12px;
-    background-color: white;
-    transition: background-color 0.2s, color 0.2s;
-    display: inline-block;
-}
-
-.navbar-links a:hover,
-.navbar-links a.active {
-    border: 2px solid #A84DF2;
-    background-color: white;
     background: linear-gradient(90deg, #A84DF2, #C168F9);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
+.navbar-links a {
+    margin-left: 20px;
+    font-weight: bold;
+    font-family: Orbitron, Arial, sans-serif;
+    font-size: 16px;
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 2px solid transparent;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #A84DF2, #C168F9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: all 0.2s ease;
+}
+
+.navbar-links a:hover,
+.navbar-links a.active {
+    border: 2px solid #A84DF2;
+    background: linear-gradient(90deg, #A84DF2, #C168F9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Main */
 .main {
     display: flex;
     flex: 1;
@@ -144,17 +146,12 @@ body {
 .input-bar button {
     margin-left: 10px;
     padding: 12px 16px;
-    background: linear-gradient(90deg, #9C27B0, #673AB7);
+    background: linear-gradient(90deg, #A84DF2, #C168F9);
     color: white;
     border: none;
     border-radius: 50%;
     cursor: pointer;
     font-size: 18px;
-    transition: box-shadow 0.2s ease;
-}
-
-.input-bar button:hover {
-    box-shadow: 0 4px 12px rgba(156, 39, 176, 0.4);
 }
 
 /* Upload button */
