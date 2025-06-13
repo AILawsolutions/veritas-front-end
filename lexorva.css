@@ -8,56 +8,51 @@ body {
     height: 100vh;
 }
 
-/* Navbar */
-.navbar {
+/* Top Navigation - COPY of index.html style */
+.top-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #fff;
-    padding: 15px 30px;
-    border-bottom: 1px solid #eee;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    padding: 20px 40px;
+    background-color: transparent;
+    border-bottom: 1px solid #eaeaea;
 }
 
-.navbar-brand {
-    font-size: 1.8rem;
-    font-weight: bold;
-    font-family: Orbitron, Arial, sans-serif;
-    background: linear-gradient(90deg, #A84DF2, #C168F9);
+.logo-text {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #9C27B0, #673AB7);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
-.navbar-links a {
-    font-size: 16px;
+.nav-links a.nav-button {
+    margin-left: 15px;
+    padding: 8px 16px;
+    border: 2px solid #A84DF2;
+    border-radius: 20px;
+    background-color: white;
+    color: #A84DF2;
     font-weight: 600;
     text-decoration: none;
-    margin-left: 20px;
-    padding: 5px 0;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-links a.nav-button:hover,
+.nav-links a.nav-button.active {
     background: linear-gradient(90deg, #A84DF2, #C168F9);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    border: none; /* no border */
-    transition: opacity 0.2s ease;
+    color: white;
+    border-color: transparent;
 }
 
-.navbar-links a:hover,
-.navbar-links a.active {
-    opacity: 0.8; /* subtle hover effect */
-    background: linear-gradient(90deg, #A84DF2, #C168F9); /* ensure gradient stays */
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    border: none; /* ensure no border even when active */
-}
-
-/* Main */
+/* Chat Section */
 .main {
     display: flex;
     flex: 1;
     overflow: hidden;
+    flex-direction: column;
 }
 
-/* Chat Section */
 .chat-section {
     flex: 1;
     display: flex;
@@ -119,7 +114,7 @@ body {
     50% { opacity: 0.3; }
 }
 
-/* Thinking Bar (Hidden, replaced by inline typing) */
+/* Thinking Bar (Hidden) */
 .thinking {
     display: none;
 }
