@@ -4,10 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
     const sendButton = document.getElementById("sendButton");
     const chatHistory = document.getElementById("chatHistory");
-    const thinkingIndicator = document.getElementById("thinking");
 
     const fileUploadInput = document.getElementById("fileUpload");
-    const saveChatPdfButton = document.getElementById("saveChatPdf");
 
     // Update this to your backend URL:
     const BACKEND_URL = "https://AiLawSolutions.pythonanywhere.com";
@@ -27,7 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         appendMessage("user", message);
         chatInput.value = "";
-        showThinking(true);
+
+        // Add "Thinking..." message in chat
+        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
+        startThinkingDots(thinkingDiv);
 
         try {
             const response = await fetch(`${BACKEND_URL}/proxy`, {
@@ -38,19 +39,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
 
-            // ✅ Flexible handling — works with GPT or hybrid responses
+            let responseText = "";
+
             if (data.choices && data.choices[0]?.message?.content) {
-                appendMessage("lexorva", data.choices[0].message.content);
+                responseText = data.choices[0].message.content;
             } else if (data.response) {
-                appendMessage("lexorva", data.response);
+                responseText = data.response;
             } else {
-                appendMessage("lexorva", "Error: Unexpected response from Lexorva.");
+                responseText = "Error: Unexpected response from Lexorva.";
             }
 
+            // Stop thinking dots and start typing response
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, marked.parse(responseText));
+
         } catch (error) {
-            appendMessage("lexorva", "Error: Failed to communicate with Lexorva.");
-        } finally {
-            showThinking(false);
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
         }
     });
 
@@ -60,7 +65,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!file) return;
 
         appendMessage("user", `📄 Uploaded file: ${file.name}`);
-        showThinking(true);
+
+        // Add "Thinking..." message in chat
+        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
+        startThinkingDots(thinkingDiv);
 
         const formData = new FormData();
         formData.append("file", file);
@@ -73,58 +81,89 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
 
+            let responseText = "";
+
             if (data.choices && data.choices[0]?.message?.content) {
-                appendMessage("lexorva", data.choices[0].message.content);
+                responseText = data.choices[0].message.content;
             } else if (data.response) {
-                appendMessage("lexorva", data.response);
+                responseText = data.response;
             } else {
-                appendMessage("lexorva", "Error: Unexpected response from Lexorva.");
+                responseText = "Error: Unexpected response from Lexorva.";
             }
 
+            // Stop thinking dots and start typing response
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, marked.parse(responseText));
+
         } catch (error) {
-            appendMessage("lexorva", "Error: Failed to communicate with Lexorva.");
-        } finally {
-            showThinking(false);
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
         }
-    });
-
-    // Save Chat as PDF
-    saveChatPdfButton.addEventListener("click", () => {
-        const chatElement = document.getElementById("chatHistory");
-
-        const opt = {
-            margin:       0.5,
-            filename:     'lexorva_chat.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-
-        html2pdf().set(opt).from(chatElement).save();
     });
 
     // Helper to append message to chat
     function appendMessage(sender, text) {
         const messageDiv = document.createElement("div");
 
-        // Map "user" → "user-message", "lexorva" → "ai-message"
         const className = sender === "user" ? "user-message" : "ai-message";
-
         messageDiv.classList.add(className);
 
-        // If it's Lexorva, parse Markdown → HTML using marked
-        if (sender === "lexorva") {
-            messageDiv.innerHTML = marked.parse(text);
-        } else {
-            messageDiv.textContent = text;
-        }
+        messageDiv.innerHTML = text;
 
         chatHistory.appendChild(messageDiv);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
+        smoothScrollToBottom();
+
+        return messageDiv;
     }
 
-    // Helper to show/hide "Thinking..."
-    function showThinking(show) {
-        thinkingIndicator.style.display = show ? "block" : "none";
+    // Helper to smoothly scroll to latest message
+    function smoothScrollToBottom() {
+        chatHistory.scrollTo({
+            top: chatHistory.scrollHeight,
+            behavior: "smooth"
+        });
+    }
+
+    // Typing animation
+    function typeMessage(element, htmlContent) {
+        element.innerHTML = ""; // Clear "Thinking..."
+
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = htmlContent;
+        const text = tempDiv.textContent || tempDiv.innerText || "";
+
+        let index = 0;
+
+        function typeChar() {
+            if (index < text.length) {
+                element.innerHTML += text.charAt(index);
+                index++;
+                smoothScrollToBottom();
+                setTimeout(typeChar, 15); // Typing speed (ms)
+            } else {
+                // When finished, display full HTML (parsed Markdown)
+                element.innerHTML = htmlContent;
+                smoothScrollToBottom();
+            }
+        }
+
+        typeChar();
+    }
+
+    // Thinking dots animation
+    let thinkingInterval;
+
+    function startThinkingDots(element) {
+        let dotCount = 0;
+        thinkingInterval = setInterval(() => {
+            dotCount = (dotCount + 1) % 4;
+            element.innerHTML = "Thinking" + ".".repeat(dotCount);
+            smoothScrollToBottom();
+        }, 500);
+    }
+
+    function stopThinkingDots(element) {
+        clearInterval(thinkingInterval);
+        element.innerHTML = ""; // Will be replaced by typeMessage
     }
 });
