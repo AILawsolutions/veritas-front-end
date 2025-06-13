@@ -1,15 +1,12 @@
-/* Global Styles */
-body, html {
+/* Body background — match index.html */
+body {
+    background-color: #FFFFFF;
     margin: 0;
-    padding: 0;
-    height: 100vh;
-    background-color: #FFFFFF; /* Keep same background */
     font-family: 'Inter', sans-serif;
     color: #222222;
-    overflow: hidden; /* Prevent full page scroll */
 }
 
-/* Header Styles - Keep identical to index.html */
+/* Header — match index.html exactly */
 .top-nav {
     display: flex;
     justify-content: space-between;
@@ -22,10 +19,9 @@ body, html {
 .logo-text {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(to right, #7b2ff7, #0b74de); /* Your gradient */
+    background: linear-gradient(to right, #7b2ff7, #0b74de);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    color: transparent;
 }
 
 .nav-links a {
@@ -33,6 +29,7 @@ body, html {
     text-decoration: none;
     padding: 8px 16px;
     font-weight: 600;
+    font-size: 16px;
 }
 
 .nav-links a:hover {
@@ -40,89 +37,86 @@ body, html {
     transition: all 0.3s ease;
 }
 
-/* Chat Container */
+/* Chat container — DO NOT force full screen — leave natural layout */
 .chat-container {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    height: calc(100vh - 80px); /* Subtract header height (~80px) */
+    max-width: 800px;
+    margin: 20px auto;
     padding: 20px;
-    box-sizing: border-box;
-    overflow: hidden; /* Prevent scroll on container */
 }
 
-/* Chat Messages Area */
+/* Chat messages — SAFE scroll inside message area */
 .chat-messages {
-    flex-grow: 1;
+    max-height: 60vh; /* You can adjust to 65vh if you want slightly taller */
     overflow-y: auto;
     padding-bottom: 10px;
 }
 
-/* Chat Bubbles */
-.chat-message.user {
-    align-self: flex-end;
+/* Chat bubbles */
+.chat-bubble {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+/* User bubble — gradient */
+.chat-bubble.user {
     background: linear-gradient(to right, #7b2ff7, #0b74de);
     color: #FFFFFF;
-    padding: 10px 16px;
-    border-radius: 16px;
-    max-width: 60%;
-    margin: 8px 0;
-    word-wrap: break-word;
+    align-self: flex-end;
 }
 
-.chat-message.ai {
+/* AI bubble — light grey */
+.chat-bubble.ai {
+    background-color: #F2F2F2;
+    color: #222222;
     align-self: flex-start;
-    background-color: #F5F5F5;
-    color: #000000;
-    padding: 10px 16px;
-    border-radius: 16px;
-    max-width: 60%;
-    margin: 8px 0;
-    word-wrap: break-word;
 }
 
-/* Chat Input Area */
+/* Chat input area */
 .chat-input-area {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 0;
+    padding: 10px;
     border-top: 1px solid #E0E0E0;
+    background-color: #FFFFFF;
+    position: sticky;
+    bottom: 0;
 }
 
 .chat-input {
     flex-grow: 1;
-    padding: 10px 16px;
+    padding: 10px 14px;
     border-radius: 20px;
     border: 1px solid #CCC;
-    font-size: 16px;
+    font-size: 15px;
 }
 
-.send-button {
-    padding: 10px 16px;
+.chat-send-button {
     background: linear-gradient(to right, #7b2ff7, #0b74de);
-    color: white;
+    color: #FFFFFF;
     border: none;
     border-radius: 50%;
-    font-size: 18px;
+    width: 40px;
+    height: 40px;
+    margin-left: 10px;
     cursor: pointer;
+    transition: background 0.3s ease;
 }
 
-/* Plus Button */
-.attach-button {
-    padding: 8px 12px;
-    background-color: #FFFFFF;
-    border: 2px solid #7b2ff7;
-    border-radius: 8px;
-    color: #7b2ff7;
-    font-weight: 600;
-    cursor: pointer;
+.chat-send-button:hover {
+    background: linear-gradient(to right, #8b3fff, #1b85ff);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .chat-message.user,
-    .chat-message.ai {
-        max-width: 90%;
-    }
+/* Plus button styling */
+.plus-button {
+    margin-right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #1F3A93;
+    user-select: none;
 }
