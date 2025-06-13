@@ -34,7 +34,7 @@ body {
     border: 2px solid #A84DF2;
     border-radius: 20px;
     background-color: white;
-    color: #A84DF2;
+    color: linear-gradient(90deg, #A84DF2, #C168F9);
     font-weight: 600;
     text-decoration: none;
     transition: background-color 0.2s, color 0.2s;
