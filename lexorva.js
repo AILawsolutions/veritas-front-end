@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileUploadInput = document.getElementById("fileUpload");
     const saveChatPdfButton = document.getElementById("saveChatPdf");
 
-    // Backend URL
+    // Update this to your backend URL:
     const BACKEND_URL = "https://AiLawSolutions.pythonanywhere.com";
 
     // Allow pressing Enter to send message
@@ -38,11 +38,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
 
+            // ✅ Flexible handling — works with GPT or hybrid responses
             if (data.choices && data.choices[0]?.message?.content) {
                 appendMessage("lexorva", data.choices[0].message.content);
+            } else if (data.response) {
+                appendMessage("lexorva", data.response);
             } else {
                 appendMessage("lexorva", "Error: Unexpected response from Lexorva.");
             }
+
         } catch (error) {
             appendMessage("lexorva", "Error: Failed to communicate with Lexorva.");
         } finally {
@@ -71,9 +75,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (data.choices && data.choices[0]?.message?.content) {
                 appendMessage("lexorva", data.choices[0].message.content);
+            } else if (data.response) {
+                appendMessage("lexorva", data.response);
             } else {
                 appendMessage("lexorva", "Error: Unexpected response from Lexorva.");
             }
+
         } catch (error) {
             appendMessage("lexorva", "Error: Failed to communicate with Lexorva.");
         } finally {
@@ -86,11 +93,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const chatElement = document.getElementById("chatHistory");
 
         const opt = {
-            margin: 0.5,
-            filename: 'lexorva_chat.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            margin:       0.5,
+            filename:     'lexorva_chat.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
 
         html2pdf().set(opt).from(chatElement).save();
