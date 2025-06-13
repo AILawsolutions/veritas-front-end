@@ -26,16 +26,21 @@ body {
     color: transparent;
 }
 
+/* NAV LINKS — FIXED to match your GOOD screenshot */
 .nav-links a {
-    color: #1F3A93;
-    text-decoration: none;
+    background: linear-gradient(to right, #7b2ff7, #0b74de);
+    color: #ffffff;
     padding: 8px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    margin-left: 8px;
     font-weight: 500;
+    display: inline-block;
+    transition: background 0.3s ease;
 }
 
 .nav-links a:hover {
-    border-bottom: 2px solid #1F3A93;
-    transition: all 0.3s ease;
+    background: linear-gradient(to right, #9b5cff, #339cff);
 }
 
 /* MAIN CHAT SECTION */
@@ -60,6 +65,7 @@ body {
     padding-right: 10px;
 }
 
+/* CHAT BUBBLES — this is the important part */
 .chat-message {
     max-width: 70%;
     margin-bottom: 12px;
@@ -70,16 +76,18 @@ body {
     word-wrap: break-word;
 }
 
+/* USER MESSAGE — gradient bubble right side */
 .chat-message.user {
     align-self: flex-end;
-    background: linear-gradient(to right, #7b2ff7, #0b74de); /* Gradient user bubble */
+    background: linear-gradient(to right, #7b2ff7, #0b74de);
     color: #FFFFFF;
     text-align: left;
 }
 
+/* AI MESSAGE — light bubble left side */
 .chat-message.ai {
     align-self: flex-start;
-    background-color: #f0f0f0; /* Light grey AI bubble */
+    background-color: #f0f0f0;
     color: #000000;
     text-align: left;
 }
@@ -92,7 +100,7 @@ body {
     border-top: 1px solid #e0e0e0;
 }
 
-#chatInput {
+.input-bar input[type="text"] {
     flex-grow: 1;
     padding: 12px 16px;
     border: 1px solid #ced4da;
@@ -101,10 +109,10 @@ body {
     outline: none;
 }
 
-#sendButton {
+.send-button {
     margin-left: 12px;
     padding: 12px 16px;
-    background: linear-gradient(to right, #7b2ff7, #0b74de); /* Gradient send button */
+    background: linear-gradient(to right, #7b2ff7, #0b74de);
     color: white;
     border: none;
     border-radius: 50%;
@@ -116,12 +124,12 @@ body {
     transition: background 0.3s ease;
 }
 
-#sendButton:hover {
+.send-button:hover {
     background: linear-gradient(to right, #9b5cff, #339cff);
 }
 
-/* UPLOAD BUTTON */
-.upload-button {
+/* PLUS BUTTON — Keep this as is */
+.attach-button {
     margin-right: 12px;
     padding: 10px 14px;
     background-color: #ffffff;
@@ -134,6 +142,6 @@ body {
     transition: background 0.3s ease;
 }
 
-.upload-button:hover {
+.attach-button:hover {
     background-color: #f2f2f2;
 }
