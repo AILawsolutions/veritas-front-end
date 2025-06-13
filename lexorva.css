@@ -1,9 +1,29 @@
-/* Gradient color */
+/* Base styles from your existing CSS — unchanged */
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Gradient variable */
 :root {
     --lexorva-gradient: linear-gradient(90deg, #00BFFF, #8A4FFF);
 }
 
-/* Apply gradient to LEXORVA brand */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding: 15px 30px;
+    border-bottom: 1px solid #eee;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
 .navbar-brand {
     font-size: 1.8rem;
     font-weight: bold;
@@ -13,7 +33,6 @@
     -webkit-text-fill-color: transparent;
 }
 
-/* Apply gradient to navbar links */
 .navbar-links a {
     font-weight: bold;
     background: var(--lexorva-gradient);
@@ -27,5 +46,166 @@
 
 .navbar-links a:hover,
 .navbar-links a.active {
-    border-bottom: 2px solid #8A4FFF; /* Keep subtle hover underline */
+    border-bottom: 2px solid #8A4FFF;
+}
+
+.main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Chat Section */
+.chat-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+.chat-history {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 10px;
+}
+
+.message {
+    max-width: 70%;
+    padding: 10px 15px;
+    line-height: 1.5;
+    font-size: 14px;
+    word-wrap: break-word;
+    border: 1px solid #ccc;
+}
+
+.user-message {
+    align-self: flex-end;
+    background: #f0eaff;
+    color: #333;
+    border-radius: 20px 20px 0px 20px;
+    padding: 12px 18px;
+    max-width: 70%;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    letter-spacing: 0.2px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.ai-message {
+    align-self: flex-start;
+    background: #fff;
+    color: #333;
+    border-radius: 20px 20px 20px 0px;
+    padding: 12px 18px;
+    max-width: 70%;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    letter-spacing: 0.2px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* PDF Preview Card */
+.pdf-preview {
+    align-self: flex-start;
+    background: #fff;
+    color: #333;
+    border: 2px solid #8A4FFF;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    text-align: center;
+    max-width: 300px;
+}
+
+.pdf-preview button {
+    margin: 5px 5px 0 5px;
+    padding: 6px 12px;
+    background: #8A4FFF;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* Thinking Bar */
+.thinking {
+    display: none;
+    text-align: center;
+    color: #8A4FFF;
+    padding: 5px;
+    font-style: italic;
+    font-family: "Orbitron", Arial, sans-serif;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.thinking .dots::after {
+    content: '';
+    display: inline-block;
+    width: 1em;
+    text-align: left;
+    animation: dots 1s steps(4, end) infinite;
+}
+
+@keyframes dots {
+    0% { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+    100% { content: ''; }
+}
+
+/* Input Bar */
+.input-bar {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #eee;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.input-bar input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.input-bar button {
+    margin-left: 10px;
+    padding: 10px 15px;
+    background: var(--lexorva-gradient);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Upload button */
+.upload-button {
+    margin-right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    background: var(--lexorva-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    user-select: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .main {
+        flex-direction: column;
+    }
 }
