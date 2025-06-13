@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lexorva - Login / Sign Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="login-body">
+
+  <header class="top-nav">
+    <div class="logo-text">LEXORVA</div>
+    <nav class="nav-links">
+      <a href="index.html" class="home-link">Home</a>
+    </nav>
+  </header>
+
+  <main class="login-main">
+    <div class="login-card">
+      <h1 class="login-title">LEXORVA</h1>
+
+      <input type="email" id="email" placeholder="Email" class="login-input"><br>
+      <input type="password" id="password" placeholder="Password" class="login-input"><br>
+      <input type="text" id="promoCode" placeholder="Promo Code (Optional)" class="login-input promo-input"><br>
+
+      <div class="terms-wrapper">
+        <label for="agree">
+          <input type="checkbox" id="agree" />
+          I agree to the <a href="disclaimer.html" target="_blank">Terms of Service</a> and <a href="disclaimer.html" target="_blank">Legal Disclaimer</a>
+        </label>
+      </div>
+
+      <button class="cta-button full-width" onclick="handleLogin()">Continue</button>
+
+      <p class="error-message" id="error-message" style="display:none;"></p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    © 2025 LEXORVA. All Rights Reserved.
+  </footer>
+
+  <script>
+    function handleLogin() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const agree = document.getElementById("agree").checked;
+      const errorMsg = document.getElementById("error-message");
+      
+      if (!email || !password || !agree) {
+        errorMsg.style.display = "block";
+        errorMsg.textContent = "Please fill in all fields and agree to the Terms.";
+        return;
+      }
+
+      // Placeholder - here you would hook into Firebase/Auth
+      alert("Login / Sign Up successful! (Integrate with Firebase here)");
+    }
+  </script>
+
+</body>
+</html>
