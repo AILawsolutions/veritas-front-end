@@ -8,28 +8,31 @@
 
     <!-- Load Marked.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Load html2pdf.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
-    <!-- Header matches homepage -->
-    <nav class="navbar">
-        <div class="navbar-brand">LEXORVA</div>
-        <div class="navbar-links">
-            <a href="index.html">Home</a>
-            <a href="lexorva.html" class="active">Lexorva</a>
-            <a href="pricing.html">Pricing</a>
-            <a href="contact.html">Contact</a>
+    <!-- HEADER copied exactly from index.html -->
+    <nav class="top-nav">
+        <div class="logo-text">LEXORVA</div>
+        <div class="nav-links">
+            <a href="pricing.html" class="nav-button">Pricing</a>
+            <a href="signup.html" class="nav-button">Sign Up</a>
+            <a href="login.html" class="nav-button">Log In</a>
         </div>
     </nav>
 
     <div class="main">
         <!-- Chat Section ONLY -->
         <div class="chat-section" id="chatSection">
+
             <div class="chat-history" id="chatHistory">
                 <!-- Messages will go here -->
             </div>
-            <!-- We no longer need the separate Thinking div -->
-            <!-- Chat input and send -->
+
+            <div class="thinking" id="thinking">Thinking<span class="dots"></span></div>
+
             <div class="input-bar">
                 <!-- Upload button -->
                 <label for="fileUpload" class="upload-button">➕</label>
