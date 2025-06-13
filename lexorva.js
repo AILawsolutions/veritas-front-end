@@ -9,8 +9,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileUploadInput = document.getElementById("fileUpload");
     const saveChatPdfButton = document.getElementById("saveChatPdf");
 
+    // Backend URL
     const BACKEND_URL = "https://AiLawSolutions.pythonanywhere.com";
 
+    // Allow pressing Enter to send message
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -18,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Send plain chat message to /proxy
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
         if (message === "") return;
@@ -47,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // File upload for /analyze-upload
     fileUploadInput.addEventListener("change", async () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
@@ -77,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Save Chat as PDF
     saveChatPdfButton.addEventListener("click", () => {
         const chatElement = document.getElementById("chatHistory");
 
@@ -91,12 +96,16 @@ document.addEventListener("DOMContentLoaded", () => {
         html2pdf().set(opt).from(chatElement).save();
     });
 
+    // Helper to append message to chat
     function appendMessage(sender, text) {
         const messageDiv = document.createElement("div");
 
+        // Map "user" → "user-message", "lexorva" → "ai-message"
         const className = sender === "user" ? "user-message" : "ai-message";
+
         messageDiv.classList.add(className);
 
+        // If it's Lexorva, parse Markdown → HTML using marked
         if (sender === "lexorva") {
             messageDiv.innerHTML = marked.parse(text);
         } else {
@@ -107,6 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
         chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
+    // Helper to show/hide "Thinking..."
     function showThinking(show) {
         thinkingIndicator.style.display = show ? "block" : "none";
     }
