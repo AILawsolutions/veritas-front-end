@@ -8,8 +8,6 @@
 
     <!-- Load Marked.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- Load html2pdf.js from CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -27,15 +25,11 @@
     <div class="main">
         <!-- Chat Section ONLY -->
         <div class="chat-section" id="chatSection">
-            <!-- Save Chat as PDF button at top -->
-            <div style="text-align:right; margin-bottom: 10px;">
-                <a href="#" id="saveChatPdf">💾 Save Chat as PDF</a>
-            </div>
-
             <div class="chat-history" id="chatHistory">
                 <!-- Messages will go here -->
             </div>
-            <div class="thinking" id="thinking">Thinking<span class="dots"></span></div>
+            <!-- We no longer need the separate Thinking div -->
+            <!-- Chat input and send -->
             <div class="input-bar">
                 <!-- Upload button -->
                 <label for="fileUpload" class="upload-button">➕</label>
