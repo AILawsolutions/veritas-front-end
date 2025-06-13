@@ -1,118 +1,115 @@
-/* Full lexorva.css — safe final version */
-
-/* Base Styles */
+/* Global Reset */
 body {
     margin: 0;
+    padding: 0;
+    background-color: #FFFFFF; /* Light background as index.html */
     font-family: 'Inter', sans-serif;
-    background-color: #FFFFFF; /* Matches index.html */
     color: #222222;
 }
 
-/* Header - Exact match to index.html */
+/* Header */
 .top-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 40px;
     background-color: #FFFFFF;
-    border-bottom: 1px solid #E0E0E0;
+    border-bottom: 1px solid #eaeaea;
 }
 
 .logo-text {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(90deg, #6a0dad, #7b1fa2, #ff6b3d);
+    background: linear-gradient(to right, #7b2ff7, #0b74de);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    color: transparent;
 }
 
-.nav-links a.nav-button {
-    margin-left: 15px;
-    padding: 8px 16px;
+.nav-links a {
     color: #1F3A93;
-    font-weight: 600;
     text-decoration: none;
+    padding: 8px 16px;
+    font-weight: 600;
+}
+
+.nav-links a:hover {
+    border-bottom: 2px solid #1F3A93;
     transition: all 0.3s ease;
 }
 
-.nav-links a.nav-button:hover {
-    border-bottom: 2px solid #1F3A93;
-}
-
-/* Chat Section */
+/* Chat Area */
 .main {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 30px 20px;
+    height: 100vh;
 }
 
-/* Chat History */
-.chat-history {
-    width: 100%;
-    max-width: 800px;
-    flex-grow: 1;
+.chat-section {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding-bottom: 20px;
+    padding: 15px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    background-color: #FFFFFF; /* keep light background */
+}
+
+.chat-history {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 10px;
 }
 
 /* User message bubble */
 .user-message {
     align-self: flex-end;
-    background: linear-gradient(90deg, #6a0dad, #7b1fa2, #ff6b3d);
+    background: linear-gradient(to right, #7b2ff7, #0b74de);
     color: #FFFFFF;
-    border-radius: 16px 16px 0 16px;
+    border-radius: 20px 20px 0px 20px;
     padding: 12px 16px;
     font-size: 16px;
-    max-width: 70%;
-    word-wrap: break-word;
     line-height: 1.6;
+    max-width: 70%;
 }
 
 /* AI message bubble */
 .ai-message {
     align-self: flex-start;
-    background: #F5F5F5;
-    color: #000000;
-    border-radius: 16px 16px 16px 0;
+    background: #F1F1F1;
+    color: #222222;
+    border-radius: 20px 20px 20px 0px;
     padding: 12px 16px;
     font-size: 16px;
-    max-width: 70%;
-    word-wrap: break-word;
     line-height: 1.6;
-}
-
-/* Thinking Indicator (leave default) */
-.thinking {
-    display: none;
+    max-width: 70%;
 }
 
 /* Input Bar */
 .input-bar {
     display: flex;
     align-items: center;
-    border-top: 1px solid #E0E0E0;
-    padding: 15px;
-    width: 100%;
-    max-width: 800px;
+    border-top: 1px solid #eee;
+    padding: 10px;
     box-sizing: border-box;
+    background-color: #FFFFFF;
 }
 
 .input-bar input[type="text"] {
     flex: 1;
     padding: 12px 16px;
-    border: 1px solid #CCC;
+    border: 1px solid #ccc;
     border-radius: 20px;
     font-size: 16px;
 }
 
+/* Send button */
 .input-bar button {
     margin-left: 10px;
     padding: 12px 16px;
-    background: linear-gradient(90deg, #6a0dad, #7b1fa2, #ff6b3d);
+    background: linear-gradient(to right, #7b2ff7, #0b74de);
     color: #FFFFFF;
     border: none;
     border-radius: 50%;
@@ -122,29 +119,21 @@ body {
 }
 
 .input-bar button:hover {
-    opacity: 0.9;
+    background: linear-gradient(to right, #9B5CFF, #2446B5);
 }
 
-/* Upload button ( + ) */
+/* Upload (+) button */
 .upload-button {
     margin-right: 10px;
     font-size: 20px;
     cursor: pointer;
-    color: #6a0dad;
+    color: #7b2ff7;
     user-select: none;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .main {
-        padding: 20px 10px;
-    }
-
-    .chat-history {
-        max-width: 100%;
-    }
-
-    .input-bar {
-        max-width: 100%;
+        flex-direction: column;
     }
 }
