@@ -378,8 +378,8 @@ body {
     width: 100%;
     padding: 14px 16px;
     margin-bottom: 16px;
-    border-radius: 8px;
-    border: 1px solid #CCC;
+    border-radius: 10px;
+    border: 10px solid #CCC;
     font-size: 16px;
     transition: box-shadow 0.2s, border-color 0.2s;
 }
