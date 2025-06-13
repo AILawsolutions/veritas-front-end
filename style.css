@@ -1,19 +1,69 @@
-/* Logo Gradient */
+/* Base Styles */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #F8F9FA;
+    font-family: 'Inter', sans-serif;
+    color: #212529;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Top Navigation */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: transparent;
+}
+
 .logo-text {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(90deg, #6a0dad 0%, #7b1fa2 60%, #ff6b3d 100%);
-    background-clip: text;
+    background: linear-gradient(90deg, #6a0dad, #7b1fa2, #ff6b3d);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
     color: transparent;
 }
 
-/* Hero Lexorva Text */
+.nav-links a.nav-button {
+    margin-left: 15px;
+    padding: 8px 16px;
+    border: 2px solid #6a0dad;
+    border-radius: 999px; /* Perfect round pills */
+    background-color: white;
+    color: #6a0dad;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+}
+
+.nav-links a.nav-button:hover,
+.nav-links a.nav-button.active {
+    background: linear-gradient(90deg, #6a0dad, #7b1fa2, #ff6b3d);
+    color: white;
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    padding: 60px 20px;
+    flex-grow: 1;
+}
+
+.hero-title {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
 .hero-lexorva {
     font-size: 64px;
     font-weight: 700;
-    background: linear-gradient(90deg, #6a0dad 0%, #7b1fa2 60%, #ff6b3d 100%);
+    background: linear-gradient(90deg, #6a0dad, #7b1fa2, #ff6b3d);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -21,36 +71,56 @@
     margin-bottom: 10px;
 }
 
-/* Nav Buttons */
-.nav-links a.nav-button {
-    margin-left: 15px;
-    padding: 8px 20px;
-    border: 2px solid transparent;
-    border-image: linear-gradient(90deg, #6a0dad 0%, #7b1fa2 60%, #ff6b3d 100%);
-    border-image-slice: 1;
-    border-radius: 30px;
-    background-color: white;
+.hero-subtitle {
+    font-size: 20px;
+    font-weight: 400;
+    color: #212529;
+    margin-bottom: 40px;
+}
+
+/* Cards */
+.cards-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+
+.card {
+    background-color: #FFFFFF;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 320px;
+    text-align: left;
+}
+
+.card h4 {
+    font-size: 20px;
     font-weight: 600;
-    text-decoration: none;
-    color: #6a0dad;
-    transition: background 0.2s, color 0.2s;
+    margin-bottom: 10px;
 }
 
-.nav-links a.nav-button:hover,
-.nav-links a.nav-button.active {
-    background: linear-gradient(90deg, #6a0dad 0%, #7b1fa2 60%, #ff6b3d 100%);
-    color: white;
+.card p {
+    font-size: 16px;
+    line-height: 1.5;
 }
 
-/* CTA Button */
+/* Middle Section */
+.middle-section {
+    margin-bottom: 40px;
+}
+
 .cta-button {
     display: inline-block;
     padding: 12px 24px;
-    background: linear-gradient(90deg, #6a0dad 0%, #7b1fa2 60%, #ff6b3d 100%);
+    background: linear-gradient(90deg, #6a0dad, #7b1fa2, #ff6b3d);
     color: white;
     font-weight: 600;
     border-radius: 30px;
     text-decoration: none;
+    margin-bottom: 10px;
     border: none;
     cursor: pointer;
     transition: box-shadow 0.2s ease;
@@ -60,19 +130,43 @@
     box-shadow: 0 4px 12px rgba(106, 13, 173, 0.4);
 }
 
-/* Upgrade Link (styled like mini button now) */
 .upgrade-link {
     display: inline-block;
-    margin-top: 10px;
-    padding: 8px 20px;
+    padding: 12px 24px;
+    background: linear-gradient(90deg, #6a0dad, #7b1fa2, #ff6b3d);
+    color: white;
     font-weight: 600;
     border-radius: 30px;
     text-decoration: none;
-    background: linear-gradient(90deg, #6a0dad 0%, #7b1fa2 60%, #ff6b3d 100%);
-    color: white;
+    border: none;
+    cursor: pointer;
     transition: box-shadow 0.2s ease;
 }
 
 .upgrade-link:hover {
     box-shadow: 0 4px 12px rgba(106, 13, 173, 0.4);
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .cards-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-lexorva {
+        font-size: 48px;
+    }
+
+    .hero-title {
+        font-size: 24px;
+    }
 }
