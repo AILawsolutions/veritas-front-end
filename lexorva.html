@@ -11,33 +11,41 @@
 </head>
 <body>
 
-    <!-- Header - SAME as index.html -->
-    <div class="top-nav">
-        <div class="logo-text">LEXORVA</div>
-        <div class="nav-links">
-            <a class="nav-button" href="index.html">Home</a>
-            <a class="nav-button" href="lexorva.html">Lexorva</a>
-            <a class="nav-button" href="contact.html">Contact</a>
+    <!-- Header -->
+    <nav class="navbar">
+        <div class="navbar-brand">LEXORVA</div>
+        <div class="navbar-links">
+            <a href="index.html">Home</a>
+            <a href="lexorva.html" class="active">Lexorva</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="contact.html">Contact</a>
         </div>
-    </div>
+    </nav>
 
-    <!-- Chat Section ONLY -->
+    <!-- Main Chat Section -->
     <div class="main">
         <div class="chat-section" id="chatSection">
             <div class="chat-history" id="chatHistory">
-                <!-- Messages will go here -->
+                <!-- Messages will appear here -->
             </div>
+
+            <!-- Hidden "Thinking..." (already inline animation now in CSS) -->
+            <div class="thinking" id="thinking">Thinking<span class="dots"></span></div>
+
+            <!-- Chat Input Bar -->
             <div class="input-bar">
-                <!-- Upload button -->
+                <!-- Upload Button -->
                 <label for="fileUpload" class="upload-button">➕</label>
                 <input type="file" id="fileUpload" style="display:none;" />
-                <!-- Chat input and send -->
+                
+                <!-- Chat Text Input and Send -->
                 <input type="text" id="chatInput" placeholder="Message Lexorva..." />
                 <button id="sendButton">➤</button>
             </div>
         </div>
     </div>
 
+    <!-- Load Lexorva.js -->
     <script src="lexorva.js"></script>
 </body>
 </html>
