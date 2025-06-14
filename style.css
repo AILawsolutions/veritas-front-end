@@ -294,3 +294,13 @@ body {
         padding: 30px 20px;
     }
 }
+/* Spacing Fix for Login Page */
+.login-main {
+    padding-top: 80px !important;
+    padding-bottom: 60px !important;
+}
+
+.login-card {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
