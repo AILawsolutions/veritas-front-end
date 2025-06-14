@@ -3,75 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lexorva - Contact Us</title>
+  <title>Contact Lexorva</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <style>
-    body {
-      background: #f9f9f9;
-      font-family: 'Rajdhani', sans-serif;
-      color: #212529;
-    }
-
     .contact-container {
-      max-width: 800px;
-      margin: 80px auto;
+      max-width: 700px;
+      margin: 100px auto 50px auto;
       padding: 40px;
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(168, 77, 242, 0.1);
+      border-radius: 10px;
+      box-shadow: 0 0 25px rgba(168, 77, 242, 0.2);
+      font-family: 'Rajdhani', sans-serif;
+      color: #222;
+      text-align: center;
     }
 
     .contact-container h1 {
-      text-align: center;
       font-size: 32px;
-      margin-bottom: 30px;
-      color: #A84DF2;
+      color: #9C27B0;
+      margin-bottom: 10px;
+      font-family: 'Orbitron', sans-serif;
     }
 
-    .contact-form label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: bold;
-      color: #673AB7;
+    .contact-container h2 {
+      font-size: 18px;
+      color: #555;
+      margin-bottom: 30px;
+      font-weight: 400;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      text-align: left;
     }
 
     .contact-form input,
     .contact-form textarea {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
+      padding: 12px 16px;
       border: 1px solid #ccc;
       border-radius: 6px;
-      font-family: 'Inter', sans-serif;
       font-size: 16px;
-    }
-
-    .contact-form textarea {
-      resize: vertical;
-      height: 150px;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .contact-form button {
-      background: linear-gradient(90deg, #A84DF2, #C168F9);
+      background: linear-gradient(90deg, #9C27B0, #673AB7);
       color: white;
-      padding: 12px 24px;
-      font-size: 16px;
-      font-weight: 600;
       border: none;
+      padding: 12px;
+      font-size: 16px;
       border-radius: 6px;
       cursor: pointer;
-      width: 100%;
+      transition: background 0.3s ease;
     }
 
     .contact-form button:hover {
-      opacity: 0.9;
+      background: linear-gradient(90deg, #A84DF2, #C168F9);
     }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Header (same as index.html) -->
   <div class="top-nav">
     <div class="logo-text">LEXORVA</div>
     <div class="nav-links">
@@ -82,20 +79,16 @@
   </div>
 
   <div class="contact-container">
-    <h1>Contact Us</h1>
+    <h1>Reach Out to the Lexorva Strategy Team</h1>
+    <h2>
+      Have questions? Need support? Want a custom demo?<br>
+      We're here to help your firm thrive with AI.
+    </h2>
     <form class="contact-form" action="mailto:support@lexorva.com" method="POST" enctype="text/plain">
-      <label for="name">Name</label>
-      <input type="text" id="name" name="name" placeholder="Your full name" required />
-
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" placeholder="Your email address" required />
-
-      <label for="subject">Subject</label>
-      <input type="text" id="subject" name="subject" placeholder="Subject of your message" required />
-
-      <label for="message">Message</label>
-      <textarea id="message" name="message" placeholder="How can we help you?" required></textarea>
-
+      <input type="text" name="Name" placeholder="Your Full Name" required />
+      <input type="email" name="Email" placeholder="Your Email Address" required />
+      <input type="text" name="Subject" placeholder="Subject" />
+      <textarea name="Message" rows="6" placeholder="Type your message here..." required></textarea>
       <button type="submit">Send Message</button>
     </form>
   </div>
