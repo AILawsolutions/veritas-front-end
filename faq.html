@@ -3,112 +3,204 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lexorva - FAQ</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
+  <title>Lexorva – Frequently Asked Questions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <style>
-    .faq-section {
-      background-color: #010B15;
-      color: #f2f2f2;
-      padding: 60px 20px;
-      max-width: 1000px;
-      margin: 0 auto;
+    body {
+      background-color: #F8F9FA;
       font-family: 'Rajdhani', sans-serif;
+      color: #212529;
+      margin: 0;
+    }
+
+    .faq-section {
+      max-width: 1000px;
+      margin: 80px auto;
+      padding: 0 20px;
+      text-align: center;
     }
 
     .faq-section h1 {
       font-family: 'Orbitron', sans-serif;
-      text-align: center;
       font-size: 36px;
-      margin-bottom: 30px;
-      color: #00BFFF;
-    }
-
-    .faq-item {
-      margin-bottom: 30px;
-    }
-
-    .faq-item h3 {
-      font-size: 22px;
-      color: #1E90FF;
+      font-weight: 600;
       margin-bottom: 10px;
     }
 
-    .faq-item p {
+    .faq-section h2 {
+      font-size: 20px;
+      font-weight: 400;
+      color: #6c757d;
+      margin-bottom: 40px;
+    }
+
+    .faq-container {
+      text-align: left;
+    }
+
+    .faq-item {
+      margin-bottom: 16px;
+    }
+
+    .faq-question {
+      background: linear-gradient(90deg, #A84DF2, #C168F9);
+      color: white;
+      border: none;
+      padding: 16px 20px;
+      width: 100%;
+      text-align: left;
       font-size: 18px;
-      line-height: 1.6;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      font-family: 'Rajdhani', sans-serif;
+      box-shadow: 0 0 12px rgba(168, 77, 242, 0.3);
+    }
+
+    .faq-question:hover {
+      background: linear-gradient(90deg, #9C27B0, #673AB7);
+      box-shadow: 0 0 18px rgba(156, 39, 176, 0.5);
+    }
+
+    .faq-answer {
+      background: #ffffff;
+      padding: 16px 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      display: none;
+      font-size: 16px;
+      margin-top: 6px;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+    }
+
+    .logo-text {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #9C27B0, #673AB7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .nav-links a.nav-button {
+      margin-left: 15px;
+      padding: 8px 16px;
+      border: 2px solid #A84DF2;
+      border-radius: 20px;
+      background-color: white;
+      color: #A84DF2;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .nav-links a.nav-button:hover {
+      background: linear-gradient(90deg, #9C27B0, #673AB7);
+      color: white;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: #6c757d;
+    }
+
+    @media (max-width: 768px) {
+      .faq-question {
+        font-size: 16px;
+      }
+
+      .faq-answer {
+        font-size: 15px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <header class="top-nav">
+  <!-- Header -->
+  <div class="top-nav">
     <div class="logo-text">LEXORVA</div>
-    <nav class="nav-links">
+    <div class="nav-links">
       <a href="index.html" class="nav-button">Home</a>
       <a href="pricing.html" class="nav-button">Pricing</a>
       <a href="lexorva.html" class="nav-button">Lexorva</a>
       <a href="login.html" class="nav-button">Sign Up/Login</a>
-    </nav>
-  </header>
+    </div>
+  </div>
 
-  <main class="faq-section">
+  <!-- FAQ Section -->
+  <section class="faq-section">
     <h1>Frequently Asked Questions</h1>
+    <h2>Real problems lawyers face — solved by Lexorva</h2>
 
-    <div class="faq-item">
-      <h3>❓ I need to respond to a motion in less than 24 hours — how can Lexorva help?</h3>
-      <p>Lexorva’s Legal Strategist instantly analyzes the opposing party’s document (just upload it), identifies legal weaknesses, recommends objections, and drafts a reply — all formatted to your jurisdiction’s court standards. What used to take 8 hours now takes 8 minutes.</p>
+    <div class="faq-container">
+
+      <div class="faq-item">
+        <button class="faq-question">❓ I need to respond to a motion before the deadline tomorrow — can Lexorva help?</button>
+        <div class="faq-answer">
+          Absolutely. Lexorva analyzes the motion, identifies procedural flaws or weak arguments, and generates a court-formatted response tailored to your jurisdiction — all in minutes.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">❓ My associate missed a case citation — how does Lexorva reduce research time?</button>
+        <div class="faq-answer">
+          Lexorva instantly finds relevant case law using natural language search and includes full citations with summaries and pinpoint explanations, drastically cutting research hours.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">❓ Can Lexorva help me understand what a judge is likely to decide?</button>
+        <div class="faq-answer">
+          Yes. Lexorva’s Outcome Prediction Engine reviews your jurisdiction, judge history, and motion type to give a strategic forecast and insight on likely outcomes.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">❓ I'm swamped with deadlines. What if I just need strategy advice?</button>
+        <div class="faq-answer">
+          You can ask Lexorva for strategic guidance on any legal issue — it’ll generate arguments, counterarguments, and optimal paths forward, including settlement vs trial tactics.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">❓ Is my client’s data secure when using Lexorva?</button>
+        <div class="faq-answer">
+          Yes. Lexorva uses industry-standard encryption, isolated session memory, and client-confidential redaction layers. Data is never shared, stored, or retrievable after logout.
+        </div>
+      </div>
+
     </div>
+  </section>
 
-    <div class="faq-item">
-      <h3>❓ I’m drowning in research — how can Lexorva save me time?</h3>
-      <p>Use the Case Law Finder to instantly search relevant, verified case law based on natural language. Lexorva even shows how to apply the cases directly to your arguments and checks the citations for accuracy.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3>❓ I’m new to this judge and courtroom. How can I predict how they’ll rule?</h3>
-      <p>Lexorva’s Outcome Prediction Engine uses judge-specific patterns, jurisdictional outcomes, and legal data to predict the likelihood of success — helping you craft better motions, set client expectations, and avoid courtroom surprises.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3>❓ I need to train junior associates faster. Can Lexorva help?</h3>
-      <p>Yes. Lexorva acts like a 24/7 senior associate. It explains case law, legal strategy, objections, and drafting techniques in plain language — making it an elite training companion for younger attorneys and solo practitioners alike.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3>❓ My client keeps asking for updates. Can Lexorva simplify communication?</h3>
-      <p>Absolutely. Lexorva can summarize any document into plain English client explainers and generate full case reports — making it easy to send polished updates that build trust and reduce confusion.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3>❓ We have too many matters happening at once. How does Lexorva scale?</h3>
-      <p>Lexorva is built for law firms handling high volumes. Use team promo codes to onboard attorneys instantly. Each user gets access to powerful tools for strategy, research, and drafting — all tracked under your plan.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3>❓ What if my court has strict formatting requirements?</h3>
-      <p>Lexorva auto-formats all documents based on your jurisdiction — including margins, headers, font size, spacing, and court-specific layout. No more rejected filings due to formatting errors.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3>❓ Can Lexorva integrate with my current workflow?</h3>
-      <p>Yes. Lexorva is web-based, mobile-ready, and integrates with your existing processes. Download editable Word/PDFs, upload case documents, and share team codes — without installing any extra software.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3>❓ What makes Lexorva better than CoCounsel, Harvey AI, or Westlaw AI?</h3>
-      <p>Lexorva combines AI legal strategy, real-time document uploads, jurisdiction-specific formatting, objection building, and predictive outcomes — all in one platform. It’s built specifically to outperform traditional legal tools in accuracy, speed, and strategic insight.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3>❓ How much time can Lexorva really save me?</h3>
-      <p>Most users report saving 5–10 hours per week per case. Multiply that across your caseload and team — the ROI is immediate. Lexorva isn’t just software; it’s your competitive edge in the courtroom and beyond.</p>
-    </div>
-  </main>
-
+  <!-- Footer -->
   <footer class="footer">
     © 2025 LEXORVA. All Rights Reserved.
   </footer>
 
+  <!-- FAQ toggle logic -->
+  <script>
+    document.querySelectorAll(".faq-question").forEach(button => {
+      button.addEventListener("click", () => {
+        const faqItem = button.parentElement;
+        faqItem.classList.toggle("open");
+      });
+    });
+  </script>
 </body>
 </html>
