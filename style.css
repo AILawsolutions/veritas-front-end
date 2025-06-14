@@ -307,8 +307,8 @@ body {
     max-width: 400px;
     width: 100%;
 }
-.card-glow p {
-    color: #212529;
-    text-shadow: 0 0 8px rgba(168, 77, 242, 0.2);
-    transition: text-shadow 0.3s ease;
+.card p {
+  text-shadow: 0 0 8px rgba(168, 77, 242, 0.2);
+  transition: text-shadow 0.3s ease;
 }
+
