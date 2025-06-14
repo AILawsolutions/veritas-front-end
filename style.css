@@ -211,10 +211,11 @@ body {
     background-color: #FFFFFF;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    padding: 40px 30px;
-    max-width: 420px;
+    padding: 40px 24px 40px 24px; /* adjusted side padding */
+    max-width: 400px; /* slightly narrower */
     width: 100%;
     text-align: center;
+    box-sizing: border-box;
 }
 
 .login-title {
