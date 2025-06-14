@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lexorva - Contact Us</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background: #f9f9f9;
+      font-family: 'Rajdhani', sans-serif;
+      color: #212529;
+    }
+
+    .contact-container {
+      max-width: 800px;
+      margin: 80px auto;
+      padding: 40px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(168, 77, 242, 0.1);
+    }
+
+    .contact-container h1 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 30px;
+      color: #A84DF2;
+    }
+
+    .contact-form label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #673AB7;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+    }
+
+    .contact-form textarea {
+      resize: vertical;
+      height: 150px;
+    }
+
+    .contact-form button {
+      background: linear-gradient(90deg, #A84DF2, #C168F9);
+      color: white;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .contact-form button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="top-nav">
+    <div class="logo-text">LEXORVA</div>
+    <div class="nav-links">
+      <a href="pricing.html" class="nav-button">Pricing</a>
+      <a href="lexorva.html" class="nav-button">Lexorva</a>
+      <a href="login.html" class="nav-button">Sign Up/Login</a>
+    </div>
+  </div>
+
+  <div class="contact-container">
+    <h1>Contact Us</h1>
+    <form class="contact-form" action="mailto:support@lexorva.com" method="POST" enctype="text/plain">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" placeholder="Your full name" required />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="Your email address" required />
+
+      <label for="subject">Subject</label>
+      <input type="text" id="subject" name="subject" placeholder="Subject of your message" required />
+
+      <label for="message">Message</label>
+      <textarea id="message" name="message" placeholder="How can we help you?" required></textarea>
+
+      <button type="submit">Send Message</button>
+    </form>
+  </div>
+
+  <footer class="footer">
+    © 2025 LEXORVA. All Rights Reserved.
+  </footer>
+
+</body>
+</html>
