@@ -294,13 +294,19 @@ body {
         padding: 30px 20px;
     }
 }
-/* Spacing Fix for Login Page */
+/* Force perfect centering of login card */
 .login-main {
-    padding-top: 80px !important;
-    padding-bottom: 60px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 80px); /* header offset */
+    padding: 0 20px;
+    box-sizing: border-box;
+    text-align: center;
 }
 
 .login-card {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+    margin: 0 auto;
+    max-width: 400px;
+    width: 100%;
 }
