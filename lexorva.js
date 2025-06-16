@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const fileUploadInput = document.getElementById("fileUpload");
 
-    // Update this to your backend URL:
-    const BACKEND_URL = "https://AiLawSolutions.pythonanywhere.com";
+    // Updated backend URL:
+    const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
 
     // Allow pressing Enter to send message
     chatInput.addEventListener("keydown", (event) => {
@@ -26,7 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
         appendMessage("user", message);
         chatInput.value = "";
 
-        // Add "Thinking..." message in chat
         const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
@@ -49,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 responseText = "Error: Unexpected response from Lexorva.";
             }
 
-            // Stop thinking dots and start typing response
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText));
 
@@ -59,14 +57,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // File upload for /analyze-upload
+    // File upload for /upload
     fileUploadInput.addEventListener("change", async () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
 
-        appendMessage("user", `ð Uploaded file: ${file.name}`);
+        appendMessage("user", `<strong>ð Uploaded file:</strong> ${file.name}`);
 
-        // Add "Thinking..." message in chat
         const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
@@ -74,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("file", file);
 
         try {
-            const response = await fetch(`${BACKEND_URL}/analyze-upload`, {
+            const response = await fetch(`${BACKEND_URL}/upload`, {
                 method: "POST",
                 body: formData
             });
@@ -85,13 +82,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (data.choices && data.choices[0]?.message?.content) {
                 responseText = data.choices[0].message.content;
-            } else if (data.response) {
-                responseText = data.response;
+            } else if (data.result) {
+                responseText = data.result;
             } else {
                 responseText = "Error: Unexpected response from Lexorva.";
             }
 
-            // Stop thinking dots and start typing response
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText));
 
@@ -101,22 +97,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Helper to append message to chat
     function appendMessage(sender, text) {
         const messageDiv = document.createElement("div");
-
         const className = sender === "user" ? "user-message" : "ai-message";
         messageDiv.classList.add(className);
-
         messageDiv.innerHTML = text;
-
         chatHistory.appendChild(messageDiv);
         smoothScrollToBottom();
-
         return messageDiv;
     }
 
-    // Helper to smoothly scroll to latest message
     function smoothScrollToBottom() {
         chatHistory.scrollTo({
             top: chatHistory.scrollHeight,
@@ -124,35 +114,27 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Typing animation
     function typeMessage(element, htmlContent) {
-        element.innerHTML = ""; // Clear "Thinking..."
-
+        element.innerHTML = "";
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = htmlContent;
         const text = tempDiv.textContent || tempDiv.innerText || "";
-
         let index = 0;
-
         function typeChar() {
             if (index < text.length) {
                 element.innerHTML += text.charAt(index);
                 index++;
                 smoothScrollToBottom();
-                setTimeout(typeChar, 15); // Typing speed (ms)
+                setTimeout(typeChar, 15);
             } else {
-                // When finished, display full HTML (parsed Markdown)
                 element.innerHTML = htmlContent;
                 smoothScrollToBottom();
             }
         }
-
         typeChar();
     }
 
-    // Thinking dots animation
     let thinkingInterval;
-
     function startThinkingDots(element) {
         let dotCount = 0;
         thinkingInterval = setInterval(() => {
@@ -164,6 +146,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function stopThinkingDots(element) {
         clearInterval(thinkingInterval);
-        element.innerHTML = ""; // Will be replaced by typeMessage
+        element.innerHTML = "";
     }
 });
