@@ -127,4 +127,3 @@ document.addEventListener("DOMContentLoaded", () => {
         element.innerHTML = "";
     }
 });
-
