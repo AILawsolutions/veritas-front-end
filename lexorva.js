@@ -1,4 +1,4 @@
-// lexorva.js (ChatGPT-style file upload)
+// lexorva.js (ChatGPT-style file + message bubble separation)
 
 document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
@@ -17,24 +17,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         uploadedFile = file;
 
-        // Display file name above message input
-        const existing = document.getElementById("filePreview");
-        if (existing) existing.remove();
-
-        const fileTag = document.createElement("div");
-        fileTag.id = "filePreview";
-        fileTag.style = "margin-bottom: 6px; color: #ffffff; background-color: #7b2cbf; padding: 8px 12px; border-radius: 10px; display: inline-block;";
-        fileTag.innerHTML = `<strong>📄 ${file.name}</strong> <button style="margin-left: 10px; background:none; border:none; color:#fff; cursor:pointer;" onclick="removeFile()">❌</button>`;
-
-        chatInput.parentNode.insertBefore(fileTag, chatInput);
+        const fileBubble = appendMessage("user", `📄 <strong>${file.name}</strong>`);
+        fileBubble.id = "fileBubblePreview";
     });
 
-    window.removeFile = () => {
-        uploadedFile = null;
-        const fileTag = document.getElementById("filePreview");
-        if (fileTag) fileTag.remove();
-        fileUploadInput.value = "";
-    };
+    // Remove file reference (optional logic can be added here)
 
     // Allow Enter to send
     chatInput.addEventListener("keydown", (event) => {
@@ -49,15 +36,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
-        if (uploadedFile) {
-            appendMessage("user", `📄 Uploaded file: ${uploadedFile.name}<br>${message || ""}`);
-        } else {
-            appendMessage("user", message);
-        }
+        if (message) appendMessage("user", message);
 
         chatInput.value = "";
-        if (document.getElementById("filePreview")) {
-            document.getElementById("filePreview").remove();
+        if (document.getElementById("fileBubblePreview")) {
+            document.getElementById("fileBubblePreview").remove();
         }
 
         const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
