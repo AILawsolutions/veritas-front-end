@@ -1,74 +1,169 @@
-const CHAT_ENDPOINT = "https://YOUR_USERNAME.pythonanywhere.com/proxy";
-const UPLOAD_ENDPOINT = "https://YOUR_USERNAME.pythonanywhere.com/upload";
+// lexorva.js
 
-const fileInput = document.getElementById("fileUpload");
-const messageInput = document.getElementById("messageInput");
-const chatBox = document.getElementById("chatBox");
-const sendButton = document.getElementById("sendButton");
+document.addEventListener("DOMContentLoaded", () => {
+    const chatInput = document.getElementById("chatInput");
+    const sendButton = document.getElementById("sendButton");
+    const chatHistory = document.getElementById("chatHistory");
 
-function appendMessage(role, content) {
-  const message = document.createElement("div");
-  message.className = role;
-  message.textContent = content;
-  chatBox.appendChild(message);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
+    const fileUploadInput = document.getElementById("fileUpload");
 
-async function sendMessage() {
-  const prompt = messageInput.value.trim();
-  if (!prompt) return;
+    // Update this to your backend URL:
+    const BACKEND_URL = "https://AiLawSolutions.pythonanywhere.com";
 
-  appendMessage("user", prompt);
-  messageInput.value = "";
-
-  try {
-    const res = await fetch(CHAT_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt })
+    // Allow pressing Enter to send message
+    chatInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendButton.click();
+        }
     });
 
-    const data = await res.json();
+    // Send plain chat message to /proxy
+    sendButton.addEventListener("click", async () => {
+        const message = chatInput.value.trim();
+        if (message === "") return;
 
-    if (data.choices && data.choices[0].message.content) {
-      appendMessage("ai", data.choices[0].message.content);
-    } else {
-      appendMessage("ai", "⚠️ Error: No response from Lexorva.");
-    }
-  } catch (err) {
-    appendMessage("ai", "⚠️ Error: Failed to communicate with Lexorva.");
-  }
-}
+        appendMessage("user", message);
+        chatInput.value = "";
 
-async function uploadFile() {
-  const file = fileInput.files[0];
-  if (!file) return;
+        // Add "Thinking..." message in chat
+        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
+        startThinkingDots(thinkingDiv);
 
-  appendMessage("user", `📄 Uploaded file: ${file.name}`);
+        try {
+            const response = await fetch(`${BACKEND_URL}/proxy`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: message })
+            });
 
-  const formData = new FormData();
-  formData.append("file", file);
+            const data = await response.json();
 
-  try {
-    const res = await fetch(UPLOAD_ENDPOINT, {
-      method: "POST",
-      body: formData
+            let responseText = "";
+
+            if (data.choices && data.choices[0]?.message?.content) {
+                responseText = data.choices[0].message.content;
+            } else if (data.response) {
+                responseText = data.response;
+            } else {
+                responseText = "Error: Unexpected response from Lexorva.";
+            }
+
+            // Stop thinking dots and start typing response
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, marked.parse(responseText));
+
+        } catch (error) {
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
+        }
     });
 
-    const data = await res.json();
+    // File upload for /analyze-upload
+    fileUploadInput.addEventListener("change", async () => {
+        const file = fileUploadInput.files[0];
+        if (!file) return;
 
-    if (data.result) {
-      appendMessage("ai", data.result);
-    } else {
-      appendMessage("ai", "⚠️ Error: Could not process the file.");
+        appendMessage("user", `ð Uploaded file: ${file.name}`);
+
+        // Add "Thinking..." message in chat
+        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
+        startThinkingDots(thinkingDiv);
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/analyze-upload`, {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            let responseText = "";
+
+            if (data.choices && data.choices[0]?.message?.content) {
+                responseText = data.choices[0].message.content;
+            } else if (data.response) {
+                responseText = data.response;
+            } else {
+                responseText = "Error: Unexpected response from Lexorva.";
+            }
+
+            // Stop thinking dots and start typing response
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, marked.parse(responseText));
+
+        } catch (error) {
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
+        }
+    });
+
+    // Helper to append message to chat
+    function appendMessage(sender, text) {
+        const messageDiv = document.createElement("div");
+
+        const className = sender === "user" ? "user-message" : "ai-message";
+        messageDiv.classList.add(className);
+
+        messageDiv.innerHTML = text;
+
+        chatHistory.appendChild(messageDiv);
+        smoothScrollToBottom();
+
+        return messageDiv;
     }
-  } catch (err) {
-    appendMessage("ai", "⚠️ Error: Failed to communicate with Lexorva.");
-  }
-}
 
-sendButton.addEventListener("click", sendMessage);
-messageInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") sendMessage();
+    // Helper to smoothly scroll to latest message
+    function smoothScrollToBottom() {
+        chatHistory.scrollTo({
+            top: chatHistory.scrollHeight,
+            behavior: "smooth"
+        });
+    }
+
+    // Typing animation
+    function typeMessage(element, htmlContent) {
+        element.innerHTML = ""; // Clear "Thinking..."
+
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = htmlContent;
+        const text = tempDiv.textContent || tempDiv.innerText || "";
+
+        let index = 0;
+
+        function typeChar() {
+            if (index < text.length) {
+                element.innerHTML += text.charAt(index);
+                index++;
+                smoothScrollToBottom();
+                setTimeout(typeChar, 15); // Typing speed (ms)
+            } else {
+                // When finished, display full HTML (parsed Markdown)
+                element.innerHTML = htmlContent;
+                smoothScrollToBottom();
+            }
+        }
+
+        typeChar();
+    }
+
+    // Thinking dots animation
+    let thinkingInterval;
+
+    function startThinkingDots(element) {
+        let dotCount = 0;
+        thinkingInterval = setInterval(() => {
+            dotCount = (dotCount + 1) % 4;
+            element.innerHTML = "Thinking" + ".".repeat(dotCount);
+            smoothScrollToBottom();
+        }, 500);
+    }
+
+    function stopThinkingDots(element) {
+        clearInterval(thinkingInterval);
+        element.innerHTML = ""; // Will be replaced by typeMessage
+    }
 });
-fileInput.addEventListener("change", uploadFile);
