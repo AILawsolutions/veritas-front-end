@@ -4,13 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
     const sendButton = document.getElementById("sendButton");
     const chatHistory = document.getElementById("chatHistory");
-
     const fileUploadInput = document.getElementById("fileUpload");
 
-    // Updated backend URL:
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
+    let uploadedFile = null;  // Store uploaded file here
 
-    // Allow pressing Enter to send message
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -18,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Send plain chat message to /proxy
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
         if (message === "") return;
@@ -30,54 +27,27 @@ document.addEventListener("DOMContentLoaded", () => {
         startThinkingDots(thinkingDiv);
 
         try {
-            const response = await fetch(`${BACKEND_URL}/proxy`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ prompt: message })
-            });
+            let response;
+            if (uploadedFile) {
+                const formData = new FormData();
+                formData.append("file", uploadedFile);
+                formData.append("prompt", message); // Attach user explanation
 
-            const data = await response.json();
+                response = await fetch(`${BACKEND_URL}/upload`, {
+                    method: "POST",
+                    body: formData
+                });
 
-            let responseText = "";
-
-            if (data.choices && data.choices[0]?.message?.content) {
-                responseText = data.choices[0].message.content;
-            } else if (data.response) {
-                responseText = data.response;
+                uploadedFile = null;  // Reset file after use
             } else {
-                responseText = "Error: Unexpected response from Lexorva.";
+                response = await fetch(`${BACKEND_URL}/proxy`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: message })
+                });
             }
 
-            stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, marked.parse(responseText));
-
-        } catch (error) {
-            stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
-        }
-    });
-
-    // File upload for /upload
-    fileUploadInput.addEventListener("change", async () => {
-        const file = fileUploadInput.files[0];
-        if (!file) return;
-
-        appendMessage("user", `<strong>ð Uploaded file:</strong> ${file.name}`);
-
-        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
-        startThinkingDots(thinkingDiv);
-
-        const formData = new FormData();
-        formData.append("file", file);
-
-        try {
-            const response = await fetch(`${BACKEND_URL}/upload`, {
-                method: "POST",
-                body: formData
-            });
-
             const data = await response.json();
-
             let responseText = "";
 
             if (data.choices && data.choices[0]?.message?.content) {
@@ -95,6 +65,14 @@ document.addEventListener("DOMContentLoaded", () => {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
         }
+    });
+
+    fileUploadInput.addEventListener("change", () => {
+        const file = fileUploadInput.files[0];
+        if (!file) return;
+
+        uploadedFile = file;
+        appendMessage("user", `<strong>ð Uploaded file:</strong> ${file.name}. Please describe what you'd like Lexorva to do.`);
     });
 
     function appendMessage(sender, text) {
@@ -149,3 +127,4 @@ document.addEventListener("DOMContentLoaded", () => {
         element.innerHTML = "";
     }
 });
+
