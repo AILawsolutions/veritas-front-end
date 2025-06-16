@@ -18,6 +18,11 @@ body {
     border-bottom: 1px solid #eaeaea;
 }
 
+.download-pdf-button:hover {
+    opacity: 0.9;
+    transform: scale(1.01);
+}
+
 .logo-text {
     font-size: 28px;
     font-weight: 700;
