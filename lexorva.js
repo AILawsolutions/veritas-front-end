@@ -1,5 +1,3 @@
-// lexorva.js (ChatGPT-style file + message bubble separation)
-
 document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
     const sendButton = document.getElementById("sendButton");
@@ -10,20 +8,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let uploadedFile = null;
 
-    // Handle file selection (like ChatGPT)
+    // Handle file selection (show bubble like ChatGPT)
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
 
         uploadedFile = file;
 
-        const fileBubble = appendMessage("user", `📄 <strong>${file.name}</strong>`);
-        fileBubble.id = "fileBubblePreview";
+        // Display file bubble immediately
+        const fileBubble = document.createElement("div");
+        fileBubble.classList.add("user-message");
+        fileBubble.style.marginBottom = "4px";
+        fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
+        chatHistory.appendChild(fileBubble);
+        smoothScrollToBottom();
     });
 
-    // Remove file reference (optional logic can be added here)
+    // Remove file utility (optional future use)
+    function resetUpload() {
+        uploadedFile = null;
+        fileUploadInput.value = "";
+    }
 
-    // Allow Enter to send
+    // Send on Enter
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -31,17 +38,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Send button logic
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
-        if (message) appendMessage("user", message);
+        // Show typed message as bubble
+        if (message) {
+            appendMessage("user", message);
+        }
 
         chatInput.value = "";
-        if (document.getElementById("fileBubblePreview")) {
-            document.getElementById("fileBubblePreview").remove();
-        }
 
         const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
@@ -59,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: formData
                 });
 
-                uploadedFile = null;
+                resetUpload();
             } else {
                 response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
@@ -69,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const data = await response.json();
-            let responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
+            const responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText));
