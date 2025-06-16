@@ -1,3 +1,5 @@
+// lexorva.js – ChatGPT-style file + message
+
 document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
     const sendButton = document.getElementById("sendButton");
@@ -5,32 +7,38 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileUploadInput = document.getElementById("fileUpload");
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
-
     let uploadedFile = null;
 
-    // Handle file selection (show bubble like ChatGPT)
+    // Handle file upload preview (no send yet)
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
 
         uploadedFile = file;
 
-        // Display file bubble immediately
-        const fileBubble = document.createElement("div");
-        fileBubble.classList.add("user-message");
-        fileBubble.style.marginBottom = "4px";
-        fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
-        chatHistory.appendChild(fileBubble);
+        // Show preview bubble
+        let preview = document.getElementById("fileBubble");
+        if (preview) preview.remove();
+
+        preview = document.createElement("div");
+        preview.id = "fileBubble";
+        preview.className = "user-message";
+        preview.style.marginBottom = "8px";
+        preview.innerHTML = `📄 <strong>${file.name}</strong>
+            <button style="margin-left:10px; background:none; border:none; color:#fff; cursor:pointer;" onclick="removeFile()">❌</button>`;
+
+        chatHistory.appendChild(preview);
         smoothScrollToBottom();
     });
 
-    // Remove file utility (optional future use)
-    function resetUpload() {
+    window.removeFile = () => {
         uploadedFile = null;
+        const preview = document.getElementById("fileBubble");
+        if (preview) preview.remove();
         fileUploadInput.value = "";
-    }
+    };
 
-    // Send on Enter
+    // Enter sends message
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -42,30 +50,32 @@ document.addEventListener("DOMContentLoaded", () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
-        // Show typed message as bubble
+        if (uploadedFile) {
+            appendMessage("user", `📄 <strong>${uploadedFile.name}</strong>`);
+        }
         if (message) {
             appendMessage("user", message);
         }
 
         chatInput.value = "";
+        const fileBubble = document.getElementById("fileBubble");
+        if (fileBubble) fileBubble.remove();
 
         const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
         try {
             let response;
-
             if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
                 formData.append("prompt", message);
+                uploadedFile = null;
 
                 response = await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
                     body: formData
                 });
-
-                resetUpload();
             } else {
                 response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
@@ -75,13 +85,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const data = await response.json();
-            const responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
+            let responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "⚠️ Unexpected response.";
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText));
         } catch (error) {
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
+            typeMessage(thinkingDiv, "❌ Error: Failed to reach Lexorva.");
         }
     });
 
@@ -95,10 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function smoothScrollToBottom() {
-        chatHistory.scrollTo({
-            top: chatHistory.scrollHeight,
-            behavior: "smooth"
-        });
+        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
     }
 
     function typeMessage(element, htmlContent) {
