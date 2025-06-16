@@ -5,18 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>LEXORVA</title>
 
-    <!-- ✅ Orbitron + Rajdhani font -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
-
-    <!-- Your CSS -->
     <link rel="stylesheet" href="lexorva.css" />
-
-    <!-- Load Marked.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-
-    <!-- Header - SAME as index.html -->
     <div class="top-nav">
         <div class="logo-text">LEXORVA</div>
         <div class="nav-links">
@@ -26,22 +20,17 @@
         </div>
     </div>
 
-    <!-- Chat Section ONLY -->
-<div class="main">
-    <div class="chat-section" id="chatSection">
-        <div class="chat-history" id="chatHistory">
-            <!-- Messages will go here -->
-        </div>
-        <div class="input-bar">
-            <!-- Upload button -->
-            <label for="fileUpload" class="upload-button">➕</label>
-            <input type="file" id="fileUpload" style="display:none;" />
-            <!-- Chat input and send -->
-            <input type="text" id="chatInput" placeholder="Message Lexorva..." />
-            <button id="sendButton">➤</button>
+    <div class="main">
+        <div class="chat-section" id="chatSection">
+            <div class="chat-history" id="chatHistory"></div>
+            <div class="input-bar">
+                <label for="fileUpload" class="upload-button">➕</label>
+                <input type="file" id="fileUpload" style="display:none;" />
+                <input type="text" id="chatInput" placeholder="Message Lexorva..." />
+                <button id="sendButton">➤</button>
+            </div>
         </div>
     </div>
-</div>
 
     <script src="lexorva.js"></script>
 </body>
