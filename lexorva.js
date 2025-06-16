@@ -5,67 +5,56 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileUploadInput = document.getElementById("fileUpload");
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
+
     let uploadedFile = null;
 
-    // File selection preview (does NOT send automatically)
+    // Handle file selection (show bubble like ChatGPT)
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
 
         uploadedFile = file;
 
-        // Clear old preview
-        const oldPreview = document.getElementById("fileBubble");
-        if (oldPreview) oldPreview.remove();
-
-        // Create file preview bubble
+        // Display file bubble immediately
         const fileBubble = document.createElement("div");
-        fileBubble.id = "fileBubble";
-        fileBubble.className = "user-message";
-        fileBubble.style = "background-color:#7b2cbf;color:#fff;padding:10px;border-radius:12px;margin:10px;max-width:80%;display:inline-block;";
-        fileBubble.innerHTML = `📄 <strong>${file.name}</strong> <button onclick="removeFile()" style="margin-left:10px;background:none;border:none;color:white;cursor:pointer;">✖</button>`;
-
+        fileBubble.classList.add("user-message");
+        fileBubble.style.marginBottom = "4px";
+        fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
         chatHistory.appendChild(fileBubble);
         smoothScrollToBottom();
     });
 
-    // Remove uploaded file
-    window.removeFile = () => {
+    // Remove file utility (optional future use)
+    function resetUpload() {
         uploadedFile = null;
-        const bubble = document.getElementById("fileBubble");
-        if (bubble) bubble.remove();
         fileUploadInput.value = "";
-    };
+    }
 
-    // Press Enter to send
-    chatInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
+    // Send on Enter
+    chatInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
             sendButton.click();
         }
     });
 
-    // Handle Send button
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
-        if (uploadedFile) {
-            appendMessage("user", `📄 ${uploadedFile.name}`);
-        }
-
+        // Show typed message as bubble
         if (message) {
             appendMessage("user", message);
         }
 
         chatInput.value = "";
-        removeFile(); // visually clears uploaded bubble
 
         const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
         try {
             let response;
+
             if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
@@ -73,32 +62,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 response = await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
-                    body: formData,
+                    body: formData
                 });
 
-                uploadedFile = null;
+                resetUpload();
             } else {
                 response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: message }),
+                    body: JSON.stringify({ prompt: message })
                 });
             }
 
             const data = await response.json();
-            const content = data.result || data.response || data.choices?.[0]?.message?.content || "Error: Unexpected response from Lexorva.";
+            const responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
+
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, marked.parse(content));
-        } catch (err) {
+            typeMessage(thinkingDiv, marked.parse(responseText));
+        } catch (error) {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
         }
     });
 
-    // Append messages
     function appendMessage(sender, text) {
         const messageDiv = document.createElement("div");
-        messageDiv.className = sender === "user" ? "user-message" : "ai-message";
+        messageDiv.classList.add(sender === "user" ? "user-message" : "ai-message");
         messageDiv.innerHTML = text;
         chatHistory.appendChild(messageDiv);
         smoothScrollToBottom();
@@ -108,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function smoothScrollToBottom() {
         chatHistory.scrollTo({
             top: chatHistory.scrollHeight,
-            behavior: "smooth",
+            behavior: "smooth"
         });
     }
 
