@@ -8,29 +8,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let uploadedFile = null;
 
-    // Handle file selection (show bubble like ChatGPT)
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
 
         uploadedFile = file;
 
-        // Display file bubble immediately
         const fileBubble = document.createElement("div");
         fileBubble.classList.add("user-message");
         fileBubble.style.marginBottom = "4px";
         fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
+        fileBubble.dataset.isFile = "true";
         chatHistory.appendChild(fileBubble);
         smoothScrollToBottom();
     });
 
-    // Remove file utility (optional future use)
-    function resetUpload() {
-        uploadedFile = null;
-        fileUploadInput.value = "";
-    }
-
-    // Send on Enter
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -42,7 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
-        // Show typed message as bubble
         if (message) {
             appendMessage("user", message);
         }
@@ -58,14 +49,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
-                formData.append("prompt", message);
-
+                formData.append("prompt", message || "Please analyze this document.");
                 response = await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
                     body: formData
                 });
-
-                resetUpload();
+                uploadedFile = null;
+                fileUploadInput.value = "";
             } else {
                 response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
@@ -79,6 +69,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText));
+
+            const downloadBtn = document.createElement("button");
+            downloadBtn.textContent = "⬇ Download Strategy Report";
+            downloadBtn.style.marginTop = "12px";
+            downloadBtn.style.background = "linear-gradient(90deg, #A84DF2, #C168F9)";
+            downloadBtn.style.color = "#fff";
+            downloadBtn.style.padding = "8px 14px";
+            downloadBtn.style.border = "none";
+            downloadBtn.style.borderRadius = "20px";
+            downloadBtn.style.cursor = "pointer";
+            downloadBtn.style.fontSize = "14px";
+            downloadBtn.addEventListener("click", () => downloadPDF(responseText));
+            thinkingDiv.appendChild(downloadBtn);
+
         } catch (error) {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
@@ -123,7 +127,6 @@ document.addEventListener("DOMContentLoaded", () => {
         typeChar();
     }
 
-    let thinkingInterval;
     function startThinkingDots(element) {
         let dotCount = 0;
         thinkingInterval = setInterval(() => {
@@ -137,4 +140,14 @@ document.addEventListener("DOMContentLoaded", () => {
         clearInterval(thinkingInterval);
         element.innerHTML = "";
     }
+
+    function downloadPDF(content) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const splitText = doc.splitTextToSize(content, 180);
+        doc.text(splitText, 15, 20);
+        doc.save("Lexorva_Strategy_Report.pdf");
+    }
+
+    let thinkingInterval;
 });
