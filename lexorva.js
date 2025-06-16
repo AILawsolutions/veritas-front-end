@@ -1,13 +1,13 @@
-// lexorva.js
+// lexorva.js — ChatGPT-style file upload + message combo
 
 document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
     const sendButton = document.getElementById("sendButton");
     const chatHistory = document.getElementById("chatHistory");
     const fileUploadInput = document.getElementById("fileUpload");
+    let uploadedFile = null;
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
-    let uploadedFile = null;  // Store uploaded file here
 
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
@@ -16,64 +16,62 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Send chat + file in same message (like ChatGPT)
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
-        if (message === "") return;
+        if (message === "" && !uploadedFile) return;
 
-        appendMessage("user", message);
+        if (uploadedFile) {
+            appendMessage("user", `<strong>📄 ${uploadedFile.name}</strong><br>${message}`);
+        } else {
+            appendMessage("user", message);
+        }
+
         chatInput.value = "";
 
         const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
         try {
-            let response;
-            if (uploadedFile) {
-                const formData = new FormData();
-                formData.append("file", uploadedFile);
-                formData.append("prompt", message); // Attach user explanation
+            const formData = new FormData();
+            if (uploadedFile) formData.append("file", uploadedFile);
+            formData.append("prompt", message);
 
-                response = await fetch(`${BACKEND_URL}/upload`, {
-                    method: "POST",
-                    body: formData
-                });
-
-                uploadedFile = null;  // Reset file after use
-            } else {
-                response = await fetch(`${BACKEND_URL}/proxy`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: message })
-                });
-            }
+            const response = await fetch(`${BACKEND_URL}/upload`, {
+                method: "POST",
+                body: formData
+            });
 
             const data = await response.json();
-            let responseText = "";
-
-            if (data.choices && data.choices[0]?.message?.content) {
-                responseText = data.choices[0].message.content;
-            } else if (data.result) {
-                responseText = data.result;
-            } else {
-                responseText = "Error: Unexpected response from Lexorva.";
-            }
+            let responseText = data?.result || data?.choices?.[0]?.message?.content || "Error: Unexpected response from Lexorva.";
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText));
-
         } catch (error) {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
         }
+
+        uploadedFile = null;
+        document.getElementById("filePreview").innerHTML = "";
     });
 
+    // File upload preview (waits for user to click send)
     fileUploadInput.addEventListener("change", () => {
-        const file = fileUploadInput.files[0];
-        if (!file) return;
-
-        uploadedFile = file;
-        appendMessage("user", `<strong>ð Uploaded file:</strong> ${file.name}. Please describe what you'd like Lexorva to do.`);
+        uploadedFile = fileUploadInput.files[0];
+        const preview = document.getElementById("filePreview");
+        if (uploadedFile) {
+            preview.innerHTML = `<div class="file-tag">📄 ${uploadedFile.name} <span class="file-remove" onclick="removeUpload()">✖</span></div>`;
+        } else {
+            preview.innerHTML = "";
+        }
     });
+
+    window.removeUpload = () => {
+        uploadedFile = null;
+        fileUploadInput.value = "";
+        document.getElementById("filePreview").innerHTML = "";
+    };
 
     function appendMessage(sender, text) {
         const messageDiv = document.createElement("div");
@@ -86,10 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function smoothScrollToBottom() {
-        chatHistory.scrollTo({
-            top: chatHistory.scrollHeight,
-            behavior: "smooth"
-        });
+        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
     }
 
     function typeMessage(element, htmlContent) {
