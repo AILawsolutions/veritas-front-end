@@ -1,125 +1,123 @@
-let uploadedText = "";
-let uploadedFilename = "";
+let uploadedFileText = "";
+let isTyping = false;
 
-document.getElementById('fileInput').addEventListener('change', async function (event) {
+// DOM elements
+const uploadInput = document.getElementById("fileUpload");
+const chatContainer = document.getElementById("chatContainer");
+const sendButton = document.getElementById("sendButton");
+const userInput = document.getElementById("userInput");
+
+// Handle file upload
+uploadInput.addEventListener("change", async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     const formData = new FormData();
     formData.append("file", file);
-    uploadedFilename = file.name;
 
-    const filePreview = document.createElement('div');
-    filePreview.className = 'file-preview';
-    filePreview.innerHTML = `<strong>📄 ${file.name}</strong>`;
-    document.getElementById("chatbox").appendChild(filePreview);
+    addMessage(`📎 ${file.name} uploaded. Analyzing now...`, "user");
 
     try {
         const response = await fetch("http://localhost:5000/upload", {
             method: "POST",
-            body: formData
+            body: formData,
         });
-
         const data = await response.json();
+
         if (data.result) {
-            uploadedText = data.result;
+            uploadedFileText = data.result;
+            addMessage("✅ Document registered. You may now ask questions about it.", "ai");
         } else {
-            uploadedText = "";
+            addMessage("❌ Failed to read the document.", "ai");
         }
-    } catch (error) {
-        uploadedText = "";
+    } catch (err) {
+        addMessage("⚠️ Error uploading file.", "ai");
     }
 });
 
-document.getElementById("userInput").addEventListener("keydown", function (event) {
-    if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        sendPrompt();
+// Handle message sending
+sendButton.addEventListener("click", sendMessage);
+userInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
     }
 });
 
-document.getElementById("sendButton").addEventListener("click", sendPrompt);
+async function sendMessage() {
+    if (isTyping) return;
 
-async function sendPrompt() {
-    const inputElement = document.getElementById("userInput");
-    const userPrompt = inputElement.value.trim();
-    if (!userPrompt) return;
+    const prompt = userInput.value.trim();
+    if (!prompt) return;
 
-    const chatbox = document.getElementById("chatbox");
-    const userBubble = document.createElement("div");
-    userBubble.className = "bubble user";
-    userBubble.innerText = userPrompt;
-    chatbox.appendChild(userBubble);
-    inputElement.value = "";
-
-    const loadingBubble = document.createElement("div");
-    loadingBubble.className = "bubble ai loading";
-    loadingBubble.innerText = "Lexorva is thinking...";
-    chatbox.appendChild(loadingBubble);
-
-    const finalPrompt = uploadedText
-        ? `Document content:
-${uploadedText}
-
-User question:
-${userPrompt}`
-        : userPrompt;
+    addMessage(prompt, "user");
+    userInput.value = "";
+    isTyping = true;
 
     try {
         const response = await fetch("http://localhost:5000/proxy", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ prompt: finalPrompt })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: uploadedFileText + "\n\n" + prompt }),
         });
 
         const data = await response.json();
-        loadingBubble.remove();
+        const reply = data.choices?.[0]?.message?.content || "⚠️ Error reading AI response.";
 
-        const aiBubble = document.createElement("div");
-        aiBubble.className = "bubble ai";
-        typeWriterEffect(data.choices[0].message.content, aiBubble);
-        chatbox.appendChild(aiBubble);
-
-        // Show Download Button
-        const downloadBtn = document.getElementById("downloadBtn");
-        if (finalPrompt.toLowerCase().includes("strategy report")) {
-            downloadBtn.style.display = "block";
-            downloadBtn.onclick = () => downloadPDF(data.choices[0].message.content);
-        } else {
-            downloadBtn.style.display = "none";
-        }
-
-    } catch (error) {
-        loadingBubble.remove();
-        const errorBubble = document.createElement("div");
-        errorBubble.className = "bubble ai";
-        errorBubble.innerText = "⚠️ An error occurred. Please try again.";
-        chatbox.appendChild(errorBubble);
+        addMessage(reply, "ai", true);
+    } catch (err) {
+        addMessage("⚠️ Request failed.", "ai");
+    } finally {
+        isTyping = false;
     }
 }
 
-function typeWriterEffect(text, element) {
+// Add message bubble
+function addMessage(content, sender, showDownload = false) {
+    const message = document.createElement("div");
+    message.className = sender === "user" ? "bubble user-bubble" : "bubble ai-bubble";
+
+    const text = document.createElement("div");
+    text.className = "text";
+    message.appendChild(text);
+    chatContainer.appendChild(message);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    if (sender === "ai" && showDownload) {
+        typeWriterEffect(content, text, () => addDownloadButton(content, message));
+    } else {
+        text.innerText = content;
+    }
+}
+
+// Typewriter effect for AI
+function typeWriterEffect(text, element, callback) {
     let i = 0;
-    const speed = 15;
     function type() {
         if (i < text.length) {
-            element.innerHTML += text.charAt(i);
-            i++;
-            setTimeout(type, speed);
+            element.innerHTML += text.charAt(i++);
+            setTimeout(type, 15);
+        } else if (callback) {
+            callback();
         }
     }
     type();
 }
 
-function downloadPDF(content) {
-    const blob = new Blob([content], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
+// Add download button after AI response
+function addDownloadButton(content, parent) {
+    const button = document.createElement("button");
+    button.innerText = "Download Strategy Report";
+    button.className = "download-button";
+    button.addEventListener("click", () => downloadPDF(content));
+    parent.appendChild(button);
+}
+
+// Download PDF
+function downloadPDF(text) {
+    const blob = new Blob([text], { type: "application/pdf" });
     const link = document.createElement("a");
-    link.href = url;
+    link.href = URL.createObjectURL(blob);
     link.download = "Lexorva_Strategy_Report.pdf";
-    document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
 }
