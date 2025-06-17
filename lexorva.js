@@ -8,21 +8,20 @@ document.addEventListener("DOMContentLoaded", () => {
     let uploadedFile = null;
     let uploadedText = "";
 
-    // Create and style download button
     const downloadButton = document.createElement("button");
     downloadButton.id = "downloadPDF";
     downloadButton.textContent = "⬇️ Download Strategy Report";
     downloadButton.style = `
         display: none;
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 6px;
-        padding: 6px 12px;
+        background: rgba(168, 77, 242, 0.08);
+        border: 1px solid rgba(168, 77, 242, 0.2);
+        color: #C168F9;
+        border-radius: 8px;
+        padding: 5px 12px;
+        font-size: 13px;
         margin-top: 12px;
-        cursor: pointer;
         font-family: 'Rajdhani', sans-serif;
-        font-size: 14px;
+        cursor: pointer;
     `;
     chatHistory.appendChild(downloadButton);
 
@@ -40,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
-
         uploadedFile = file;
 
         const fileBubble = document.createElement("div");
@@ -64,35 +62,38 @@ document.addEventListener("DOMContentLoaded", () => {
         if (message) appendMessage("user", message);
         chatInput.value = "";
 
-        const thinkingDiv = appendMessage("ai-message", "Thinking<span class='dots'></span>");
+        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
         try {
-            let responseText = "";
-
+            let response;
             if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
-                responseText = await fetch(`${BACKEND_URL}/upload`, {
+                formData.append("prompt", message);
+                response = await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
                     body: formData
-                }).then(res => res.json()).then(data => data.result || "Error: No response.");
-                uploadedFile = null;
+                });
                 fileUploadInput.value = "";
+                uploadedFile = null;
             } else {
-                responseText = await fetch(`${BACKEND_URL}/proxy`, {
+                response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ prompt: message })
-                }).then(res => res.json()).then(data => {
-                    return data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response.";
                 });
             }
 
+            const data = await response.json();
+            const responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
+
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText), () => {
-                if (responseText.toLowerCase().includes("strategy report")) {
+                if (/strategy report/i.test(responseText)) {
                     downloadButton.style.display = "inline-block";
+                    chatHistory.appendChild(downloadButton);
+                    smoothScrollToBottom();
                 }
             });
         } catch (error) {
@@ -101,13 +102,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    function appendMessage(className, text) {
+    function appendMessage(sender, text) {
         const messageDiv = document.createElement("div");
-        messageDiv.classList.add(className);
+        messageDiv.classList.add(sender === "user" ? "user-message" : "ai-message");
         messageDiv.innerHTML = text;
         chatHistory.appendChild(messageDiv);
         smoothScrollToBottom();
         return messageDiv;
+    }
+
+    function smoothScrollToBottom() {
+        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
     }
 
     function typeMessage(element, htmlContent, callback) {
@@ -133,6 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
         typeChar();
     }
 
+    let thinkingInterval;
     function startThinkingDots(element) {
         downloadButton.style.display = "none";
         let dotCount = 0;
@@ -147,10 +153,4 @@ document.addEventListener("DOMContentLoaded", () => {
         clearInterval(thinkingInterval);
         element.innerHTML = "";
     }
-
-    function smoothScrollToBottom() {
-        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
-    }
-
-    let thinkingInterval;
 });
