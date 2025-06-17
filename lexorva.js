@@ -5,30 +5,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileUploadInput = document.getElementById("fileUpload");
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
-
     let uploadedFile = null;
 
-    // Add subtle download button (hidden by default)
+    // Subtle download button, created once
     const downloadButton = document.createElement("button");
     downloadButton.id = "downloadPDF";
-    downloadButton.textContent = "⬇️ Download Strategy Report";
+    downloadButton.textContent = "Download Strategy Report";
     downloadButton.style = `
         display: none;
-        background: rgba(168, 77, 242, 0.1);
+        background-color: transparent;
         color: #A84DF2;
         border: 1px solid #A84DF2;
-        border-radius: 12px;
-        padding: 6px 14px;
-        margin-top: 12px;
-        cursor: pointer;
+        border-radius: 6px;
+        font-size: 13px;
+        padding: 4px 12px;
         font-family: 'Rajdhani', sans-serif;
-        font-size: 14px;
+        margin-top: 12px;
+        align-self: flex-start;
+        cursor: pointer;
     `;
-    chatHistory.appendChild(downloadButton);
-
     downloadButton.addEventListener("click", () => {
         const lastAIMessage = [...chatHistory.getElementsByClassName("ai-message")].pop();
-        if (!lastAIMessage) return;
         const blob = new Blob([lastAIMessage.innerText], { type: "application/pdf" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -38,22 +35,20 @@ document.addEventListener("DOMContentLoaded", () => {
         URL.revokeObjectURL(url);
     });
 
-    // Upload file bubble display
+    // File bubble (ChatGPT-style)
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
-
         uploadedFile = file;
 
         const fileBubble = document.createElement("div");
         fileBubble.classList.add("user-message");
-        fileBubble.style.marginBottom = "4px";
         fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
         chatHistory.appendChild(fileBubble);
         smoothScrollToBottom();
     });
 
-    // Allow Enter to send
+    // Fix Enter-to-Send
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -61,19 +56,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Handle send
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
-        if (message) {
-            appendMessage("user", message);
-        }
-
+        if (message) appendMessage("user", message);
         chatInput.value = "";
-        downloadButton.style.display = "none";
 
-        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
+        const thinkingDiv = appendMessage("ai-message", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
         try {
@@ -82,12 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
                 formData.append("prompt", message);
-
                 response = await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
                     body: formData
                 });
-
                 uploadedFile = null;
                 fileUploadInput.value = "";
             } else {
@@ -103,9 +91,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText), () => {
-                downloadButton.style.display = "inline-block";
-                chatHistory.appendChild(downloadButton);
-                smoothScrollToBottom();
+                // Only show the subtle download button if a strategy report was generated
+                if (responseText.toLowerCase().includes("strategy report")) {
+                    if (!chatHistory.contains(downloadButton)) {
+                        chatHistory.appendChild(downloadButton);
+                    }
+                    downloadButton.style.display = "inline-block";
+                } else {
+                    downloadButton.style.display = "none";
+                }
             });
         } catch (error) {
             stopThinkingDots(thinkingDiv);
@@ -113,9 +107,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    function appendMessage(sender, text) {
+    function appendMessage(type, text) {
         const messageDiv = document.createElement("div");
-        messageDiv.classList.add(sender === "user" ? "user-message" : "ai-message");
+        messageDiv.classList.add(type);
         messageDiv.innerHTML = text;
         chatHistory.appendChild(messageDiv);
         smoothScrollToBottom();
