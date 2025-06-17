@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
     let uploadedFile = null;
 
-    // Download button setup
+    // Download button
     const downloadButton = document.createElement("button");
     downloadButton.id = "downloadPDF";
     downloadButton.textContent = "⬇️ Download Strategy Report";
@@ -41,6 +41,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
         uploadedFile = file;
+
+        // Remove previous file preview if one exists
+        const existingFileBubbles = [...chatHistory.getElementsByClassName("user-message")]
+            .filter(div => div.textContent.includes("Uploaded:"));
+        existingFileBubbles.forEach(div => div.remove());
 
         const fileBubble = document.createElement("div");
         fileBubble.classList.add("user-message");
@@ -88,7 +93,18 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const data = await response.json();
-            const reply = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
+
+            // Smart parsing
+            let reply = "Error: Unexpected response from Lexorva.";
+            if (data.result) {
+                reply = data.result;
+            } else if (data.response) {
+                reply = data.response;
+            } else if (data.choices && data.choices[0]?.message?.content) {
+                reply = data.choices[0].message.content;
+            } else if (data.error) {
+                reply = `Error: ${data.error}`;
+            }
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(reply), () => {
@@ -96,9 +112,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     downloadButton.style.display = "inline-block";
                 }
             });
+
         } catch (error) {
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
+            typeMessage(thinkingDiv, `Error: ${error.message}`);
         }
     });
 
