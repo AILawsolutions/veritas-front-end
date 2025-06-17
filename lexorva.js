@@ -6,55 +6,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
     let uploadedFile = null;
+    let uploadedText = "";
 
-    // Create the download button (initially hidden)
+    // Create and style download button
     const downloadButton = document.createElement("button");
     downloadButton.id = "downloadPDF";
     downloadButton.textContent = "⬇️ Download Strategy Report";
     downloadButton.style = `
         display: none;
-        background: transparent;
-        border: 1px solid #C168F9;
-        color: #C168F9;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: 6px;
         padding: 6px 12px;
-        font-size: 14px;
-        font-family: 'Rajdhani', sans-serif;
-        cursor: pointer;
         margin-top: 12px;
+        cursor: pointer;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 14px;
     `;
-    // We'll insert the download button after the AI response when appropriate
-    // (so it doesn’t appear until a complete report is ready)
+    chatHistory.appendChild(downloadButton);
 
-    // File upload – show a bubble (like ChatGPT) that stays until you send your question
+    downloadButton.addEventListener("click", () => {
+        const lastAIMessage = [...chatHistory.getElementsByClassName("ai-message")].pop();
+        const blob = new Blob([lastAIMessage.innerText], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "Lexorva_Strategy_Report.pdf";
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
+
         uploadedFile = file;
 
-        // Remove any previous file preview
-        const prev = document.getElementById("filePreview");
-        if (prev) prev.remove();
-
-        // Create a new file preview bubble
         const fileBubble = document.createElement("div");
-        fileBubble.id = "filePreview";
         fileBubble.classList.add("user-message");
-        fileBubble.style.marginBottom = "4px";
-        fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong> 
-            <button style="margin-left: 10px; background: none; border: none; color: inherit; cursor: pointer;" onclick="removeFile()">❌</button>`;
+        fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
         chatHistory.appendChild(fileBubble);
         smoothScrollToBottom();
     });
 
-    window.removeFile = () => {
-        uploadedFile = null;
-        const fileTag = document.getElementById("filePreview");
-        if (fileTag) fileTag.remove();
-        fileUploadInput.value = "";
-    };
-
-    // Allow Enter (without Shift) to send the message
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -62,61 +57,42 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Handle send button press
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
-        if (!message && !uploadedFile) return; // Do nothing if both are empty
+        if (!message && !uploadedFile) return;
 
-        // Append the user's text message as a bubble beneath the file preview (if any)
-        if (message) {
-            appendMessage("user", message);
-        }
-        // Clear input (but do not remove file preview here because we want to keep the document loaded)
+        if (message) appendMessage("user", message);
         chatInput.value = "";
 
-        // Create the thinking bubble for Lexorva's answer
-        const thinkingDiv = appendMessage("ai", "Thinking<span class='dots'></span>");
+        const thinkingDiv = appendMessage("ai-message", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
         try {
-            let response;
-            // If there is an uploaded document, send it along with the prompt
+            let responseText = "";
+
             if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
-                formData.append("prompt", message);
-                response = await fetch(`${BACKEND_URL}/upload`, {
+                responseText = await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
-                    body: formData,
-                });
-                // Once submitted, clear the uploaded file information from the input
+                    body: formData
+                }).then(res => res.json()).then(data => data.result || "Error: No response.");
                 uploadedFile = null;
-                const filePreview = document.getElementById("filePreview");
-                if (filePreview) filePreview.remove();
                 fileUploadInput.value = "";
             } else {
-                response = await fetch(`${BACKEND_URL}/proxy`, {
+                responseText = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: message }),
+                    body: JSON.stringify({ prompt: message })
+                }).then(res => res.json()).then(data => {
+                    return data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response.";
                 });
             }
 
-            const data = await response.json();
-            const reply = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: No response from Lexorva.";
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, marked.parse(reply), () => {
-                // Only display the download button if the reply appears to be a full strategy report.
-                // (For example, if it contains key phrases like 'Strategy Report' etc.)
-                if (reply.toLowerCase().includes("strategy report")) {
-                    // Remove any previous download button (to avoid duplicates)
-                    const existingDownload = document.getElementById("downloadPDF");
-                    if (existingDownload) existingDownload.remove();
-                    // Reinsert the download button directly after the response bubble
+            typeMessage(thinkingDiv, marked.parse(responseText), () => {
+                if (responseText.toLowerCase().includes("strategy report")) {
                     downloadButton.style.display = "inline-block";
-                    chatHistory.insertBefore(downloadButton, thinkingDiv.nextSibling);
-                } else {
-                    downloadButton.style.display = "none";
                 }
             });
         } catch (error) {
@@ -125,57 +101,56 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    function appendMessage(sender, html) {
-        const div = document.createElement("div");
-        div.className = sender === "user" ? "user-message" : "ai-message";
-        div.innerHTML = html;
-        chatHistory.appendChild(div);
+    function appendMessage(className, text) {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add(className);
+        messageDiv.innerHTML = text;
+        chatHistory.appendChild(messageDiv);
         smoothScrollToBottom();
-        return div;
+        return messageDiv;
     }
 
-    function smoothScrollToBottom() {
-        chatHistory.scrollTo({
-            top: chatHistory.scrollHeight,
-            behavior: "smooth"
-        });
-    }
+    function typeMessage(element, htmlContent, callback) {
+        element.innerHTML = "";
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = htmlContent;
+        const text = tempDiv.textContent || tempDiv.innerText || "";
+        let index = 0;
 
-    function typeMessage(div, fullHTML, callback) {
-        div.innerHTML = "";
-        const temp = document.createElement("div");
-        temp.innerHTML = fullHTML;
-        const text = temp.textContent || temp.innerText || "";
-        let idx = 0;
-        function type() {
-            if (idx < text.length) {
-                div.innerHTML += text.charAt(idx);
-                idx++;
+        function typeChar() {
+            if (index < text.length) {
+                element.innerHTML += text.charAt(index);
+                index++;
                 smoothScrollToBottom();
-                setTimeout(type, 10);
+                setTimeout(typeChar, 10);
             } else {
-                div.innerHTML = fullHTML;
+                element.innerHTML = htmlContent;
                 smoothScrollToBottom();
                 if (callback) callback();
             }
         }
-        type();
+
+        typeChar();
     }
 
-    let thinkingInterval;
-    function startThinkingDots(div) {
-        // Hide the download button while processing
+    function startThinkingDots(element) {
         downloadButton.style.display = "none";
-        let count = 0;
+        let dotCount = 0;
         thinkingInterval = setInterval(() => {
-            count = (count + 1) % 4;
-            div.innerHTML = "Thinking" + ".".repeat(count);
+            dotCount = (dotCount + 1) % 4;
+            element.innerHTML = "Thinking" + ".".repeat(dotCount);
             smoothScrollToBottom();
         }, 500);
     }
 
-    function stopThinkingDots(div) {
+    function stopThinkingDots(element) {
         clearInterval(thinkingInterval);
-        div.innerHTML = "";
+        element.innerHTML = "";
     }
+
+    function smoothScrollToBottom() {
+        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
+    }
+
+    let thinkingInterval;
 });
