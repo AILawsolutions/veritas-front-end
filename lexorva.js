@@ -6,47 +6,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
     let uploadedFile = null;
-    let uploadedFileName = "";
 
-    // Create download button
+    // Download button setup
     const downloadButton = document.createElement("button");
     downloadButton.id = "downloadPDF";
-    downloadButton.textContent = "⬇️ Download PDF";
+    downloadButton.textContent = "⬇️ Download Strategy Report";
     downloadButton.style = `
         display: none;
-        background: transparent;
-        color: white;
-        border: 1px solid #A84DF2;
-        border-radius: 8px;
-        padding: 6px 12px;
-        margin: 12px 0;
-        cursor: pointer;
+        background: rgba(168, 77, 242, 0.1);
+        color: #A84DF2;
+        border: 1px solid #C168F9;
+        border-radius: 12px;
+        padding: 8px 14px;
         font-family: 'Rajdhani', sans-serif;
         font-size: 14px;
-        opacity: 0.8;
+        margin-top: 10px;
+        align-self: flex-start;
+        cursor: pointer;
     `;
     chatHistory.appendChild(downloadButton);
 
     downloadButton.addEventListener("click", () => {
         const lastAIMessage = [...chatHistory.getElementsByClassName("ai-message")].pop();
-        if (!lastAIMessage) return;
-
-        const doc = new Blob([lastAIMessage.innerText], { type: "application/pdf" });
-        const url = URL.createObjectURL(doc);
+        const blob = new Blob([lastAIMessage.innerText], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "Lexorva_Response.pdf";
+        a.download = "Lexorva_Strategy_Report.pdf";
         a.click();
         URL.revokeObjectURL(url);
     });
 
-    // Upload preview
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
-
         uploadedFile = file;
-        uploadedFileName = file.name;
 
         const fileBubble = document.createElement("div");
         fileBubble.classList.add("user-message");
@@ -56,15 +50,13 @@ document.addEventListener("DOMContentLoaded", () => {
         smoothScrollToBottom();
     });
 
-    // Send on Enter
-    chatInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault();
+    chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
             sendButton.click();
         }
     });
 
-    // Send Button Logic
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
@@ -77,33 +69,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             let response;
-            const formData = new FormData();
-            formData.append("prompt", message);
+            let endpoint = uploadedFile ? "/upload" : "/proxy";
+            let payload;
 
-            if (uploadedFile) {
+            if (uploadedFile && message) {
+                const formData = new FormData();
                 formData.append("file", uploadedFile);
-                response = await fetch(`${BACKEND_URL}/upload`, {
-                    method: "POST",
-                    body: formData
-                });
+                formData.append("prompt", message);
+                payload = formData;
             } else {
-                formData.append("filename", uploadedFileName);
-                response = await fetch(`${BACKEND_URL}/upload`, {
-                    method: "POST",
-                    body: formData
-                });
+                payload = JSON.stringify({ prompt: message });
             }
 
+            response = await fetch(`${BACKEND_URL}${endpoint}`, {
+                method: "POST",
+                headers: uploadedFile ? undefined : { "Content-Type": "application/json" },
+                body: payload
+            });
+
             const data = await response.json();
-            const responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
+            const reply = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
 
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, marked.parse(responseText), () => {
-                downloadButton.style.display = "inline-block";
+            typeMessage(thinkingDiv, marked.parse(reply), () => {
+                if (reply.toLowerCase().includes("strategy report")) {
+                    downloadButton.style.display = "inline-block";
+                }
             });
-        } catch (err) {
+        } catch (error) {
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, "❌ Error communicating with Lexorva.");
+            typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
         }
     });
 
@@ -132,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 element.innerHTML += text.charAt(index);
                 index++;
                 smoothScrollToBottom();
-                setTimeout(typeChar, 12);
+                setTimeout(typeChar, 10);
             } else {
                 element.innerHTML = htmlContent;
                 smoothScrollToBottom();
