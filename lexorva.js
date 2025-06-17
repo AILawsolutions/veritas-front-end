@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
         border: 1px solid #aaa;
         border-radius: 8px;
         padding: 6px 12px;
-        margin-top: 8px;
+        margin: 10px auto;
         cursor: pointer;
         font-size: 14px;
         font-family: 'Rajdhani', sans-serif;
@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
     downloadButton.addEventListener("click", () => {
         const lastAIMessage = [...chatHistory.getElementsByClassName("ai-message")].pop();
         if (!lastAIMessage) return;
-
         const blob = new Blob([lastAIMessage.innerText], { type: "application/pdf" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -38,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
         URL.revokeObjectURL(url);
     });
 
-    fileUploadInput.addEventListener("change", () => {
+    fileUploadInput.addEventListener("change", async () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
         uploadedFile = file;
@@ -48,6 +47,16 @@ document.addEventListener("DOMContentLoaded", () => {
         fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
         chatHistory.appendChild(fileBubble);
         smoothScrollToBottom();
+
+        // Auto-send file to server to save context
+        const formData = new FormData();
+        formData.append("file", file);
+        const response = await fetch(`${BACKEND_URL}/upload`, {
+            method: "POST",
+            body: formData
+        });
+        const data = await response.json();
+        appendMessage("ai-message", data.result || "✅ Document received. You can now ask questions about it.");
     });
 
     chatInput.addEventListener("keydown", (event) => {
@@ -59,38 +68,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
-        if (!message && !uploadedFile) return;
-
-        if (message) appendMessage("user", message);
+        if (!message) return;
+        appendMessage("user", message);
         chatInput.value = "";
 
         const thinkingDiv = appendMessage("ai-message", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
         try {
-            let response;
-            if (uploadedFile) {
-                const formData = new FormData();
-                formData.append("file", uploadedFile);
-                formData.append("prompt", message);
-
-                response = await fetch(`${BACKEND_URL}/upload`, {
-                    method: "POST",
-                    body: formData
-                });
-
-                uploadedFile = null;
-                fileUploadInput.value = "";
-            } else {
-                response = await fetch(`${BACKEND_URL}/proxy`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: message })
-                });
-            }
+            const response = await fetch(`${BACKEND_URL}/proxy`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: message })
+            });
 
             const data = await response.json();
-            const responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "⚠️ Error: Unexpected response from Lexorva.";
+            const responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "⚠️ Unexpected response from Lexorva.";
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText), () => {
@@ -102,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } catch (error) {
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, "⚠️ Error: Failed to reach Lexorva.");
+            typeMessage(thinkingDiv, "⚠️ Error: Failed to communicate with Lexorva.");
         }
     });
 
