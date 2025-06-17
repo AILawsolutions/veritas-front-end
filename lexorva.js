@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
     const sendButton = document.getElementById("sendButton");
@@ -6,17 +7,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
     let uploadedFile = null;
+    let uploadedFileName = null;
+    let uploadedFileData = null;
 
-    // File preview bubble
+    // Create and style the download button
+    const downloadButton = document.createElement("button");
+    downloadButton.id = "downloadPDF";
+    downloadButton.textContent = "⬇️ Download PDF";
+    downloadButton.style = \`
+        display: none;
+        background: rgba(168, 77, 242, 0.12);
+        color: #A84DF2;
+        border: 1px solid #A84DF2;
+        border-radius: 8px;
+        padding: 6px 14px;
+        margin: 10px 0 0 0;
+        cursor: pointer;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 14px;
+    \`;
+    chatHistory.appendChild(downloadButton);
+
+    downloadButton.addEventListener("click", () => {
+        const lastAIMessage = [...chatHistory.getElementsByClassName("ai-message")].pop();
+        const blob = new Blob([lastAIMessage.innerText], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "Lexorva_Strategy_Report.pdf";
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+
+    // File preview and session memory
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
+
         uploadedFile = file;
+        uploadedFileName = file.name;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            uploadedFileData = reader.result;
+        };
+        reader.readAsDataURL(file);
 
         const fileBubble = document.createElement("div");
         fileBubble.classList.add("user-message");
         fileBubble.style.marginBottom = "4px";
-        fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
+        fileBubble.innerHTML = \`📄 Uploaded: <strong>\${file.name}</strong>\`;
         chatHistory.appendChild(fileBubble);
         smoothScrollToBottom();
     });
@@ -30,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
-        if (!message && !uploadedFile) return;
+        if (!message && !uploadedFileData) return;
 
         if (message) appendMessage("user", message);
         chatInput.value = "";
@@ -40,20 +80,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             let response;
-            const formData = new FormData();
-
-            if (uploadedFile) {
-                formData.append("file", uploadedFile);
+            if (uploadedFileData) {
+                const formData = new FormData();
+                const fileBlob = dataURItoBlob(uploadedFileData);
+                formData.append("file", fileBlob, uploadedFileName);
                 formData.append("prompt", message);
+
                 response = await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
                     body: formData
                 });
             } else {
-                formData.append("prompt", message);
-                response = await fetch(`${BACKEND_URL}/upload`, {
+                response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
-                    body: formData
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: message })
                 });
             }
 
@@ -62,9 +103,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText), () => {
-                addDownloadButton(thinkingDiv);
+                downloadButton.style.display = "inline-block";
             });
-
         } catch (error) {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
@@ -78,41 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
         chatHistory.appendChild(messageDiv);
         smoothScrollToBottom();
         return messageDiv;
-    }
-
-    function addDownloadButton(targetDiv) {
-        const button = document.createElement("button");
-        button.textContent = "Download PDF";
-        button.style = `
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: white;
-            padding: 6px 14px;
-            margin-top: 10px;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.2s ease-in-out;
-        `;
-        button.addEventListener("mouseover", () => {
-            button.style.background = "rgba(255, 255, 255, 0.15)";
-        });
-        button.addEventListener("mouseout", () => {
-            button.style.background = "rgba(255, 255, 255, 0.08)";
-        });
-
-        button.addEventListener("click", () => {
-            const blob = new Blob([targetDiv.innerText], { type: "application/pdf" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "Lexorva_Response.pdf";
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-
-        targetDiv.appendChild(button);
     }
 
     function smoothScrollToBottom() {
@@ -142,8 +147,8 @@ document.addEventListener("DOMContentLoaded", () => {
         typeChar();
     }
 
-    let thinkingInterval;
     function startThinkingDots(element) {
+        downloadButton.style.display = "none";
         let dotCount = 0;
         thinkingInterval = setInterval(() => {
             dotCount = (dotCount + 1) % 4;
@@ -156,5 +161,17 @@ document.addEventListener("DOMContentLoaded", () => {
         clearInterval(thinkingInterval);
         element.innerHTML = "";
     }
-});
 
+    function dataURItoBlob(dataURI) {
+        const byteString = atob(dataURI.split(',')[1]);
+        const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+        return new Blob([ab], { type: mimeString });
+    }
+
+    let thinkingInterval;
+});
