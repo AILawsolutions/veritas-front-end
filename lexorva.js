@@ -1,100 +1,169 @@
-let uploadedText = null;
-const fileUploadInput = document.getElementById('fileUpload');
-const responseBox = document.getElementById('responseBox');
-const userInput = document.getElementById('userInput');
-const submitButton = document.getElementById('submitButton');
-const chatContainer = document.getElementById('chatContainer');
-const downloadBtn = document.getElementById('downloadBtn');
+// lexorva.js
 
-// Handle Enter key to trigger sendMessage
-userInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-    }
-});
+document.addEventListener("DOMContentLoaded", () => {
+    const chatInput = document.getElementById("chatInput");
+    const sendButton = document.getElementById("sendButton");
+    const chatHistory = document.getElementById("chatHistory");
 
-// Handle file upload and send to /upload
-fileUploadInput.addEventListener('change', async () => {
-    const file = fileUploadInput.files[0];
-    if (!file) return;
+    const fileUploadInput = document.getElementById("fileUpload");
 
-    appendMessage('user', `📄 Uploaded: ${file.name}`);
+    // Update this to your backend URL:
+    const BACKEND_URL = "https://AiLawSolutions.pythonanywhere.com";
 
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-        const response = await fetch('/upload', {
-            method: 'POST',
-            body: formData,
-        });
-
-        const data = await response.json();
-        if (data.result) {
-            uploadedText = data.result;
-            appendMessage('lexorva', 'Document received. You may now ask questions about it.');
-        } else {
-            appendMessage('lexorva', 'Error processing the file.');
+    // Allow pressing Enter to send message
+    chatInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendButton.click();
         }
-    } catch (error) {
-        appendMessage('lexorva', 'Failed to upload file.');
-    }
-});
+    });
 
-// Send question to /proxy
-async function sendMessage() {
-    const prompt = userInput.value.trim();
-    if (!prompt) return;
+    // Send plain chat message to /proxy
+    sendButton.addEventListener("click", async () => {
+        const message = chatInput.value.trim();
+        if (message === "") return;
 
-    appendMessage('user', prompt);
-    userInput.value = '';
+        appendMessage("user", message);
+        chatInput.value = "";
 
-    const fullPrompt = uploadedText ? `${uploadedText}
+        // Add "Thinking..." message in chat
+        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
+        startThinkingDots(thinkingDiv);
 
-${prompt}` : prompt;
+        try {
+            const response = await fetch(`${BACKEND_URL}/proxy`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: message })
+            });
 
-    try {
-        const response = await fetch('/proxy', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: fullPrompt }),
-        });
+            const data = await response.json();
 
-        const data = await response.json();
-        if (data.choices && data.choices[0].message.content) {
-            const reply = data.choices[0].message.content;
-            appendMessage('lexorva', reply);
+            let responseText = "";
 
-            // Show download button only if "Strategy Report" is mentioned
-            if (reply.toLowerCase().includes('strategy report')) {
-                downloadBtn.style.display = 'block';
-                downloadBtn.onclick = () => downloadReport(reply);
+            if (data.choices && data.choices[0]?.message?.content) {
+                responseText = data.choices[0].message.content;
+            } else if (data.response) {
+                responseText = data.response;
             } else {
-                downloadBtn.style.display = 'none';
+                responseText = "Error: Unexpected response from Lexorva.";
             }
-        } else {
-            appendMessage('lexorva', 'Unexpected response from Lexorva.');
+
+            // Stop thinking dots and start typing response
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, marked.parse(responseText));
+
+        } catch (error) {
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
         }
-    } catch (error) {
-        appendMessage('lexorva', 'Failed to get response.');
+    });
+
+    // File upload for /analyze-upload
+    fileUploadInput.addEventListener("change", async () => {
+        const file = fileUploadInput.files[0];
+        if (!file) return;
+
+        appendMessage("user", `📄 Uploaded file: ${file.name}`);
+
+        // Add "Thinking..." message in chat
+        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
+        startThinkingDots(thinkingDiv);
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/analyze-upload`, {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            let responseText = "";
+
+            if (data.choices && data.choices[0]?.message?.content) {
+                responseText = data.choices[0].message.content;
+            } else if (data.response) {
+                responseText = data.response;
+            } else {
+                responseText = "Error: Unexpected response from Lexorva.";
+            }
+
+            // Stop thinking dots and start typing response
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, marked.parse(responseText));
+
+        } catch (error) {
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
+        }
+    });
+
+    // Helper to append message to chat
+    function appendMessage(sender, text) {
+        const messageDiv = document.createElement("div");
+
+        const className = sender === "user" ? "user-message" : "ai-message";
+        messageDiv.classList.add(className);
+
+        messageDiv.innerHTML = text;
+
+        chatHistory.appendChild(messageDiv);
+        smoothScrollToBottom();
+
+        return messageDiv;
     }
-}
 
-// Append chat messages
-function appendMessage(sender, message) {
-    const messageEl = document.createElement('div');
-    messageEl.className = sender === 'user' ? 'chat-bubble user-bubble' : 'chat-bubble ai-bubble';
-    messageEl.textContent = message;
-    chatContainer.appendChild(messageEl);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
+    // Helper to smoothly scroll to latest message
+    function smoothScrollToBottom() {
+        chatHistory.scrollTo({
+            top: chatHistory.scrollHeight,
+            behavior: "smooth"
+        });
+    }
 
-// Download strategy report as .txt
-function downloadReport(content) {
-    const blob = new Blob([content], { type: 'text/plain' });
-    const link = document.createElement('a');
-    link.download = 'Lexorva_Strategy_Report.txt';
-    link.href = window.URL.createObjectURL(blob);
-    link.click();
-}
+    // Typing animation
+    function typeMessage(element, htmlContent) {
+        element.innerHTML = ""; // Clear "Thinking..."
+
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = htmlContent;
+        const text = tempDiv.textContent || tempDiv.innerText || "";
+
+        let index = 0;
+
+        function typeChar() {
+            if (index < text.length) {
+                element.innerHTML += text.charAt(index);
+                index++;
+                smoothScrollToBottom();
+                setTimeout(typeChar, 15); // Typing speed (ms)
+            } else {
+                // When finished, display full HTML (parsed Markdown)
+                element.innerHTML = htmlContent;
+                smoothScrollToBottom();
+            }
+        }
+
+        typeChar();
+    }
+
+    // Thinking dots animation
+    let thinkingInterval;
+
+    function startThinkingDots(element) {
+        let dotCount = 0;
+        thinkingInterval = setInterval(() => {
+            dotCount = (dotCount + 1) % 4;
+            element.innerHTML = "Thinking" + ".".repeat(dotCount);
+            smoothScrollToBottom();
+        }, 500);
+    }
+
+    function stopThinkingDots(element) {
+        clearInterval(thinkingInterval);
+        element.innerHTML = ""; // Will be replaced by typeMessage
+    }
+});
