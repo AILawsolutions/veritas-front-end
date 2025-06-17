@@ -5,29 +5,30 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileUploadInput = document.getElementById("fileUpload");
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
-    let uploadedFile = null;
-    let uploadedText = null;
 
-    // Create and style download button
+    let uploadedFile = null;
+
+    // Add subtle download button (hidden by default)
     const downloadButton = document.createElement("button");
     downloadButton.id = "downloadPDF";
     downloadButton.textContent = "⬇️ Download Strategy Report";
-    Object.assign(downloadButton.style, {
-        display: "none",
-        background: "linear-gradient(90deg, #A84DF2, #C168F9)",
-        color: "white",
-        border: "none",
-        borderRadius: "10px",
-        padding: "8px 16px",
-        margin: "15px 0 0",
-        cursor: "pointer",
-        fontFamily: "Rajdhani, sans-serif",
-        fontSize: "15px"
-    });
+    downloadButton.style = `
+        display: none;
+        background: rgba(168, 77, 242, 0.1);
+        color: #A84DF2;
+        border: 1px solid #A84DF2;
+        border-radius: 12px;
+        padding: 6px 14px;
+        margin-top: 12px;
+        cursor: pointer;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 14px;
+    `;
     chatHistory.appendChild(downloadButton);
 
     downloadButton.addEventListener("click", () => {
         const lastAIMessage = [...chatHistory.getElementsByClassName("ai-message")].pop();
+        if (!lastAIMessage) return;
         const blob = new Blob([lastAIMessage.innerText], { type: "application/pdf" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -37,10 +38,11 @@ document.addEventListener("DOMContentLoaded", () => {
         URL.revokeObjectURL(url);
     });
 
-    // Show uploaded file bubble
+    // Upload file bubble display
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
+
         uploadedFile = file;
 
         const fileBubble = document.createElement("div");
@@ -51,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
         smoothScrollToBottom();
     });
 
+    // Allow Enter to send
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -58,19 +61,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Handle send
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
-        if (message) appendMessage("user", message);
+        if (message) {
+            appendMessage("user", message);
+        }
+
         chatInput.value = "";
+        downloadButton.style.display = "none";
 
         const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
         try {
             let response;
-
             if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
@@ -81,44 +88,25 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: formData
                 });
 
-                const data = await response.json();
-                uploadedText = data.text || null;  // store the raw document text
                 uploadedFile = null;
                 fileUploadInput.value = "";
-                stopThinkingDots(thinkingDiv);
-                typeMessage(thinkingDiv, marked.parse(data.result || "Document received. You may now ask questions about it."), () => {
-                    downloadButton.style.display = "inline-block";
-                });
-
-            } else if (uploadedText) {
-                response = await fetch(`${BACKEND_URL}/proxy`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        prompt: `The user previously uploaded a legal document. Use it to answer the following:\n\n${message}\n\nDocument contents:\n${uploadedText}`
-                    })
-                });
-
-                const data = await response.json();
-                stopThinkingDots(thinkingDiv);
-                typeMessage(thinkingDiv, marked.parse(data.result || data.response || data.choices?.[0]?.message?.content || "No response."), () => {
-                    downloadButton.style.display = "inline-block";
-                });
-
             } else {
                 response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ prompt: message })
                 });
-
-                const data = await response.json();
-                stopThinkingDots(thinkingDiv);
-                typeMessage(thinkingDiv, marked.parse(data.result || data.response || data.choices?.[0]?.message?.content || "No response."), () => {
-                    downloadButton.style.display = "inline-block";
-                });
             }
 
+            const data = await response.json();
+            const responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
+
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, marked.parse(responseText), () => {
+                downloadButton.style.display = "inline-block";
+                chatHistory.appendChild(downloadButton);
+                smoothScrollToBottom();
+            });
         } catch (error) {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
