@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let uploadedFile = null;
 
-    // Handle file selection
+    // Show file bubble when uploaded
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
@@ -19,16 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
         fileBubble.classList.add("user-message");
         fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
         chatHistory.appendChild(fileBubble);
-        scrollToBottom();
+        smoothScrollToBottom();
     });
 
-    // Reset file input
-    function resetUpload() {
-        uploadedFile = null;
-        fileUploadInput.value = "";
-    }
-
-    // Send on Enter
+    // Press Enter to send
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -36,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Send button logic
+    // Send Button logic
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
@@ -44,94 +38,96 @@ document.addEventListener("DOMContentLoaded", () => {
         if (message) appendMessage("user", message);
         chatInput.value = "";
 
-        const thinking = appendMessage("lexorva", "Thinking<span class='dots'></span>");
-        animateDots(thinking);
+        const thinkingDiv = appendMessage("ai", "Thinking<span class='dots'></span>");
+        startThinkingDots(thinkingDiv);
 
         try {
-            // Upload file if exists
+            let response;
+            let responseText;
+
             if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
+                formData.append("prompt", message);
 
-                await fetch(`${BACKEND_URL}/upload`, {
+                response = await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
                     body: formData
                 });
 
-                resetUpload();
-            }
+                const data = await response.json();
+                responseText = data.result || "Document received. You may now ask questions about it.";
 
-            // Send message to /proxy
-            if (message) {
-                const res = await fetch(`${BACKEND_URL}/proxy`, {
+                uploadedFile = null;
+                fileUploadInput.value = "";
+
+            } else {
+                response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ prompt: message })
                 });
 
-                const data = await res.json();
-                const reply = data.response || "⚠️ Unexpected response from Lexorva.";
-
-                stopDots(thinking);
-                typeText(thinking, marked.parse(reply));
-            } else {
-                stopDots(thinking);
-                thinking.remove();
+                const data = await response.json();
+                responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "⚠️ Unexpected response from Lexorva.";
             }
 
-        } catch (err) {
-            stopDots(thinking);
-            typeText(thinking, "⚠️ Error: Could not connect to Lexorva backend.");
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, marked.parse(responseText));
+
+        } catch (error) {
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
         }
     });
 
-    // Add message to chat
-    function appendMessage(role, text) {
+    function appendMessage(sender, text) {
         const msg = document.createElement("div");
-        msg.className = role === "user" ? "user-message" : "ai-message";
+        msg.className = sender === "user" ? "user-message" : "ai-message";
         msg.innerHTML = text;
         chatHistory.appendChild(msg);
-        scrollToBottom();
+        smoothScrollToBottom();
         return msg;
     }
 
-    // Typewriter effect
-    function typeText(el, htmlContent) {
-        el.innerHTML = "";
-        const temp = document.createElement("div");
-        temp.innerHTML = htmlContent;
-        const plain = temp.textContent || temp.innerText || "";
-        let i = 0;
-        function type() {
-            if (i < plain.length) {
-                el.innerHTML += plain.charAt(i++);
-                scrollToBottom();
-                setTimeout(type, 15);
-            } else {
-                el.innerHTML = htmlContent;
-                scrollToBottom();
-            }
-        }
-        type();
-    }
-
-    // Scroll bottom
-    function scrollToBottom() {
+    function smoothScrollToBottom() {
         chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
     }
 
-    // Thinking dots
-    let dotInterval;
-    function animateDots(el) {
-        let dots = 0;
-        dotInterval = setInterval(() => {
-            dots = (dots + 1) % 4;
-            el.innerHTML = "Thinking" + ".".repeat(dots);
+    function typeMessage(element, htmlContent) {
+        element.innerHTML = "";
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = htmlContent;
+        const text = tempDiv.textContent || tempDiv.innerText || "";
+        let index = 0;
+
+        function typeChar() {
+            if (index < text.length) {
+                element.innerHTML += text.charAt(index);
+                index++;
+                smoothScrollToBottom();
+                setTimeout(typeChar, 15);
+            } else {
+                element.innerHTML = htmlContent;
+                smoothScrollToBottom();
+            }
+        }
+
+        typeChar();
+    }
+
+    let thinkingInterval;
+    function startThinkingDots(element) {
+        let dotCount = 0;
+        thinkingInterval = setInterval(() => {
+            dotCount = (dotCount + 1) % 4;
+            element.innerHTML = "Thinking" + ".".repeat(dotCount);
+            smoothScrollToBottom();
         }, 500);
     }
 
-    function stopDots(el) {
-        clearInterval(dotInterval);
-        el.innerHTML = "";
+    function stopThinkingDots(element) {
+        clearInterval(thinkingInterval);
+        element.innerHTML = "";
     }
 });
