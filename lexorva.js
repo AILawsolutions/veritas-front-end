@@ -7,9 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
 
     let uploadedFile = null;
-    let fileUploadedToServer = false;
 
-    // Display file bubble
+    // Handle file selection
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
@@ -18,13 +17,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const fileBubble = document.createElement("div");
         fileBubble.classList.add("user-message");
-        fileBubble.style.marginBottom = "4px";
         fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
         chatHistory.appendChild(fileBubble);
-        smoothScrollToBottom();
+        scrollToBottom();
     });
 
-    // Enable Enter to Send
+    // Reset file input
+    function resetUpload() {
+        uploadedFile = null;
+        fileUploadInput.value = "";
+    }
+
+    // Send on Enter
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -32,23 +36,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Send Button logic
+    // Send button logic
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
-        if (message) {
-            appendMessage("user", message);
-        }
-
+        if (message) appendMessage("user", message);
         chatInput.value = "";
 
-        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
-        startThinkingDots(thinkingDiv);
+        const thinking = appendMessage("lexorva", "Thinking<span class='dots'></span>");
+        animateDots(thinking);
 
         try {
-            // Upload file to backend (once per session)
-            if (uploadedFile && !fileUploadedToServer) {
+            // Upload file if exists
+            if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
 
@@ -57,88 +58,80 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: formData
                 });
 
-                fileUploadedToServer = true;
-                uploadedFile = null;
-                fileUploadInput.value = "";
+                resetUpload();
             }
 
-            // Send question to backend
+            // Send message to /proxy
             if (message) {
-                const response = await fetch(`${BACKEND_URL}/proxy`, {
+                const res = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ prompt: message })
                 });
 
-                const data = await response.json();
-                const responseText =
-                    data.result || data.response || (data.choices?.[0]?.message?.content) || "⚠️ Error: Unexpected response.";
+                const data = await res.json();
+                const reply = data.response || "⚠️ Unexpected response from Lexorva.";
 
-                stopThinkingDots(thinkingDiv);
-                typeMessage(thinkingDiv, marked.parse(responseText));
+                stopDots(thinking);
+                typeText(thinking, marked.parse(reply));
             } else {
-                stopThinkingDots(thinkingDiv);
-                thinkingDiv.remove();
+                stopDots(thinking);
+                thinking.remove();
             }
-        } catch (error) {
-            stopThinkingDots(thinkingDiv);
-            thinkingDiv.innerHTML = "⚠️ Error: Could not connect to Lexorva backend.";
+
+        } catch (err) {
+            stopDots(thinking);
+            typeText(thinking, "⚠️ Error: Could not connect to Lexorva backend.");
         }
     });
 
-    // Message helper functions
-    function appendMessage(sender, text) {
-        const messageDiv = document.createElement("div");
-        messageDiv.classList.add(sender === "user" ? "user-message" : "ai-message");
-        messageDiv.innerHTML = text;
-        chatHistory.appendChild(messageDiv);
-        smoothScrollToBottom();
-        return messageDiv;
+    // Add message to chat
+    function appendMessage(role, text) {
+        const msg = document.createElement("div");
+        msg.className = role === "user" ? "user-message" : "ai-message";
+        msg.innerHTML = text;
+        chatHistory.appendChild(msg);
+        scrollToBottom();
+        return msg;
     }
 
-    function smoothScrollToBottom() {
-        chatHistory.scrollTo({
-            top: chatHistory.scrollHeight,
-            behavior: "smooth"
-        });
-    }
-
-    // Typing effect
-    function typeMessage(element, htmlContent) {
-        element.innerHTML = "";
-        const tempDiv = document.createElement("div");
-        tempDiv.innerHTML = htmlContent;
-        const text = tempDiv.textContent || tempDiv.innerText || "";
-        let index = 0;
-
-        function typeChar() {
-            if (index < text.length) {
-                element.innerHTML += text.charAt(index);
-                index++;
-                smoothScrollToBottom();
-                setTimeout(typeChar, 15);
+    // Typewriter effect
+    function typeText(el, htmlContent) {
+        el.innerHTML = "";
+        const temp = document.createElement("div");
+        temp.innerHTML = htmlContent;
+        const plain = temp.textContent || temp.innerText || "";
+        let i = 0;
+        function type() {
+            if (i < plain.length) {
+                el.innerHTML += plain.charAt(i++);
+                scrollToBottom();
+                setTimeout(type, 15);
             } else {
-                element.innerHTML = htmlContent;
-                smoothScrollToBottom();
+                el.innerHTML = htmlContent;
+                scrollToBottom();
             }
         }
-
-        typeChar();
+        type();
     }
 
-    // "Thinking..." animation
-    let thinkingInterval;
-    function startThinkingDots(element) {
-        let dotCount = 0;
-        thinkingInterval = setInterval(() => {
-            dotCount = (dotCount + 1) % 4;
-            element.innerHTML = "Thinking" + ".".repeat(dotCount);
-            smoothScrollToBottom();
+    // Scroll bottom
+    function scrollToBottom() {
+        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
+    }
+
+    // Thinking dots
+    let dotInterval;
+    function animateDots(el) {
+        let dots = 0;
+        dotInterval = setInterval(() => {
+            dots = (dots + 1) % 4;
+            el.innerHTML = "Thinking" + ".".repeat(dots);
         }, 500);
     }
 
-    function stopThinkingDots(element) {
-        clearInterval(thinkingInterval);
-        element.innerHTML = "";
+    function stopDots(el) {
+        clearInterval(dotInterval);
+        el.innerHTML = "";
     }
 });
