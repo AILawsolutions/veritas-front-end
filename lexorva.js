@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let uploadedFile = null;
 
-    // Display uploaded file bubble
+    // Show file bubble when uploaded
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
@@ -17,16 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const fileBubble = document.createElement("div");
         fileBubble.classList.add("user-message");
-        fileBubble.style.marginBottom = "4px";
         fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
         chatHistory.appendChild(fileBubble);
         smoothScrollToBottom();
     });
-
-    function resetUpload() {
-        uploadedFile = null;
-        fileUploadInput.value = "";
-    }
 
     // Press Enter to send
     chatInput.addEventListener("keydown", (event) => {
@@ -36,21 +30,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Send Button logic
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
-        if (message) {
-            appendMessage("user", message);
-        }
-
+        if (message) appendMessage("user", message);
         chatInput.value = "";
 
-        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
+        const thinkingDiv = appendMessage("ai", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
         try {
             let response;
+            let responseText;
 
             if (uploadedFile) {
                 const formData = new FormData();
@@ -62,46 +55,43 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: formData
                 });
 
-                resetUpload();
+                const data = await response.json();
+                responseText = data.result || "Document received. You may now ask questions about it.";
+
+                uploadedFile = null;
+                fileUploadInput.value = "";
+
             } else {
                 response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ prompt: message })
                 });
+
+                const data = await response.json();
+                responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "⚠️ Unexpected response from Lexorva.";
             }
-
-            const data = await response.json();
-            console.log("Lexorva API response:", data);
-
-            const responseText =
-                data.result ||
-                data.response ||
-                (data.choices?.[0]?.message?.content) ||
-                "⚠️ Error: Unexpected response format from Lexorva.";
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText));
+
         } catch (error) {
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, "⚠️ Error: Failed to communicate with Lexorva.");
+            typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
         }
     });
 
     function appendMessage(sender, text) {
-        const messageDiv = document.createElement("div");
-        messageDiv.classList.add(sender === "user" ? "user-message" : "ai-message");
-        messageDiv.innerHTML = text;
-        chatHistory.appendChild(messageDiv);
+        const msg = document.createElement("div");
+        msg.className = sender === "user" ? "user-message" : "ai-message";
+        msg.innerHTML = text;
+        chatHistory.appendChild(msg);
         smoothScrollToBottom();
-        return messageDiv;
+        return msg;
     }
 
     function smoothScrollToBottom() {
-        chatHistory.scrollTo({
-            top: chatHistory.scrollHeight,
-            behavior: "smooth"
-        });
+        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
     }
 
     function typeMessage(element, htmlContent) {
