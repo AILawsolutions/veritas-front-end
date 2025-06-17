@@ -7,10 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
 
     let uploadedFile = null;
-    let uploadedText = ""; // Store document text persistently
+    let fileUploadedToServer = false;
 
-    // Show uploaded file in chat
-    fileUploadInput.addEventListener("change", async () => {
+    // Display file bubble
+    fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
 
@@ -22,30 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
         fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
         chatHistory.appendChild(fileBubble);
         smoothScrollToBottom();
-
-        const formData = new FormData();
-        formData.append("file", uploadedFile);
-
-        try {
-            const response = await fetch(`${BACKEND_URL}/upload`, {
-                method: "POST",
-                body: formData
-            });
-
-            const result = await response.json();
-            if (result.error) {
-                alert("Error reading file: " + result.error);
-            } else {
-                uploadedText = result.result;
-            }
-        } catch (error) {
-            alert("Upload failed: " + error.message);
-        }
-
-        uploadedFile = null;
-        fileUploadInput.value = "";
     });
 
+    // Enable Enter to Send
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -53,9 +32,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Send Button logic
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
-        if (!message && uploadedText === "") return;
+        if (!message && !uploadedFile) return;
 
         if (message) {
             appendMessage("user", message);
@@ -67,27 +47,46 @@ document.addEventListener("DOMContentLoaded", () => {
         startThinkingDots(thinkingDiv);
 
         try {
-            const finalPrompt = uploadedText
-                ? `Document:\n\n${uploadedText}\n\nUser Question:\n${message}`
-                : message;
+            // Upload file to backend (once per session)
+            if (uploadedFile && !fileUploadedToServer) {
+                const formData = new FormData();
+                formData.append("file", uploadedFile);
 
-            const response = await fetch(`${BACKEND_URL}/proxy`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ prompt: finalPrompt })
-            });
+                await fetch(`${BACKEND_URL}/upload`, {
+                    method: "POST",
+                    body: formData
+                });
 
-            const data = await response.json();
-            const responseText = data.choices?.[0]?.message?.content || "⚠️ Error: Unexpected response from Lexorva.";
+                fileUploadedToServer = true;
+                uploadedFile = null;
+                fileUploadInput.value = "";
+            }
 
-            stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, marked.parse(responseText));
+            // Send question to backend
+            if (message) {
+                const response = await fetch(`${BACKEND_URL}/proxy`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: message })
+                });
+
+                const data = await response.json();
+                const responseText =
+                    data.result || data.response || (data.choices?.[0]?.message?.content) || "⚠️ Error: Unexpected response.";
+
+                stopThinkingDots(thinkingDiv);
+                typeMessage(thinkingDiv, marked.parse(responseText));
+            } else {
+                stopThinkingDots(thinkingDiv);
+                thinkingDiv.remove();
+            }
         } catch (error) {
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, "⚠️ Error: Could not connect to Lexorva backend.");
+            thinkingDiv.innerHTML = "⚠️ Error: Could not connect to Lexorva backend.";
         }
     });
 
+    // Message helper functions
     function appendMessage(sender, text) {
         const messageDiv = document.createElement("div");
         messageDiv.classList.add(sender === "user" ? "user-message" : "ai-message");
@@ -104,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Typing effect
     function typeMessage(element, htmlContent) {
         element.innerHTML = "";
         const tempDiv = document.createElement("div");
@@ -126,6 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
         typeChar();
     }
 
+    // "Thinking..." animation
     let thinkingInterval;
     function startThinkingDots(element) {
         let dotCount = 0;
