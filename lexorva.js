@@ -5,17 +5,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileUploadInput = document.getElementById("fileUpload");
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
-
     let uploadedFile = null;
 
-    // Handle file selection (show bubble like ChatGPT)
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
-
         uploadedFile = file;
 
-        // Display file bubble immediately
         const fileBubble = document.createElement("div");
         fileBubble.classList.add("user-message");
         fileBubble.style.marginBottom = "4px";
@@ -24,13 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
         smoothScrollToBottom();
     });
 
-    // Remove file utility (optional future use)
     function resetUpload() {
         uploadedFile = null;
         fileUploadInput.value = "";
     }
 
-    // Send on Enter
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -42,40 +36,37 @@ document.addEventListener("DOMContentLoaded", () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
-        // Show typed message as bubble
-        if (message) {
-            appendMessage("user", message);
-        }
-
+        if (message) appendMessage("user", message);
         chatInput.value = "";
 
         const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
         try {
-            let response;
-
+            let responseText = "Unknown error.";
             if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
-                formData.append("prompt", message);
+                formData.append("prompt", message || "Please analyze this legal document and provide strategy.");
 
-                response = await fetch(`${BACKEND_URL}/upload`, {
+                const uploadResponse = await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
                     body: formData
                 });
 
+                const uploadData = await uploadResponse.json();
+                responseText = uploadData.result || "Lexorva did not return a valid analysis of the document.";
                 resetUpload();
             } else {
-                response = await fetch(`${BACKEND_URL}/proxy`, {
+                const proxyResponse = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ prompt: message })
                 });
-            }
 
-            const data = await response.json();
-            const responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
+                const proxyData = await proxyResponse.json();
+                responseText = proxyData.result || proxyData.response || (proxyData.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
+            }
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText));
@@ -95,10 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function smoothScrollToBottom() {
-        chatHistory.scrollTo({
-            top: chatHistory.scrollHeight,
-            behavior: "smooth"
-        });
+        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
     }
 
     function typeMessage(element, htmlContent) {
@@ -119,7 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 smoothScrollToBottom();
             }
         }
-
         typeChar();
     }
 
