@@ -7,35 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
     let uploadedFile = null;
 
-    // Create and style download button
-    const downloadButton = document.createElement("button");
-    downloadButton.id = "downloadPDF";
-    downloadButton.textContent = "⬇️ Download Strategy Report";
-    downloadButton.style = `
-        display: none;
-        background: linear-gradient(90deg, #A84DF2, #C168F9);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 8px 16px;
-        margin: 10px 0;
-        cursor: pointer;
-        font-family: 'Rajdhani', sans-serif;
-        font-size: 15px;
-    `;
-    chatHistory.appendChild(downloadButton);
-
-    downloadButton.addEventListener("click", () => {
-        const lastAIMessage = [...chatHistory.getElementsByClassName("ai-message")].pop();
-        const blob = new Blob([lastAIMessage.innerText], { type: "application/pdf" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "Lexorva_Strategy_Report.pdf";
-        a.click();
-        URL.revokeObjectURL(url);
-    });
-
     // File preview bubble
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
@@ -69,21 +40,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             let response;
+            const formData = new FormData();
+
             if (uploadedFile) {
-                const formData = new FormData();
                 formData.append("file", uploadedFile);
                 formData.append("prompt", message);
                 response = await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
                     body: formData
                 });
-                uploadedFile = null;
-                fileUploadInput.value = "";
             } else {
-                response = await fetch(`${BACKEND_URL}/proxy`, {
+                formData.append("prompt", message);
+                response = await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: message })
+                    body: formData
                 });
             }
 
@@ -92,8 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText), () => {
-                downloadButton.style.display = "inline-block";
+                addDownloadButton(thinkingDiv);
             });
+
         } catch (error) {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
@@ -107,6 +78,41 @@ document.addEventListener("DOMContentLoaded", () => {
         chatHistory.appendChild(messageDiv);
         smoothScrollToBottom();
         return messageDiv;
+    }
+
+    function addDownloadButton(targetDiv) {
+        const button = document.createElement("button");
+        button.textContent = "Download PDF";
+        button.style = `
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            padding: 6px 14px;
+            margin-top: 10px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s ease-in-out;
+        `;
+        button.addEventListener("mouseover", () => {
+            button.style.background = "rgba(255, 255, 255, 0.15)";
+        });
+        button.addEventListener("mouseout", () => {
+            button.style.background = "rgba(255, 255, 255, 0.08)";
+        });
+
+        button.addEventListener("click", () => {
+            const blob = new Blob([targetDiv.innerText], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "Lexorva_Response.pdf";
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        targetDiv.appendChild(button);
     }
 
     function smoothScrollToBottom() {
@@ -138,7 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let thinkingInterval;
     function startThinkingDots(element) {
-        downloadButton.style.display = "none";
         let dotCount = 0;
         thinkingInterval = setInterval(() => {
             dotCount = (dotCount + 1) % 4;
@@ -152,3 +157,4 @@ document.addEventListener("DOMContentLoaded", () => {
         element.innerHTML = "";
     }
 });
+
