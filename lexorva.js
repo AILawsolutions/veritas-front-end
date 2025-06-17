@@ -1,4 +1,4 @@
-let uploadedText = ""; // Stores the extracted text from the uploaded PDF
+let uploadedText = "";
 let isTyping = false;
 
 const chatContainer = document.getElementById("chatContainer");
@@ -6,17 +6,16 @@ const userInput = document.getElementById("userInput");
 const sendButton = document.getElementById("sendButton");
 const fileUpload = document.getElementById("fileUpload");
 
-// Add a message bubble
+// Add message bubble
 function addMessage(message, sender) {
     const bubble = document.createElement("div");
-    bubble.classList.add("bubble");
-    bubble.classList.add(sender === "user" ? "user-bubble" : "ai-bubble");
+    bubble.className = `bubble ${sender === "user" ? "user-bubble" : "ai-bubble"}`;
     bubble.innerText = message;
     chatContainer.appendChild(bubble);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// Handle PDF upload and send to backend
+// Upload document and extract text
 fileUpload.addEventListener("change", async () => {
     const file = fileUpload.files[0];
     if (!file) return;
@@ -33,21 +32,18 @@ fileUpload.addEventListener("change", async () => {
         });
 
         const data = await response.json();
-
         if (data.result) {
             uploadedText = data.result;
-            addMessage("✅ Document registered. Ask any questions about it.", "ai");
-        } else if (data.error) {
-            addMessage("❌ Error: " + data.error, "ai");
+            addMessage("✅ Document registered. Ask any questions about it below.", "ai");
         } else {
-            addMessage("❌ Unexpected error processing document.", "ai");
+            addMessage("❌ Error: " + (data.error || "Unknown error."), "ai");
         }
     } catch (error) {
-        addMessage("❌ Upload failed. Please try again.", "ai");
+        addMessage("❌ Upload failed. Please check your server.", "ai");
     }
 });
 
-// Handle user prompt
+// Send prompt to Lexorva
 async function sendPrompt() {
     const prompt = userInput.value.trim();
     if (!prompt || isTyping) return;
@@ -66,14 +62,14 @@ async function sendPrompt() {
         });
 
         const data = await response.json();
-
-        if (data.choices && data.choices[0].message.content) {
-            addMessage(data.choices[0].message.content, "ai");
+        const reply = data?.choices?.[0]?.message?.content;
+        if (reply) {
+            addMessage(reply, "ai");
         } else {
-            addMessage("❌ No response from Lexorva.", "ai");
+            addMessage("❌ Lexorva did not return a response.", "ai");
         }
     } catch (error) {
-        addMessage("❌ Failed to connect to Lexorva.", "ai");
+        addMessage("❌ Request failed: " + error.message, "ai");
     } finally {
         isTyping = false;
     }
