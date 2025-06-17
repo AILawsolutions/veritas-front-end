@@ -1,121 +1,140 @@
-let uploadedText = "";
-let uploadedFileName = "";
-let typingTimeout;
+document.addEventListener("DOMContentLoaded", () => {
+    const chatInput = document.getElementById("chatInput");
+    const sendButton = document.getElementById("sendButton");
+    const chatHistory = document.getElementById("chatHistory");
+    const fileUploadInput = document.getElementById("fileUpload");
 
-const chatContainer = document.getElementById("chatContainer");
-const userInput = document.getElementById("userInput");
-const sendButton = document.getElementById("sendButton");
-const fileUpload = document.getElementById("fileUpload");
-const downloadButton = document.getElementById("downloadButton");
+    const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
 
-// Add message to chat
-function addMessage(message, sender) {
-    const bubble = document.createElement("div");
-    bubble.className = `bubble ${sender}-bubble`;
-    bubble.innerText = message;
-    chatContainer.appendChild(bubble);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
+    let uploadedFile = null;
 
-// Simulate typewriter AI effect
-function typewriterEffect(text, callback) {
-    const bubble = document.createElement("div");
-    bubble.className = "bubble ai-bubble";
-    chatContainer.appendChild(bubble);
-    let i = 0;
-    typingTimeout = setInterval(() => {
-        if (i < text.length) {
-            bubble.innerText += text.charAt(i++);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        } else {
-            clearInterval(typingTimeout);
-            callback && callback();
+    // Handle file selection (show bubble like ChatGPT)
+    fileUploadInput.addEventListener("change", () => {
+        const file = fileUploadInput.files[0];
+        if (!file) return;
+
+        uploadedFile = file;
+
+        // Display file bubble immediately
+        const fileBubble = document.createElement("div");
+        fileBubble.classList.add("user-message");
+        fileBubble.style.marginBottom = "4px";
+        fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
+        chatHistory.appendChild(fileBubble);
+        smoothScrollToBottom();
+    });
+
+    // Remove file utility (optional future use)
+    function resetUpload() {
+        uploadedFile = null;
+        fileUploadInput.value = "";
+    }
+
+    // Send on Enter
+    chatInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendButton.click();
         }
-    }, 20);
-}
+    });
 
-// Send user question
-async function sendMessage() {
-    const question = userInput.value.trim();
-    if (!question) return;
+    sendButton.addEventListener("click", async () => {
+        const message = chatInput.value.trim();
+        if (!message && !uploadedFile) return;
 
-    addMessage(question, "user");
-    userInput.value = "";
+        // Show typed message as bubble
+        if (message) {
+            appendMessage("user", message);
+        }
 
-    const prompt = uploadedText
-        ? `The user uploaded the following legal document:\n\n"${uploadedText}"\n\nNow, here is their question:\n\n"${question}"`
-        : question;
+        chatInput.value = "";
 
-    try {
-        const response = await fetch("http://127.0.0.1:5000/proxy", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt })
-        });
+        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
+        startThinkingDots(thinkingDiv);
 
-        const data = await response.json();
-        const aiMessage = data.choices?.[0]?.message?.content || "Error: No response.";
-        typewriterEffect(aiMessage, () => {
-            if (aiMessage.toLowerCase().includes("strategy report")) {
-                downloadButton.style.display = "block";
+        try {
+            let response;
+
+            if (uploadedFile) {
+                const formData = new FormData();
+                formData.append("file", uploadedFile);
+                formData.append("prompt", message);
+
+                response = await fetch(`${BACKEND_URL}/upload`, {
+                    method: "POST",
+                    body: formData
+                });
+
+                resetUpload();
+            } else {
+                response = await fetch(`${BACKEND_URL}/proxy`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: message })
+                });
             }
+
+            const data = await response.json();
+            const responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
+
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, marked.parse(responseText));
+        } catch (error) {
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
+        }
+    });
+
+    function appendMessage(sender, text) {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add(sender === "user" ? "user-message" : "ai-message");
+        messageDiv.innerHTML = text;
+        chatHistory.appendChild(messageDiv);
+        smoothScrollToBottom();
+        return messageDiv;
+    }
+
+    function smoothScrollToBottom() {
+        chatHistory.scrollTo({
+            top: chatHistory.scrollHeight,
+            behavior: "smooth"
         });
-    } catch (err) {
-        addMessage("Error contacting Lexorva server.", "ai");
     }
-}
 
-// Upload and parse file
-fileUpload.addEventListener("change", async () => {
-    const file = fileUpload.files[0];
-    if (!file) return;
+    function typeMessage(element, htmlContent) {
+        element.innerHTML = "";
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = htmlContent;
+        const text = tempDiv.textContent || tempDiv.innerText || "";
+        let index = 0;
 
-    const formData = new FormData();
-    formData.append("file", file);
-    uploadedFileName = file.name;
+        function typeChar() {
+            if (index < text.length) {
+                element.innerHTML += text.charAt(index);
+                index++;
+                smoothScrollToBottom();
+                setTimeout(typeChar, 15);
+            } else {
+                element.innerHTML = htmlContent;
+                smoothScrollToBottom();
+            }
+        }
 
-    const previewBubble = document.createElement("div");
-    previewBubble.className = "bubble user-bubble";
-    previewBubble.innerText = `📎 Uploaded: ${uploadedFileName}`;
-    chatContainer.appendChild(previewBubble);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-
-    try {
-        const response = await fetch("http://127.0.0.1:5000/upload", {
-            method: "POST",
-            body: formData
-        });
-
-        const data = await response.json();
-        uploadedText = data.result || "";
-
-        const confirm = document.createElement("div");
-        confirm.className = "bubble ai-bubble";
-        confirm.innerText = "✅ Document successfully uploaded and analyzed. Ask any questions now.";
-        chatContainer.appendChild(confirm);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    } catch (err) {
-        addMessage("Error uploading file.", "ai");
+        typeChar();
     }
-});
 
-// Enable enter key to send
-userInput.addEventListener("keypress", function (e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+    let thinkingInterval;
+    function startThinkingDots(element) {
+        let dotCount = 0;
+        thinkingInterval = setInterval(() => {
+            dotCount = (dotCount + 1) % 4;
+            element.innerHTML = "Thinking" + ".".repeat(dotCount);
+            smoothScrollToBottom();
+        }, 500);
     }
-});
 
-sendButton.addEventListener("click", sendMessage);
-
-// Download report
-downloadButton.addEventListener("click", () => {
-    const lastBubble = [...document.querySelectorAll(".ai-bubble")].pop();
-    const content = lastBubble ? lastBubble.innerText : "";
-    const blob = new Blob([content], { type: "application/pdf" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "Lexorva_Strategy_Report.pdf";
-    link.click();
+    function stopThinkingDots(element) {
+        clearInterval(thinkingInterval);
+        element.innerHTML = "";
+    }
 });
