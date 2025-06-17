@@ -5,9 +5,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileUploadInput = document.getElementById("fileUpload");
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
-    let uploadedFile = null;
 
-    // Download button
+    let uploadedFile = null;
+    let uploadedFileText = null;
+
     const downloadButton = document.createElement("button");
     downloadButton.id = "downloadPDF";
     downloadButton.textContent = "⬇️ Download Strategy Report";
@@ -37,82 +38,85 @@ document.addEventListener("DOMContentLoaded", () => {
         URL.revokeObjectURL(url);
     });
 
-    fileUploadInput.addEventListener("change", () => {
+    fileUploadInput.addEventListener("change", async () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
+
         uploadedFile = file;
 
-        // Remove previous file preview if one exists
         const existingFileBubbles = [...chatHistory.getElementsByClassName("user-message")]
             .filter(div => div.textContent.includes("Uploaded:"));
         existingFileBubbles.forEach(div => div.remove());
 
         const fileBubble = document.createElement("div");
         fileBubble.classList.add("user-message");
-        fileBubble.style.marginBottom = "4px";
         fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
         chatHistory.appendChild(fileBubble);
+
         smoothScrollToBottom();
+
+        // Automatically process document and store extracted text
+        const thinkingDiv = appendMessage("lexorva", "Processing document...");
+        startThinkingDots(thinkingDiv);
+
+        const formData = new FormData();
+        formData.append("file", uploadedFile);
+        formData.append("prompt", "Extract and retain this document for strategy analysis.");
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/upload`, {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+            uploadedFileText = data.result || data.response || data.choices?.[0]?.message?.content;
+
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, "Document received. You may now ask questions about it.");
+        } catch (error) {
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, `Error: Could not process document.`);
+        }
     });
 
-    chatInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
+    chatInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
             sendButton.click();
         }
     });
 
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
-        if (!message && !uploadedFile) return;
+        if (!message) return;
 
-        if (message) appendMessage("user", message);
+        appendMessage("user", message);
         chatInput.value = "";
 
         const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
         try {
-            let response;
-            let endpoint = uploadedFile ? "/upload" : "/proxy";
-            let payload;
+            const finalPrompt = uploadedFileText
+                ? `The user previously uploaded this document:\n\n"""${uploadedFileText}"""\n\nNow respond to this question:\n${message}`
+                : message;
 
-            if (uploadedFile && message) {
-                const formData = new FormData();
-                formData.append("file", uploadedFile);
-                formData.append("prompt", message);
-                payload = formData;
-            } else {
-                payload = JSON.stringify({ prompt: message });
-            }
-
-            response = await fetch(`${BACKEND_URL}${endpoint}`, {
+            const response = await fetch(`${BACKEND_URL}/proxy`, {
                 method: "POST",
-                headers: uploadedFile ? undefined : { "Content-Type": "application/json" },
-                body: payload
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: finalPrompt })
             });
 
             const data = await response.json();
-
-            // Smart parsing
-            let reply = "Error: Unexpected response from Lexorva.";
-            if (data.result) {
-                reply = data.result;
-            } else if (data.response) {
-                reply = data.response;
-            } else if (data.choices && data.choices[0]?.message?.content) {
-                reply = data.choices[0].message.content;
-            } else if (data.error) {
-                reply = `Error: ${data.error}`;
-            }
+            const responseText = data.result || data.response || data.choices?.[0]?.message?.content || "Error: Unexpected response from Lexorva.";
 
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, marked.parse(reply), () => {
-                if (reply.toLowerCase().includes("strategy report")) {
+            typeMessage(thinkingDiv, marked.parse(responseText), () => {
+                if (responseText.toLowerCase().includes("strategy report")) {
                     downloadButton.style.display = "inline-block";
                 }
             });
-
         } catch (error) {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, `Error: ${error.message}`);
@@ -138,7 +142,6 @@ document.addEventListener("DOMContentLoaded", () => {
         tempDiv.innerHTML = htmlContent;
         const text = tempDiv.textContent || tempDiv.innerText || "";
         let index = 0;
-
         function typeChar() {
             if (index < text.length) {
                 element.innerHTML += text.charAt(index);
@@ -151,7 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (callback) callback();
             }
         }
-
         typeChar();
     }
 
