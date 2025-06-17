@@ -1,95 +1,125 @@
+document.addEventListener("DOMContentLoaded", () => {
+    const chatInput = document.getElementById("chatInput");
+    const sendButton = document.getElementById("sendButton");
+    const chatHistory = document.getElementById("chatHistory");
+    const fileUploadInput = document.getElementById("fileUpload");
+    const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
 
-let uploadedDocumentText = null;
+    let uploadedFile = null;
+    let uploadedFileName = "";
 
-// Elements
-const fileInput = document.getElementById('fileUpload');
-const promptInput = document.getElementById('promptInput');
-const submitButton = document.getElementById('submitButton');
-const chatBox = document.getElementById('chatBox');
-const downloadButton = document.getElementById('downloadPDF');
+    // Upload file bubble
+    fileUploadInput.addEventListener("change", () => {
+        const file = fileUploadInput.files[0];
+        if (!file) return;
+        uploadedFile = file;
+        uploadedFileName = file.name;
 
-// File upload
-fileInput.addEventListener('change', async () => {
-    const file = fileInput.files[0];
-    if (!file) return;
+        const fileBubble = document.createElement("div");
+        fileBubble.classList.add("user-message");
+        fileBubble.innerHTML = `📄 <strong>Uploaded:</strong> ${file.name}`;
+        chatHistory.appendChild(fileBubble);
+        smoothScrollToBottom();
+    });
 
-    const formData = new FormData();
-    formData.append("file", file);
+    // Send on Enter key
+    chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendButton.click();
+        }
+    });
 
-    const fileBubble = document.createElement("div");
-    fileBubble.classList.add("user-message");
-    fileBubble.innerText = `📄 Uploaded: ${file.name}`;
-    chatBox.appendChild(fileBubble);
+    sendButton.addEventListener("click", async () => {
+        const prompt = chatInput.value.trim();
+        if (!prompt && !uploadedFile) return;
 
-    try {
-        const response = await fetch("https://lexorva.com/upload", {
-            method: "POST",
-            body: formData
-        });
-        const data = await response.json();
-        uploadedDocumentText = data.result || null;
+        appendMessage("user", prompt || `📄 Uploaded file: ${uploadedFileName}`);
+        chatInput.value = "";
 
-        const confirmation = document.createElement("div");
-        confirmation.classList.add("ai-message");
-        confirmation.innerText = "✅ Document received. You may now ask follow-up questions.";
-        chatBox.appendChild(confirmation);
-    } catch (err) {
-        const errorMsg = document.createElement("div");
-        errorMsg.classList.add("ai-message");
-        errorMsg.innerText = "⚠️ Error uploading file. Please try again.";
-        chatBox.appendChild(errorMsg);
+        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
+        startThinkingDots(thinkingDiv);
+
+        try {
+            let response;
+            if (uploadedFile) {
+                const formData = new FormData();
+                formData.append("file", uploadedFile);
+                formData.append("prompt", prompt);
+
+                response = await fetch(`${BACKEND_URL}/upload`, {
+                    method: "POST",
+                    body: formData
+                });
+
+                // Don't clear file memory so it can be referenced again
+            } else {
+                response = await fetch(`${BACKEND_URL}/proxy`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt })
+                });
+            }
+
+            const data = await response.json();
+            const responseText = data.result || data.response || data.choices?.[0]?.message?.content || "⚠️ Lexorva could not generate a response.";
+
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, marked.parse(responseText));
+        } catch (err) {
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, "⚠️ Error: Lexorva could not complete your request.");
+        }
+    });
+
+    // Append message
+    function appendMessage(sender, text) {
+        const div = document.createElement("div");
+        div.className = sender === "user" ? "user-message" : "ai-message";
+        div.innerHTML = text;
+        chatHistory.appendChild(div);
+        smoothScrollToBottom();
+        return div;
     }
-});
 
-// Submit prompt
-submitButton.addEventListener('click', async () => {
-    const userPrompt = promptInput.value.trim();
-    if (!userPrompt) return;
+    function typeMessage(element, html, cb) {
+        element.innerHTML = "";
+        const temp = document.createElement("div");
+        temp.innerHTML = html;
+        const text = temp.textContent || temp.innerText || "";
+        let index = 0;
 
-    const userBubble = document.createElement("div");
-    userBubble.classList.add("user-message");
-    userBubble.innerText = userPrompt;
-    chatBox.appendChild(userBubble);
-    promptInput.value = "";
+        function type() {
+            if (index < text.length) {
+                element.innerHTML += text.charAt(index);
+                index++;
+                smoothScrollToBottom();
+                setTimeout(type, 10);
+            } else {
+                element.innerHTML = html;
+                smoothScrollToBottom();
+                if (cb) cb();
+            }
+        }
+        type();
+    }
 
-    const loadingBubble = document.createElement("div");
-    loadingBubble.classList.add("ai-message");
-    loadingBubble.innerText = "Lexorva is thinking...";
-    chatBox.appendChild(loadingBubble);
+    let thinkingInterval;
+    function startThinkingDots(element) {
+        let dotCount = 0;
+        thinkingInterval = setInterval(() => {
+            dotCount = (dotCount + 1) % 4;
+            element.innerHTML = "Thinking" + ".".repeat(dotCount);
+            smoothScrollToBottom();
+        }, 500);
+    }
 
-    try {
-        const fullPrompt = uploadedDocumentText
-            ? `${uploadedDocumentText}
+    function stopThinkingDots(element) {
+        clearInterval(thinkingInterval);
+        element.innerHTML = "";
+    }
 
-Question: ${userPrompt}`
-            : userPrompt;
-
-        const response = await fetch("https://lexorva.com/proxy", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt: fullPrompt })
-        });
-
-        const data = await response.json();
-        const answer = data.choices[0].message.content;
-
-        loadingBubble.remove();
-
-        const aiResponse = document.createElement("div");
-        aiResponse.classList.add("ai-message");
-        aiResponse.innerText = answer;
-        chatBox.appendChild(aiResponse);
-
-        // PDF download button
-        downloadButton.style.display = "block";
-        downloadButton.onclick = () => {
-            const blob = new Blob([answer], { type: "application/pdf" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "Lexorva_Strategy_Report.pdf";
-            link.click();
-        };
-    } catch (err) {
-        loadingBubble.innerText = "⚠️ Error fetching response.";
+    function smoothScrollToBottom() {
+        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
     }
 });
