@@ -5,12 +5,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileUploadInput = document.getElementById("fileUpload");
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
+
     let uploadedFile = null;
 
-    // Handle file selection
+    // Display uploaded file bubble
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
+
         uploadedFile = file;
 
         const fileBubble = document.createElement("div");
@@ -21,6 +23,12 @@ document.addEventListener("DOMContentLoaded", () => {
         smoothScrollToBottom();
     });
 
+    function resetUpload() {
+        uploadedFile = null;
+        fileUploadInput.value = "";
+    }
+
+    // Press Enter to send
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -37,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         chatInput.value = "";
+
         const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
@@ -46,15 +55,14 @@ document.addEventListener("DOMContentLoaded", () => {
             if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
-                formData.append("prompt", message); // Send prompt alongside the file
+                formData.append("prompt", message);
 
                 response = await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
                     body: formData
                 });
 
-                uploadedFile = null;
-                fileUploadInput.value = "";
+                resetUpload();
             } else {
                 response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
@@ -64,13 +72,19 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const data = await response.json();
-            const responseText = data.result || data.choices?.[0]?.message?.content || "Error: Unexpected response.";
+            console.log("Lexorva API response:", data);
+
+            const responseText =
+                data.result ||
+                data.response ||
+                (data.choices?.[0]?.message?.content) ||
+                "⚠️ Error: Unexpected response format from Lexorva.";
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText));
         } catch (error) {
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, "❌ Error: Something went wrong.");
+            typeMessage(thinkingDiv, "⚠️ Error: Failed to communicate with Lexorva.");
         }
     });
 
