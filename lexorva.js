@@ -5,10 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileUploadInput = document.getElementById("fileUpload");
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
-
     let uploadedFile = null;
 
-    // Create download button (hidden by default)
+    // Create the download button (initially hidden)
     const downloadButton = document.createElement("button");
     downloadButton.id = "downloadPDF";
     downloadButton.textContent = "⬇️ Download Strategy Report";
@@ -24,54 +23,64 @@ document.addEventListener("DOMContentLoaded", () => {
         cursor: pointer;
         margin-top: 12px;
     `;
-    chatHistory.appendChild(downloadButton);
+    // We'll insert the download button after the AI response when appropriate
+    // (so it doesn’t appear until a complete report is ready)
 
-    downloadButton.addEventListener("click", () => {
-        const lastAI = [...chatHistory.getElementsByClassName("ai-message")].pop();
-        if (!lastAI) return;
-        const blob = new Blob([lastAI.innerText], { type: "application/pdf" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "Lexorva_Strategy_Report.pdf";
-        a.click();
-        URL.revokeObjectURL(url);
-    });
-
-    // Handle file preview
+    // File upload – show a bubble (like ChatGPT) that stays until you send your question
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
         uploadedFile = file;
 
+        // Remove any previous file preview
+        const prev = document.getElementById("filePreview");
+        if (prev) prev.remove();
+
+        // Create a new file preview bubble
         const fileBubble = document.createElement("div");
+        fileBubble.id = "filePreview";
         fileBubble.classList.add("user-message");
-        fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
+        fileBubble.style.marginBottom = "4px";
+        fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong> 
+            <button style="margin-left: 10px; background: none; border: none; color: inherit; cursor: pointer;" onclick="removeFile()">❌</button>`;
         chatHistory.appendChild(fileBubble);
         smoothScrollToBottom();
     });
 
-    // Handle enter key
-    chatInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
+    window.removeFile = () => {
+        uploadedFile = null;
+        const fileTag = document.getElementById("filePreview");
+        if (fileTag) fileTag.remove();
+        fileUploadInput.value = "";
+    };
+
+    // Allow Enter (without Shift) to send the message
+    chatInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
             sendButton.click();
         }
     });
 
-    // Handle message send
+    // Handle send button press
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
-        if (!message && !uploadedFile) return;
+        if (!message && !uploadedFile) return; // Do nothing if both are empty
 
-        appendMessage("user", message);
+        // Append the user's text message as a bubble beneath the file preview (if any)
+        if (message) {
+            appendMessage("user", message);
+        }
+        // Clear input (but do not remove file preview here because we want to keep the document loaded)
         chatInput.value = "";
 
+        // Create the thinking bubble for Lexorva's answer
         const thinkingDiv = appendMessage("ai", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
         try {
             let response;
+            // If there is an uploaded document, send it along with the prompt
             if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
@@ -80,7 +89,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     method: "POST",
                     body: formData,
                 });
+                // Once submitted, clear the uploaded file information from the input
                 uploadedFile = null;
+                const filePreview = document.getElementById("filePreview");
+                if (filePreview) filePreview.remove();
                 fileUploadInput.value = "";
             } else {
                 response = await fetch(`${BACKEND_URL}/proxy`, {
@@ -94,15 +106,22 @@ document.addEventListener("DOMContentLoaded", () => {
             const reply = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: No response from Lexorva.";
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(reply), () => {
+                // Only display the download button if the reply appears to be a full strategy report.
+                // (For example, if it contains key phrases like 'Strategy Report' etc.)
                 if (reply.toLowerCase().includes("strategy report")) {
+                    // Remove any previous download button (to avoid duplicates)
+                    const existingDownload = document.getElementById("downloadPDF");
+                    if (existingDownload) existingDownload.remove();
+                    // Reinsert the download button directly after the response bubble
                     downloadButton.style.display = "inline-block";
+                    chatHistory.insertBefore(downloadButton, thinkingDiv.nextSibling);
                 } else {
                     downloadButton.style.display = "none";
                 }
             });
-        } catch (err) {
+        } catch (error) {
             stopThinkingDots(thinkingDiv);
-            thinkingDiv.innerHTML = "Error: Failed to contact Lexorva.";
+            typeMessage(thinkingDiv, "Error: Failed to communicate with Lexorva.");
         }
     });
 
@@ -115,13 +134,19 @@ document.addEventListener("DOMContentLoaded", () => {
         return div;
     }
 
+    function smoothScrollToBottom() {
+        chatHistory.scrollTo({
+            top: chatHistory.scrollHeight,
+            behavior: "smooth"
+        });
+    }
+
     function typeMessage(div, fullHTML, callback) {
         div.innerHTML = "";
         const temp = document.createElement("div");
         temp.innerHTML = fullHTML;
         const text = temp.textContent || temp.innerText || "";
         let idx = 0;
-
         function type() {
             if (idx < text.length) {
                 div.innerHTML += text.charAt(idx);
@@ -137,21 +162,20 @@ document.addEventListener("DOMContentLoaded", () => {
         type();
     }
 
-    function smoothScrollToBottom() {
-        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
-    }
-
-    let dots;
+    let thinkingInterval;
     function startThinkingDots(div) {
+        // Hide the download button while processing
         downloadButton.style.display = "none";
         let count = 0;
-        dots = setInterval(() => {
-            div.innerHTML = "Thinking" + ".".repeat(count++ % 4);
+        thinkingInterval = setInterval(() => {
+            count = (count + 1) % 4;
+            div.innerHTML = "Thinking" + ".".repeat(count);
+            smoothScrollToBottom();
         }, 500);
     }
 
     function stopThinkingDots(div) {
-        clearInterval(dots);
+        clearInterval(thinkingInterval);
         div.innerHTML = "";
     }
 });
