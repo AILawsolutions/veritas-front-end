@@ -7,9 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
 
     let uploadedFile = null;
+    let uploadedText = ""; // Store document text persistently
 
     // Show uploaded file in chat
-    fileUploadInput.addEventListener("change", () => {
+    fileUploadInput.addEventListener("change", async () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
 
@@ -21,12 +22,29 @@ document.addEventListener("DOMContentLoaded", () => {
         fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
         chatHistory.appendChild(fileBubble);
         smoothScrollToBottom();
-    });
 
-    function resetUpload() {
+        const formData = new FormData();
+        formData.append("file", uploadedFile);
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/upload`, {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.error) {
+                alert("Error reading file: " + result.error);
+            } else {
+                uploadedText = result.result;
+            }
+        } catch (error) {
+            alert("Upload failed: " + error.message);
+        }
+
         uploadedFile = null;
         fileUploadInput.value = "";
-    }
+    });
 
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
@@ -37,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
-        if (!message && !uploadedFile) return;
+        if (!message && uploadedText === "") return;
 
         if (message) {
             appendMessage("user", message);
@@ -49,35 +67,21 @@ document.addEventListener("DOMContentLoaded", () => {
         startThinkingDots(thinkingDiv);
 
         try {
-            if (uploadedFile) {
-                const formData = new FormData();
-                formData.append("file", uploadedFile);
+            const finalPrompt = uploadedText
+                ? `Document:\n\n${uploadedText}\n\nUser Question:\n${message}`
+                : message;
 
-                await fetch(`${BACKEND_URL}/upload`, {
-                    method: "POST",
-                    body: formData
-                });
+            const response = await fetch(`${BACKEND_URL}/proxy`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: finalPrompt })
+            });
 
-                resetUpload(); // Clear file after sending
-            }
+            const data = await response.json();
+            const responseText = data.choices?.[0]?.message?.content || "⚠️ Error: Unexpected response from Lexorva.";
 
-            if (message) {
-                const response = await fetch(`${BACKEND_URL}/proxy`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: message })
-                });
-
-                const data = await response.json();
-                const responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
-
-                stopThinkingDots(thinkingDiv);
-                typeMessage(thinkingDiv, marked.parse(responseText));
-            } else {
-                stopThinkingDots(thinkingDiv);
-                thinkingDiv.remove(); // No question, just file upload
-            }
-
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, marked.parse(responseText));
         } catch (error) {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, "⚠️ Error: Could not connect to Lexorva backend.");
