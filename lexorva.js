@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let uploadedFile = null;
 
-    // Show file bubble when uploaded
+    // Show uploaded file in chat
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
@@ -17,12 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const fileBubble = document.createElement("div");
         fileBubble.classList.add("user-message");
+        fileBubble.style.marginBottom = "4px";
         fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
         chatHistory.appendChild(fileBubble);
         smoothScrollToBottom();
     });
 
-    // Press Enter to send
+    function resetUpload() {
+        uploadedFile = null;
+        fileUploadInput.value = "";
+    }
+
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -30,68 +35,69 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Send Button logic
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
-        if (message) appendMessage("user", message);
+        if (message) {
+            appendMessage("user", message);
+        }
+
         chatInput.value = "";
 
-        const thinkingDiv = appendMessage("ai", "Thinking<span class='dots'></span>");
+        const thinkingDiv = appendMessage("lexorva", "Thinking<span class='dots'></span>");
         startThinkingDots(thinkingDiv);
 
         try {
-            let response;
-            let responseText;
-
             if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
-                formData.append("prompt", message);
 
-                response = await fetch(`${BACKEND_URL}/upload`, {
+                await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
                     body: formData
                 });
 
-                const data = await response.json();
-                responseText = data.result || "Document received. You may now ask questions about it.";
+                resetUpload(); // Clear file after sending
+            }
 
-                uploadedFile = null;
-                fileUploadInput.value = "";
-
-            } else {
-                response = await fetch(`${BACKEND_URL}/proxy`, {
+            if (message) {
+                const response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ prompt: message })
                 });
 
                 const data = await response.json();
-                responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "⚠️ Unexpected response from Lexorva.";
-            }
+                const responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "Error: Unexpected response from Lexorva.";
 
-            stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, marked.parse(responseText));
+                stopThinkingDots(thinkingDiv);
+                typeMessage(thinkingDiv, marked.parse(responseText));
+            } else {
+                stopThinkingDots(thinkingDiv);
+                thinkingDiv.remove(); // No question, just file upload
+            }
 
         } catch (error) {
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
+            typeMessage(thinkingDiv, "⚠️ Error: Could not connect to Lexorva backend.");
         }
     });
 
     function appendMessage(sender, text) {
-        const msg = document.createElement("div");
-        msg.className = sender === "user" ? "user-message" : "ai-message";
-        msg.innerHTML = text;
-        chatHistory.appendChild(msg);
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add(sender === "user" ? "user-message" : "ai-message");
+        messageDiv.innerHTML = text;
+        chatHistory.appendChild(messageDiv);
         smoothScrollToBottom();
-        return msg;
+        return messageDiv;
     }
 
     function smoothScrollToBottom() {
-        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
+        chatHistory.scrollTo({
+            top: chatHistory.scrollHeight,
+            behavior: "smooth"
+        });
     }
 
     function typeMessage(element, htmlContent) {
