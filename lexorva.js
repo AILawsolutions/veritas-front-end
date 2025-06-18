@@ -8,8 +8,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let uploadedFile = null;
 
-    // Fix Safari & browser click issue using explicit function
-    const handleSend = async () => {
+    // Show file bubble when uploaded
+    fileUploadInput.addEventListener("change", () => {
+        const file = fileUploadInput.files[0];
+        if (!file) return;
+
+        uploadedFile = file;
+
+        const fileBubble = document.createElement("div");
+        fileBubble.classList.add("user-message");
+        fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
+        chatHistory.appendChild(fileBubble);
+        smoothScrollToBottom();
+    });
+
+    // Press Enter to send
+    chatInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendButton.click();
+        }
+    });
+
+    // Send Button logic
+    sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
@@ -57,33 +79,6 @@ document.addEventListener("DOMContentLoaded", () => {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
         }
-    };
-
-    // Fix Enter Key and Button Clicking universally
-    chatInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault();
-            handleSend();
-        }
-    });
-
-    sendButton.addEventListener("click", (event) => {
-        event.preventDefault();
-        handleSend();
-    });
-
-    // File Upload UI Bubble
-    fileUploadInput.addEventListener("change", () => {
-        const file = fileUploadInput.files[0];
-        if (!file) return;
-
-        uploadedFile = file;
-
-        const fileBubble = document.createElement("div");
-        fileBubble.classList.add("user-message");
-        fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
-        chatHistory.appendChild(fileBubble);
-        smoothScrollToBottom();
     });
 
     function appendMessage(sender, text) {
