@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let uploadedFile = null;
 
-    // Show file bubble when uploaded
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
@@ -22,16 +21,17 @@ document.addEventListener("DOMContentLoaded", () => {
         smoothScrollToBottom();
     });
 
-    // Press Enter to send
+    // ✅ Replace click() trigger with function call
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
-            sendButton.click();
+            handleSend();
         }
     });
 
-    // Send Button logic
-    sendButton.addEventListener("click", async () => {
+    sendButton.addEventListener("click", handleSend);
+
+    async function handleSend() {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
         }
-    });
+    }
 
     function appendMessage(sender, text) {
         const msg = document.createElement("div");
