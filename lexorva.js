@@ -6,10 +6,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
 
-    let uploadedFile = null;
+    let uploadedFile = null; // Will store file across multiple questions
+    let extractedText = "";  // Store extracted OCR/text for persistent use
 
     // Show file bubble when uploaded
-    fileUploadInput.addEventListener("change", () => {
+    fileUploadInput.addEventListener("change", async () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
 
@@ -20,6 +21,22 @@ document.addEventListener("DOMContentLoaded", () => {
         fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
         chatHistory.appendChild(fileBubble);
         smoothScrollToBottom();
+
+        // Send file to backend once, store extractedText
+        const formData = new FormData();
+        formData.append("file", uploadedFile);
+        formData.append("prompt", "Extract and save the content for session use.");
+
+        try {
+            const res = await fetch(`${BACKEND_URL}/upload`, {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+            extractedText = data.result || "";
+        } catch (e) {
+            appendMessage("ai", "❌ Error: Failed to extract document content.");
+        }
     });
 
     // Press Enter to send
@@ -33,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Send Button logic
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
-        if (!message && !uploadedFile) return;
+        if (!message && !uploadedFile && !extractedText) return;
 
         if (message) appendMessage("user", message);
         chatInput.value = "";
@@ -45,32 +62,26 @@ document.addEventListener("DOMContentLoaded", () => {
             let response;
             let responseText;
 
-            if (uploadedFile) {
-                const formData = new FormData();
-                formData.append("file", uploadedFile);
-                formData.append("prompt", message);
-
-                response = await fetch(`${BACKEND_URL}/upload`, {
+            if (uploadedFile && extractedText) {
+                // Session-persistent document memory
+                const fullPrompt = `${extractedText}\n\n${message}`;
+                response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
-                    body: formData
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: fullPrompt })
                 });
 
-                const data = await response.json();
-                responseText = data.result || "Document received. You may now ask questions about it.";
-
-                uploadedFile = null;
-                fileUploadInput.value = "";
-
             } else {
+                // No file uploaded, just question
                 response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ prompt: message })
                 });
-
-                const data = await response.json();
-                responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "⚠️ Unexpected response from Lexorva.";
             }
+
+            const data = await response.json();
+            responseText = data.result || data.response || data.choices?.[0]?.message?.content || "⚠️ Unexpected response from Lexorva.";
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText));
