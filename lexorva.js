@@ -9,12 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let uploadedFile = null;
     let uploadedFilename = null;
 
-    // Remember uploaded file across multiple questions
-    const sessionMemory = {
-        filename: null,
-        fileUploaded: false
-    };
-
     // Show file bubble when uploaded
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
@@ -41,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Send Button logic
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
-        if (!message && !uploadedFile && !sessionMemory.fileUploaded) return;
+        if (!message && !uploadedFile && !uploadedFilename) return;
 
         if (message) appendMessage("user", message);
         chatInput.value = "";
@@ -53,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
             let response;
             let responseText;
 
-            // If new file is uploaded, send to /upload
             if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
@@ -67,21 +60,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await response.json();
                 responseText = data.result || "Document received. You may now ask questions about it.";
 
-                // Save session memory
-                sessionMemory.filename = uploadedFile.name;
-                sessionMemory.fileUploaded = true;
-
                 uploadedFile = null;
                 fileUploadInput.value = "";
-            } else if (sessionMemory.fileUploaded && sessionMemory.filename) {
-                // Use stored filename for follow-up questions
+            } else if (uploadedFilename) {
+                // Follow-up question referencing previous upload
                 response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        prompt: message,
-                        filename: sessionMemory.filename
-                    })
+                    body: JSON.stringify({ prompt: message, filename: uploadedFilename })
                 });
 
                 const data = await response.json();
