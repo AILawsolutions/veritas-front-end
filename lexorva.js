@@ -129,12 +129,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function showDownloadButton(text, container) {
-        const button = document.createElement("button");
-        button.textContent = "Download PDF";
-        button.style.cssText = "margin-top: 10px; font-size: 13px; padding: 6px 14px; border-radius: 6px; background: rgba(255,255,255,0.08); color: #fff; border: none; cursor: pointer;";
-        button.onclick = () => downloadAsPDF(text);
-        container.appendChild(button);
-    }
+    const button = document.createElement("button");
+    button.textContent = "Download PDF";
+    button.style.cssText = `
+        margin-top: 12px;
+        padding: 6px 12px;
+        background: rgba(255,255,255,0.08);
+        color: white;
+        font-size: 13px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: inherit;
+    `;
+
+    button.onclick = () => {
+        const doc = new window.jspdf.jsPDF();
+        const lines = doc.splitTextToSize(text, 180);
+        doc.text(lines, 15, 20);
+        doc.save("Lexorva_Strategy_Report.pdf");
+    };
+
+    container.appendChild(button);
+}
 
     function downloadAsPDF(content) {
         const blob = new Blob([content], { type: "application/pdf" });
