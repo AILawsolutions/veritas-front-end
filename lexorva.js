@@ -4,16 +4,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatHistory = document.getElementById("chatHistory");
     const fileUploadInput = document.getElementById("fileUpload");
 
-    const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
+    const BACKEND_URL = "https://YOUR_USERNAME.pythonanywhere.com"; // ✅ Replace with your real URL
 
     let uploadedFile = null;
     let uploadedFilename = null;
-
-    // Remember uploaded file across multiple questions
-    const sessionMemory = {
-        filename: null,
-        fileUploaded: false
-    };
 
     // Show file bubble when uploaded
     fileUploadInput.addEventListener("change", () => {
@@ -38,10 +32,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Send Button logic
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
-        if (!message && !uploadedFile && !sessionMemory.fileUploaded) return;
+        if (!message && !uploadedFile) return;
 
         if (message) appendMessage("user", message);
         chatInput.value = "";
@@ -53,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
             let response;
             let responseText;
 
-            // If new file is uploaded, send to /upload
             if (uploadedFile) {
                 const formData = new FormData();
                 formData.append("file", uploadedFile);
@@ -65,32 +57,28 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 const data = await response.json();
-                responseText = data.result || "Document received. You may now ask questions about it.";
-
-                // Save session memory
-                sessionMemory.filename = uploadedFile.name;
-                sessionMemory.fileUploaded = true;
-
+                responseText = data.result || "✅ File processed successfully.";
                 uploadedFile = null;
                 fileUploadInput.value = "";
-            } else if (sessionMemory.fileUploaded && sessionMemory.filename) {
-                // Use stored filename for follow-up questions
+
+            } else {
+                // Follow-up question
                 response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        prompt: message,
-                        filename: sessionMemory.filename
-                    })
+                    body: JSON.stringify({ prompt: message })
                 });
 
                 const data = await response.json();
-                responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "⚠️ Unexpected response from Lexorva.";
+                responseText =
+                    data.result ||
+                    data.response ||
+                    (data.choices?.[0]?.message?.content) ||
+                    "⚠️ Unexpected response from Lexorva.";
             }
 
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, marked.parse(responseText));
-
         } catch (error) {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
@@ -122,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 element.innerHTML += text.charAt(index);
                 index++;
                 smoothScrollToBottom();
-                setTimeout(typeChar, 15);
+                setTimeout(typeChar, 10);
             } else {
                 element.innerHTML = htmlContent;
                 smoothScrollToBottom();
@@ -139,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
             dotCount = (dotCount + 1) % 4;
             element.innerHTML = "Thinking" + ".".repeat(dotCount);
             smoothScrollToBottom();
-        }, 500);
+        }, 400);
     }
 
     function stopThinkingDots(element) {
