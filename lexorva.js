@@ -1,102 +1,141 @@
-let uploadedFile = null;
+document.addEventListener("DOMContentLoaded", () => {
+    const chatInput = document.getElementById("chatInput");
+    const sendButton = document.getElementById("sendButton");
+    const chatHistory = document.getElementById("chatHistory");
+    const fileUploadInput = document.getElementById("fileUpload");
 
-document.getElementById('fileUpload').addEventListener('change', function () {
-    const file = this.files[0];
-    if (file) {
-        uploadedFile = file; // persist file across session
-        const fileBubble = document.createElement('div');
-        fileBubble.classList.add('message', 'user-message');
-        fileBubble.innerHTML = `<strong>📄 ${file.name}</strong>`;
-        document.getElementById('chatBox').appendChild(fileBubble);
+    const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
+
+    let // Do not clear uploadedFile to preserve session memory
+
+    // Show file bubble when uploaded
+    fileUploadInput.addEventListener("change", () => {
+        const file = fileUploadInput.files[0];
+        if (!file) return;
+
+        // Allow PDF or image uploads (JPG, PNG)
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+            alert("Unsupported file type. Please upload a PDF, JPG, or PNG.");
+            return;
+        }
+    
+
+        uploadedFile = file;
+
+        const fileBubble = document.createElement("div");
+        fileBubble.classList.add("user-message");
+        fileBubble.innerHTML = `ð Uploaded: <strong>${file.name}</strong>`;
+        chatHistory.appendChild(fileBubble);
+        smoothScrollToBottom();
+    });
+
+    // Press Enter to send
+    chatInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendButton.click();
+        }
+    });
+
+    // Send Button logic
+    sendButton.addEventListener("click", async () => {
+        const message = chatInput.value.trim();
+        if (!message && !uploadedFile) return;
+
+        if (message) appendMessage("user", message);
+        chatInput.value = "";
+
+        const thinkingDiv = appendMessage("ai", "Thinking<span class='dots'></span>");
+        startThinkingDots(thinkingDiv);
+
+        try {
+            let response;
+            let responseText;
+
+            if (uploadedFile) {
+                const formData = new FormData();
+                formData.append("file", uploadedFile);
+                formData.append("prompt", message);
+
+                response = await fetch(`${BACKEND_URL}/upload`, {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+                responseText = data.result || "Document received. You may now ask questions about it.";
+
+                // Do not clear uploadedFile to preserve session memory
+                fileUploadInput.value = "";
+
+            } else {
+                response = await fetch(`${BACKEND_URL}/proxy`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: message })
+                });
+
+                const data = await response.json();
+                responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "â ï¸ Unexpected response from Lexorva.";
+            }
+
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, marked.parse(responseText));
+
+        } catch (error) {
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, "â Error: Could not connect to Lexorva backend.");
+        }
+    });
+
+    function appendMessage(sender, text) {
+        const msg = document.createElement("div");
+        msg.className = sender === "user" ? "user-message" : "ai-message";
+        msg.innerHTML = text;
+        chatHistory.appendChild(msg);
+        smoothScrollToBottom();
+        return msg;
     }
-});
 
-document.getElementById('userInput').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('sendButton').click();
-    }
-});
-
-document.getElementById('sendButton').addEventListener('click', async function () {
-    const userInput = document.getElementById('userInput').value.trim();
-    if (userInput === '') return;
-
-    // Append user message
-    const userMessage = document.createElement('div');
-    userMessage.classList.add('message', 'user-message');
-    userMessage.textContent = userInput;
-    document.getElementById('chatBox').appendChild(userMessage);
-    document.getElementById('userInput').value = '';
-
-    // Append assistant message container
-    const assistantMessage = document.createElement('div');
-    assistantMessage.classList.add('message', 'assistant-message');
-    const responseText = document.createElement('span');
-    assistantMessage.appendChild(responseText);
-    document.getElementById('chatBox').appendChild(assistantMessage);
-
-    // Hide PDF button while loading
-    const existingPDF = document.getElementById('downloadPDF');
-    if (existingPDF) existingPDF.remove();
-
-    // Prepare request
-    const formData = new FormData();
-    formData.append('prompt', userInput);
-    if (uploadedFile) {
-        formData.append('file', uploadedFile);
+    function smoothScrollToBottom() {
+        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
     }
 
-    try {
-        const response = await fetch('/proxy', {
-            method: 'POST',
-            body: formData
-        });
+    function typeMessage(element, htmlContent) {
+        element.innerHTML = "";
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = htmlContent;
+        const text = tempDiv.textContent || tempDiv.innerText || "";
+        let index = 0;
 
-        if (!response.ok) throw new Error('Network response was not ok');
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-        let fullText = '';
-
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value, { stream: true });
-            fullText += chunk;
-            responseText.textContent = fullText;
+        function typeChar() {
+            if (index < text.length) {
+                element.innerHTML += text.charAt(index);
+                index++;
+                smoothScrollToBottom();
+                setTimeout(typeChar, 15);
+            } else {
+                element.innerHTML = htmlContent;
+                smoothScrollToBottom();
+            }
         }
 
-        // Show subtle download button
-        const downloadBtn = document.createElement('button');
-        downloadBtn.id = 'downloadPDF';
-        downloadBtn.textContent = 'Download Strategy Report';
-        downloadBtn.style.marginTop = '10px';
-        downloadBtn.style.background = 'rgba(255, 255, 255, 0.05)';
-        downloadBtn.style.color = 'white';
-        downloadBtn.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-        downloadBtn.style.padding = '6px 12px';
-        downloadBtn.style.borderRadius = '5px';
-        downloadBtn.style.fontSize = '13px';
-        downloadBtn.style.cursor = 'pointer';
-        downloadBtn.style.transition = 'all 0.2s ease';
-        downloadBtn.onmouseover = () => {
-            downloadBtn.style.background = 'rgba(255, 255, 255, 0.12)';
-        };
-        downloadBtn.onmouseout = () => {
-            downloadBtn.style.background = 'rgba(255, 255, 255, 0.05)';
-        };
-        downloadBtn.addEventListener('click', () => {
-            const blob = new Blob([fullText], { type: 'application/pdf' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'Lexorva_Strategy_Report.pdf';
-            link.click();
-        });
+        typeChar();
+    }
 
-        assistantMessage.appendChild(downloadBtn);
-    } catch (error) {
-        responseText.textContent = '⚠️ Error: ' + error.message;
+    let thinkingInterval;
+    function startThinkingDots(element) {
+        let dotCount = 0;
+        thinkingInterval = setInterval(() => {
+            dotCount = (dotCount + 1) % 4;
+            element.innerHTML = "Thinking" + ".".repeat(dotCount);
+            smoothScrollToBottom();
+        }, 500);
+    }
+
+    function stopThinkingDots(element) {
+        clearInterval(thinkingInterval);
+        element.innerHTML = "";
     }
 });
