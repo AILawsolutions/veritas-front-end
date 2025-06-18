@@ -9,6 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let uploadedFile = null;
     let lastResponseText = "";
 
+    // ✅ Ensures button works no matter what
+    if (sendButton) {
+        sendButton.addEventListener("click", handleSubmit);
+    }
+
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
@@ -29,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    sendButton.addEventListener("click", async () => {
+    async function handleSubmit() {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
@@ -53,8 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 data = await response.json();
-                // Do NOT clear uploadedFile — keep it for session memory
-                // fileUploadInput.value = "";  // Optional: reset input display only
             } else {
                 response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
@@ -76,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
         }
-    });
+    }
 
     function appendMessage(sender, text) {
         const msg = document.createElement("div");
@@ -129,29 +132,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function showDownloadButton(text, container) {
-    const button = document.createElement("button");
-    button.textContent = "Download PDF";
-    button.style.cssText = `
-        margin-top: 12px;
-        padding: 6px 12px;
-        background: rgba(255,255,255,0.08);
-        color: white;
-        font-size: 13px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-family: inherit;
-    `;
+        const button = document.createElement("button");
+        button.textContent = "Download PDF";
+        button.style.cssText = `
+            margin-top: 12px;
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-size: 13px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+        `;
 
-    button.onclick = () => {
-        const doc = new window.jspdf.jsPDF();
-        const lines = doc.splitTextToSize(text, 180);
-        doc.text(lines, 15, 20);
-        doc.save("Lexorva_Strategy_Report.pdf");
-    };
+        button.onclick = () => {
+            const doc = new window.jspdf.jsPDF();
+            const lines = doc.splitTextToSize(text, 180);
+            doc.text(lines, 15, 20);
+            doc.save("Lexorva_Strategy_Report.pdf");
+        };
 
-    container.appendChild(button);
-}
+        container.appendChild(button);
+    }
 
     function downloadAsPDF(content) {
         const blob = new Blob([content], { type: "application/pdf" });
