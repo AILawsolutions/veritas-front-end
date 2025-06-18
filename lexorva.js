@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
 
     let uploadedFile = null;
-    let lastResponseText = "";
 
+    // Show file bubble when uploaded
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
         smoothScrollToBottom();
     });
 
+    // Press Enter to send
     chatInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -29,59 +30,56 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Send Button logic
     sendButton.addEventListener("click", async () => {
-    const message = chatInput.value.trim();
-    if (!message && !uploadedFile) return;
+        const message = chatInput.value.trim();
+        if (!message && !uploadedFile) return;
 
-    if (message) appendMessage("user", message);
-    chatInput.value = "";
+        if (message) appendMessage("user", message);
+        chatInput.value = "";
 
-    const thinkingDiv = appendMessage("ai", "Thinking<span class='dots'></span>");
-    startThinkingDots(thinkingDiv);
+        const thinkingDiv = appendMessage("ai", "Thinking<span class='dots'></span>");
+        startThinkingDots(thinkingDiv);
 
-    try {
-        let response, data;
+        try {
+            let response;
+            let responseText;
 
-        if (uploadedFile) {
-            const formData = new FormData();
-            formData.append("file", uploadedFile);
-            formData.append("prompt", message);
+            if (uploadedFile) {
+                const formData = new FormData();
+                formData.append("file", uploadedFile);
+                formData.append("prompt", message);
 
-            response = await fetch(`${BACKEND_URL}/upload`, {
-                method: "POST",
-                body: formData
-            });
+                response = await fetch(`${BACKEND_URL}/upload`, {
+                    method: "POST",
+                    body: formData
+                });
 
-            data = await response.json();
-            uploadedFile = null;
-            fileUploadInput.value = "";
-        } else {
-            response = await fetch(`${BACKEND_URL}/proxy`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ prompt: message })
-            });
+                const data = await response.json();
+                responseText = data.result || "Document received. You may now ask questions about it.";
 
-            data = await response.json();
+                uploadedFile = null;
+                fileUploadInput.value = "";
+
+            } else {
+                response = await fetch(`${BACKEND_URL}/proxy`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: message })
+                });
+
+                const data = await response.json();
+                responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "⚠️ Unexpected response from Lexorva.";
+            }
+
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, marked.parse(responseText));
+
+        } catch (error) {
+            stopThinkingDots(thinkingDiv);
+            typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
         }
-
-        // ✅ Fixed to expect only .response from app.py
-        if (!data || !data.response) {
-            throw new Error("Invalid or empty response from backend.");
-        }
-
-        const responseText = data.response;
-        lastResponseText = responseText;
-
-        stopThinkingDots(thinkingDiv);
-        typeMessage(thinkingDiv, marked.parse(responseText));
-        showDownloadButton(responseText, thinkingDiv);
-
-    } catch (error) {
-        stopThinkingDots(thinkingDiv);
-        typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
-    }
-});
+    });
 
     function appendMessage(sender, text) {
         const msg = document.createElement("div");
@@ -131,21 +129,5 @@ document.addEventListener("DOMContentLoaded", () => {
     function stopThinkingDots(element) {
         clearInterval(thinkingInterval);
         element.innerHTML = "";
-    }
-
-    function showDownloadButton(text, container) {
-        const button = document.createElement("button");
-        button.textContent = "Download PDF";
-        button.style.cssText = "margin-top: 10px; font-size: 13px; padding: 6px 14px; border-radius: 6px; background: rgba(255,255,255,0.08); color: #fff; border: none; cursor: pointer;";
-        button.onclick = () => downloadAsPDF(text);
-        container.appendChild(button);
-    }
-
-    function downloadAsPDF(content) {
-        const blob = new Blob([content], { type: "application/pdf" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "Lexorva_Strategy_Report.pdf";
-        link.click();
     }
 });
