@@ -9,11 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let uploadedFile = null;
     let lastResponseText = "";
 
-    // ✅ Ensures button works no matter what
-    if (sendButton) {
-        sendButton.addEventListener("click", handleSubmit);
-    }
-
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
@@ -34,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    async function handleSubmit() {
+    sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
         if (!message && !uploadedFile) return;
 
@@ -58,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 data = await response.json();
+                // Do NOT clear uploadedFile — keep it for session memory
             } else {
                 response = await fetch(`${BACKEND_URL}/proxy`, {
                     method: "POST",
@@ -79,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
             stopThinkingDots(thinkingDiv);
             typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
         }
-    }
+    });
 
     function appendMessage(sender, text) {
         const msg = document.createElement("div");
@@ -154,13 +150,5 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         container.appendChild(button);
-    }
-
-    function downloadAsPDF(content) {
-        const blob = new Blob([content], { type: "application/pdf" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "Lexorva_Strategy_Report.pdf";
-        link.click();
     }
 });
