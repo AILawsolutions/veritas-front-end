@@ -30,53 +30,58 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     sendButton.addEventListener("click", async () => {
-        const message = chatInput.value.trim();
-        if (!message && !uploadedFile) return;
+    const message = chatInput.value.trim();
+    if (!message && !uploadedFile) return;
 
-        if (message) appendMessage("user", message);
-        chatInput.value = "";
+    if (message) appendMessage("user", message);
+    chatInput.value = "";
 
-        const thinkingDiv = appendMessage("ai", "Thinking<span class='dots'></span>");
-        startThinkingDots(thinkingDiv);
+    const thinkingDiv = appendMessage("ai", "Thinking<span class='dots'></span>");
+    startThinkingDots(thinkingDiv);
 
-        try {
-            let response, data;
+    try {
+        let response, data;
 
-            if (uploadedFile) {
-                const formData = new FormData();
-                formData.append("file", uploadedFile);
-                formData.append("prompt", message);
+        if (uploadedFile) {
+            const formData = new FormData();
+            formData.append("file", uploadedFile);
+            formData.append("prompt", message);
 
-                response = await fetch(`${BACKEND_URL}/upload`, {
-                    method: "POST",
-                    body: formData
-                });
+            response = await fetch(`${BACKEND_URL}/upload`, {
+                method: "POST",
+                body: formData
+            });
 
-                data = await response.json();
-                uploadedFile = null;
-                fileUploadInput.value = "";
-            } else {
-                response = await fetch(`${BACKEND_URL}/proxy`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: message })
-                });
+            data = await response.json();
+            uploadedFile = null;
+            fileUploadInput.value = "";
+        } else {
+            response = await fetch(`${BACKEND_URL}/proxy`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: message })
+            });
 
-                data = await response.json();
-            }
-
-            const responseText = data.result || data.response || data.choices?.[0]?.message?.content || "⚠️ Unexpected response from Lexorva.";
-            lastResponseText = responseText;
-
-            stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, marked.parse(responseText));
-            showDownloadButton(responseText, thinkingDiv);
-
-        } catch (error) {
-            stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
+            data = await response.json();
         }
-    });
+
+        // ✅ Fixed to expect only .response from app.py
+        if (!data || !data.response) {
+            throw new Error("Invalid or empty response from backend.");
+        }
+
+        const responseText = data.response;
+        lastResponseText = responseText;
+
+        stopThinkingDots(thinkingDiv);
+        typeMessage(thinkingDiv, marked.parse(responseText));
+        showDownloadButton(responseText, thinkingDiv);
+
+    } catch (error) {
+        stopThinkingDots(thinkingDiv);
+        typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
+    }
+});
 
     function appendMessage(sender, text) {
         const msg = document.createElement("div");
