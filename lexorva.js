@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 element.innerHTML += text.charAt(index);
                 index++;
                 smoothScrollToBottom();
-                setTimeout(typeChar, 15);
+                setTimeout(typeChar, 5);
             } else {
                 element.innerHTML = htmlContent;
                 smoothScrollToBottom();
