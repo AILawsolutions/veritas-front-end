@@ -6,26 +6,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
 
-    let // Do not clear uploadedFile to preserve session memory
+    let uploadedFile = null;
 
     // Show file bubble when uploaded
     fileUploadInput.addEventListener("change", () => {
         const file = fileUploadInput.files[0];
         if (!file) return;
 
-        // Allow PDF or image uploads (JPG, PNG)
-        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-        if (!allowedTypes.includes(file.type)) {
-            alert("Unsupported file type. Please upload a PDF, JPG, or PNG.");
-            return;
-        }
-    
-
         uploadedFile = file;
 
         const fileBubble = document.createElement("div");
         fileBubble.classList.add("user-message");
-        fileBubble.innerHTML = `ð Uploaded: <strong>${file.name}</strong>`;
+        fileBubble.innerHTML = `📄 Uploaded: <strong>${file.name}</strong>`;
         chatHistory.appendChild(fileBubble);
         smoothScrollToBottom();
     });
@@ -66,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await response.json();
                 responseText = data.result || "Document received. You may now ask questions about it.";
 
-                // Do not clear uploadedFile to preserve session memory
+                uploadedFile = null;
                 fileUploadInput.value = "";
 
             } else {
@@ -77,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 const data = await response.json();
-                responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "â ï¸ Unexpected response from Lexorva.";
+                responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "⚠️ Unexpected response from Lexorva.";
             }
 
             stopThinkingDots(thinkingDiv);
@@ -85,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (error) {
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, "â Error: Could not connect to Lexorva backend.");
+            typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
         }
     });
 
