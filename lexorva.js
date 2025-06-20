@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
 
     let uploadedFile = null;
+    let storedFile = null;
 
     // Show file bubble when uploaded
     fileUploadInput.addEventListener("change", () => {
@@ -16,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!file) return;
 
         uploadedFile = file;
+        storedFile = file;
 
         const fileBubble = document.createElement("div");
         fileBubble.classList.add("user-message");
@@ -47,9 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
             let response;
             let responseText;
 
-            if (uploadedFile) {
+            if (uploadedFile || storedFile) {
                 const formData = new FormData();
-                formData.append("file", uploadedFile);
+                formData.append("file", uploadedFile || storedFile);
                 formData.append("prompt", message);
 
                 response = await fetch(`${BACKEND_URL}/upload`, {
