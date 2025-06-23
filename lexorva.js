@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function showDownloadButton(textContent) {
     const button = document.createElement("button");
     button.textContent = "⬇️ Download Report";
-    button.style.cssText = `
+    button.style.cssText = \`
         display: block;
         margin: 12px 0 24px 0;
         padding: 6px 12px;
@@ -151,21 +151,30 @@ document.addEventListener("DOMContentLoaded", () => {
         border-radius: 6px;
         cursor: pointer;
         text-align: left;
-    `;
+    \`;
 
     button.onclick = () => {
-        const cleanedText = textContent.replace(/<[^>]+>/g, ''); // Strip HTML tags
+        const cleanedText = textContent.replace(/<[^>]+>/g, '');
         const pdf = new jsPDF();
         const lines = pdf.splitTextToSize(cleanedText, 180);
         pdf.setFont("Times", "Roman");
         pdf.setFontSize(12);
         pdf.text(lines, 10, 20);
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        pdf.save(`Lexorva_Strategy_Report_${timestamp}.pdf`);
+        pdf.save(\`Lexorva_Strategy_Report_\${timestamp}.pdf\`);
     };
 
     chatHistory.appendChild(button);
     smoothScrollToBottom();
-}
+});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "Lexorva_Strategy_Report.pdf";
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+        chatHistory.appendChild(button);
+        smoothScrollToBottom();
     }
 });
