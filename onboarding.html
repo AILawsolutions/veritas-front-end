@@ -1,152 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lexorva Onboarding</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <style>
     body {
       margin: 0;
       padding: 0;
-      background-color: #010B15;
-      color: #f0f0f0;
       font-family: 'Rajdhani', sans-serif;
+      background: linear-gradient(to bottom, #f9f9ff, #f1f1f9);
+      color: #212529;
     }
 
-    .top-nav {
-      background-color: #000;
-      padding: 20px;
+    header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background-color: #010B15;
+      padding: 15px 30px;
+      color: #fff;
     }
 
     .logo-text {
       font-family: 'Orbitron', sans-serif;
       font-size: 24px;
-      color: #00BFFF;
+      color: #B96EF7;
     }
 
-    .nav-links a {
-      color: white;
-      margin-left: 20px;
-      text-decoration: none;
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-button {
+      background: none;
+      border: 1px solid #B96EF7;
+      border-radius: 6px;
+      padding: 8px 14px;
+      color: #fff;
+      font-family: 'Rajdhani', sans-serif;
       font-weight: 600;
+      text-decoration: none;
+      transition: background 0.3s, color 0.3s;
     }
 
-    .nav-links a:hover {
-      text-decoration: underline;
+    .nav-button:hover {
+      background: #B96EF7;
+      color: #010B15;
     }
 
     .onboarding-container {
-      max-width: 900px;
+      max-width: 950px;
       margin: 60px auto;
-      padding: 20px;
+      padding: 30px;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.05);
     }
 
     .onboarding-container h1 {
       font-family: 'Orbitron', sans-serif;
-      font-size: 36px;
-      margin-bottom: 20px;
-      color: #ffffff;
-    }
-
-    .onboarding-step {
+      font-size: 28px;
+      color: #010B15;
       margin-bottom: 30px;
-      padding: 20px;
-      background-color: #111A24;
-      border-left: 5px solid #00BFFF;
-      border-radius: 8px;
-    }
-
-    .onboarding-step h2 {
-      font-size: 22px;
-      color: #00BFFF;
-    }
-
-    .onboarding-step p {
-      font-size: 17px;
-      line-height: 1.6;
-    }
-
-    .launch-button {
-      background-color: #00BFFF;
-      color: #fff;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 18px;
-      padding: 12px 30px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 40px;
-    }
-
-    .launch-button:hover {
-      background-color: #0090cc;
-    }
-
-    footer {
-      margin-top: 80px;
       text-align: center;
-      padding: 30px;
-      color: #666;
+    }
+
+    .step-box {
+      border-left: 4px solid #B96EF7;
+      padding: 25px;
+      margin-bottom: 40px;
+      background: #f8f9fb;
+      border-radius: 6px;
+    }
+
+    .step-box h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 22px;
+      color: #010B15;
+      margin-bottom: 12px;
+    }
+
+    .step-box p {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #333;
+    }
+
+    .step-box a {
+      color: #B96EF7;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .footer {
+      text-align: center;
       font-size: 14px;
+      color: #777;
+      padding: 20px;
+      margin-top: 40px;
     }
   </style>
 </head>
 <body>
 
-<header class="top-nav">
-  <div class="logo-text">LEXORVA</div>
-  <nav class="nav-links">
-    <a href="index.html">Home</a>
-    <a href="pricing.html">Pricing</a>
-    <a href="contact.html">Contact</a>
-    <a href="login.html">Sign Up/Login</a>
-  </nav>
-</header>
+  <header>
+    <div class="logo-text">LEXORVA</div>
+    <nav class="nav-links">
+      <a href="index.html" class="nav-button">Home</a>
+      <a href="pricing.html" class="nav-button">Pricing</a>
+      <a href="faq.html" class="nav-button">FAQ</a>
+      <a href="onboarding.html" class="nav-button">Onboarding</a>
+      <a href="contact.html" class="nav-button">Contact</a>
+      <a href="login.html" class="nav-button">Sign Up/Login</a>
+    </nav>
+  </header>
 
-<main class="onboarding-container">
-  <h1>Welcome to Lexorva – Let’s Get You Set Up</h1>
+  <div class="onboarding-container">
+    <h1>Welcome to Lexorva – Let’s Get You Fully Set Up</h1>
 
-  <div class="onboarding-step">
-    <h2>Step 1 – Purchase a Plan</h2>
-    <p>Visit the <a href="pricing.html" style="color: #00BFFF;">Pricing page</a> and choose the plan that fits your needs. Securely check out via Stripe.</p>
+    <div class="step-box">
+      <h2>Step 1 – Choose and Purchase Your Plan</h2>
+      <p>
+        Begin by visiting our <a href="pricing.html">Pricing page</a>. You'll see all available Lexorva plans, including:
+        <br><br>
+        • <strong>Individual Plan</strong> – $74.99/month for 1 user<br>
+        • <strong>Firm Plans</strong> – From 10 to 200+ users
+        <br><br>
+        Click “Select Plan” under the option that fits your needs. You’ll be redirected to a secure Stripe checkout page where you can enter your payment details. Once payment is complete, Stripe will confirm your subscription.
+      </p>
+    </div>
+
+    <div class="step-box">
+      <h2>Step 2 – Receive Your Promo Code</h2>
+      <p>
+        After subscribing, you will automatically receive a unique Lexorva promo code by email. 
+        <br><br>
+        • <strong>Individual Users:</strong> This code is tied to your personal account. Do not share it.
+        <br>
+        • <strong>Firms:</strong> This code allows the number of users included in your plan to sign up without entering payment — just the code.
+        <br><br>
+        If you don’t receive the email within a few minutes, check your spam folder or <a href="contact.html">contact support</a>.
+      </p>
+    </div>
+
+    <div class="step-box">
+      <h2>Step 3 – Share the Promo Code with Your Team (Firms Only)</h2>
+      <p>
+        If you're managing a firm plan, distribute your promo code to your colleagues. Each team member should:
+        <br><br>
+        1. Visit the <a href="login.html">Sign Up/Login</a> page.<br>
+        2. Enter their name, email, and create a password.<br>
+        3. Input your shared promo code when prompted.<br>
+        4. They will gain instant access without needing a credit card.
+      </p>
+    </div>
+
+    <div class="step-box">
+      <h2>Step 4 – Sign Up & Activate Your Account</h2>
+      <p>
+        Whether you’re an individual or a firm user, go to the <a href="login.html">Sign Up/Login</a> page. Fill in your details and paste your promo code.
+        <br><br>
+        Lexorva will verify your code, activate your access, and unlock all features instantly — including legal strategy generation, document review, evidence analysis, and more.
+      </p>
+    </div>
+
+    <div class="step-box">
+      <h2>Step 5 – Start Using Lexorva</h2>
+      <p>
+        Once logged in, you can:
+        <br><br>
+        • Ask any legal question in plain language<br>
+        • Upload a case file, PDF, or document for review<br>
+        • Generate advanced legal strategy reports<br>
+        • Analyze opposing counsel’s arguments<br>
+        • Download results and reports instantly<br><br>
+        Every tool is designed to be intuitive and require no training — just enter your issue and Lexorva does the rest.
+      </p>
+    </div>
+
+    <div class="step-box">
+      <h2>Need Support or Help?</h2>
+      <p>
+        If you run into any issues:
+        <br><br>
+        • Contact us through the <a href="contact.html">Contact Page</a><br>
+        • Or email our support team directly
+        <br><br>
+        We’ll get back to you quickly and make sure you’re fully onboarded without hassle.
+      </p>
+    </div>
   </div>
 
-  <div class="onboarding-step">
-    <h2>Step 2 – Get Your Promo Code</h2>
-    <p>After purchase, you’ll receive a unique promo code via email. This unlocks full Lexorva access for the number of users allowed by your plan.</p>
-  </div>
-
-  <div class="onboarding-step">
-    <h2>Step 3 – Sign Up & Login</h2>
-    <p>Go to the <a href="login.html" style="color: #00BFFF;">Sign Up/Login</a> page. Enter your promo code to activate your account with full access — no credit card needed.</p>
-  </div>
-
-  <div class="onboarding-step">
-    <h2>Step 4 – Upload a Document</h2>
-    <p>Inside Lexorva, click the “Upload” icon to submit a PDF, legal document, or image. Lexorva will analyze it in real time using GPT-4 logic.</p>
-  </div>
-
-  <div class="onboarding-step">
-    <h2>Step 5 – Ask Legal Questions</h2>
-    <p>Type your legal question clearly. Lexorva will understand your document + your question, and deliver a smart, strategic response in seconds.</p>
-  </div>
-
-  <div class="onboarding-step">
-    <h2>Step 6 – Download Your Strategy Report</h2>
-    <p>After Lexorva finishes responding, click the “Download Report” button beneath the answer to save a clean, professional PDF for your records or courtroom use.</p>
-  </div>
-
-  <button class="launch-button" onclick="window.location.href='lexorva.html'">Launch Lexorva</button>
-</main>
-
-<footer>
-  © 2025 LEXORVA. All Rights Reserved.
-</footer>
+  <footer class="footer">
+    © 2025 LEXORVA. All Rights Reserved.
+  </footer>
 
 </body>
 </html>
