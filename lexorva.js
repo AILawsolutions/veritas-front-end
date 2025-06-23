@@ -161,3 +161,54 @@ document.addEventListener("DOMContentLoaded", () => {
         smoothScrollToBottom();
     }
 });
+
+
+
+
+// 📥 Download Report Button Logic
+function addDownloadButtonIfEligible(responseText) {
+    const responseLower = responseText.toLowerCase();
+    const isMultiPart = responseText.length > 600 || responseLower.includes("strategy") || responseLower.includes("legal plan") || responseLower.includes("recommended actions");
+
+    // Only trigger button if content qualifies
+    if (!isMultiPart) return;
+
+    // Remove existing button if any
+    const existingButton = document.getElementById("downloadReportButton");
+    if (existingButton) existingButton.remove();
+
+    const downloadButton = document.createElement("button");
+    downloadButton.id = "downloadReportButton";
+    downloadButton.textContent = "Download Report";
+    downloadButton.style.cssText = `
+        background-color: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 13px;
+        padding: 6px 14px;
+        margin-top: 10px;
+        margin-left: 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: inline-block;
+    `;
+
+    // Append to last AI message bubble
+    const messageBubbles = document.querySelectorAll('.ai-response');
+    const lastBubble = messageBubbles[messageBubbles.length - 1];
+    if (lastBubble) lastBubble.appendChild(downloadButton);
+
+    downloadButton.onclick = () => {
+        const content = responseText;
+        const doc = new window.jspdf.jsPDF();
+        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+        const filename = `Lexorva_Strategy_Report_${timestamp}.pdf`;
+
+        const lines = doc.splitTextToSize(content, 180);
+        doc.setFont("times", "normal");
+        doc.setFontSize(12);
+        doc.text(lines, 15, 20);
+        doc.save(filename);
+    };
+}
