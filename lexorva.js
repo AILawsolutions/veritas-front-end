@@ -1,4 +1,4 @@
-// ✅ Fully Updated Lexorva.js — based on functianol.js + Day 2 Directive
+// ✅ FINAL Lexorva.js with Persistent File Memory + Faster Typewriter Speed
 
 document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
@@ -34,10 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ✅ SEND BUTTON WORKS 100%
     sendButton.addEventListener("click", async () => {
         const message = chatInput.value.trim();
-        if (!message && !uploadedFile) return;
+        if (!message && !uploadedFile && !storedFile) return;
 
         if (message) appendMessage("user", message);
         chatInput.value = "";
@@ -110,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 element.innerHTML += text.charAt(index);
                 index++;
                 smoothScrollToBottom();
-                setTimeout(typeChar, 5);
+                setTimeout(typeChar, 1); // 🟢 MUCH FASTER — ChatGPT speed
             } else {
                 element.innerHTML = htmlContent;
                 smoothScrollToBottom();
@@ -135,10 +134,9 @@ document.addEventListener("DOMContentLoaded", () => {
         element.innerHTML = "";
     }
 
-    // ✅ Subtle PDF Download Button
     function showDownloadButton(textContent) {
         const button = document.createElement("button");
-        button.textContent = "⬇️ Download PDF";
+        button.textContent = "⬇ Download Report";
         button.style.cssText = `
             display: block;
             margin: 12px auto 24px auto;
@@ -155,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "Lexorva_Strategy_Report.pdf";
+            a.download = `Lexorva_Strategy_Report_${new Date().toISOString().split("T")[0]}.pdf`;
             a.click();
             URL.revokeObjectURL(url);
         };
