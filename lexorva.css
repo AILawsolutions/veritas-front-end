@@ -187,9 +187,9 @@ body {
 @media (max-width: 768px) {
     .main {
         flex-direction: column;
-    
-}
-    
+    }
+}  /* ← fixed: close .main + @media properly */
+
 /* Transparent Download Button */
 .download-button {
     display: inline-block;
