@@ -1,228 +1,140 @@
-/* Base styles */
+/* === ORIGINAL STYLES === */
 body {
-    margin: 0;
-    font-family: 'Rajdhani', sans-serif;
-    background: #f9f9f9;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+  margin: 0;
+  font-family: 'Rajdhani', sans-serif;
+  background-color: #ffffff;
+  color: #333;
 }
 
-/* Top Navigation - COPY of index.html style */
-.top-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 40px;
-    background-color: transparent;
-    border-bottom: 1px solid #eaeaea;
+header {
+  background-color: #ffffff;
+  padding: 10px 20px;
+  text-align: left;
+  font-size: 24px;
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
 }
 
-.logo-text {
-    font-size: 28px;
-    font-weight: 700;
-    font-family: 'Orbitron', sans-serif;
-    background: linear-gradient(90deg, #9C27B0, #673AB7);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+main {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 50px);
 }
 
-.nav-links a.nav-button {
-    margin-left: 15px;
-    padding: 8px 16px;
-    border: 2px solid #A84DF2;
-    border-radius: 20px;
-    background-color: white;
-    color: #A84DF2;
-    font-weight: 600;
-    text-decoration: none;
-    font-family: 'Rajdhani', sans-serif;
-    transition: background 0.2s, color 0.2s;
+.chat-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
 }
 
-.nav-links a.nav-button:hover,
-.nav-links a.nav-button.active {
-    background: linear-gradient(90deg, #9C27B0, #673AB7);
-    color: white;
+.message {
+  margin-bottom: 15px;
 }
 
-/* Chat Section */
-.main {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-    flex-direction: column;
+.message.user {
+  text-align: right;
 }
 
-.chat-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    box-sizing: border-box;
-    overflow-y: auto;
+.message.user .bubble {
+  background-color: #e0e0e0;
+  color: #000;
 }
 
-.chat-history {
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding-bottom: 10px;
+.message.bot .bubble {
+  background-color: #6a1b9a;
+  color: #fff;
 }
 
-.user-message {
-    align-self: flex-end;
-    background: #f0eaff;
-    color: #333;
-    border-radius: 20px 20px 0px 20px;
-    padding: 12px 16px;
-    font-size: 16px;
-    font-family: 'Rajdhani', sans-serif;
-    line-height: 1.6;
-    max-width: 70%;
+.bubble {
+  display: inline-block;
+  padding: 10px 15px;
+  border-radius: 15px;
+  max-width: 70%;
+  word-wrap: break-word;
 }
 
-.ai-message {
-    align-self: flex-start;
-    background: #fff;
-    color: #333;
-    border-radius: 20px 20px 20px 0px;
-    padding: 12px 16px;
-    font-size: 16px;
-    font-family: 'Rajdhani', sans-serif;
-    line-height: 1.6;
-    max-width: 70%;
-    position: relative;
-}
-
-/* Typing Animation */
-.ai-message.typing::after {
-    content: "";
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    border-radius: 50%;
-    background: #A84DF2;
-    animation: blink 1s infinite;
-    margin-left: 8px;
-    vertical-align: middle;
-}
-
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-}
-
-/* Thinking Bar (Hidden) */
-.thinking {
-    display: none;
-}
-
-/* Input Bar */
 .input-bar {
-    display: flex;
-    align-items: center;
-    border-top: 1px solid #eee;
-    padding: 10px;
-    box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-top: 1px solid #ccc;
 }
 
-.input-bar input[type="text"] {
-    flex: 1;
-    padding: 12px 16px;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    font-size: 16px;
-    font-family: 'Rajdhani', sans-serif;
+input[type="text"] {
+  flex: 1;
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 16px;
 }
 
-.input-bar button {
-    margin-left: 10px;
-    padding: 12px 16px;
-    background: linear-gradient(90deg, #A84DF2, #C168F9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 18px;
+button {
+  background-color: #6a1b9a;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
-/* Upload button */
-.upload-button {
-    margin-right: 10px;
+button:hover {
+  background-color: #4a148c;
+}
+
+/* Scrollbar styling */
+.chat-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+  header {
     font-size: 20px;
-    cursor: pointer;
-    color: #A84DF2;
-    user-select: none;
-}
+    padding: 8px 15px;
+  }
 
-/* File Preview Bubble (ChatGPT-style) */
-.file-preview-bubble {
-    align-self: flex-end;
-    background: #d8c6ff;
-    color: #333;
-    border-radius: 20px 20px 0px 20px;
-    padding: 10px 16px;
-    font-size: 16px;
-    font-family: 'Rajdhani', sans-serif;
-    max-width: 70%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    position: relative;
-}
+  .bubble {
+    max-width: 90%;
+  }
 
-.file-preview-bubble button {
-    background: none;
-    border: none;
-    font-size: 18px;
-    color: #7b2cbf;
-    cursor: pointer;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .main {
-        flex-direction: column;
-    
-}
-    
-/* Transparent Download Button */
-.download-button {
-    display: inline-block;
-    margin-top: 12px;
-    padding: 10px 16px;
-    font-family: 'Orbitron', sans-serif;
+  input[type="text"] {
     font-size: 14px;
-    color: white;
-    background: linear-gradient(90deg, rgba(168, 77, 242, 0.15), rgba(193, 104, 249, 0.15));
-    border: 1px solid rgba(168, 77, 242, 0.4);
-    border-radius: 20px;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.3s, border 0.3s;
+  }
 }
 
-.download-button:hover {
-    background: linear-gradient(90deg, rgba(168, 77, 242, 0.3), rgba(193, 104, 249, 0.3));
-    border-color: rgba(168, 77, 242, 0.6);
+/* === NEW CHATGPT-STYLE EXPANDING INPUT (ADD ONLY) === */
+.input-bar { 
+  display: flex; 
+  align-items: flex-end; /* Send button stays aligned at bottom */
+  gap: 10px;
 }
 
+.input-bar textarea#chatInput {
+  flex: 1;
+  width: 100%;
+  font: 16px/1.4 'Rajdhani', sans-serif;
+  color: #333;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 12px 16px;
+  box-sizing: border-box;
 
-/* Auto-expanding textarea for chat input */
-#user-input {
-    min-height: 40px; /* initial height */
-    max-height: 200px; /* prevent infinite growth */
-    resize: none;
-    overflow-y: auto;
-    padding: 10px;
-    line-height: 1.4;
-    font-size: 16px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    width: 100%;
+  /* Expanding behavior */
+  resize: none; 
+  overflow-y: auto;
+  min-height: 44px;  /* start height like before */
+  max-height: 200px; /* ~6–8 lines */
+}
+
+/* Keep send button aligned with a taller textarea */
+.input-bar button#sendButton {
+  align-self: flex-end;
 }
