@@ -2,6 +2,11 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
+    // ✅ Auto-resize chat input like ChatGPT
+    chatInput.addEventListener("input", () => {
+        chatInput.style.height = "auto"; // reset height
+        chatInput.style.height = chatInput.scrollHeight + "px"; // set new height
+    });
     const sendButton = document.getElementById("sendButton");
     const chatHistory = document.getElementById("chatHistory");
     const fileUploadInput = document.getElementById("fileUpload");
