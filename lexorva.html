@@ -26,13 +26,24 @@
             <div class="input-bar">
                 <label for="fileUpload" class="upload-button">➕</label>
                 <input type="file" id="fileUpload" style="display:none;" />
-                <textarea id="chatInput" rows="1" placeholder="Message Lexorva…"></textarea>
+                
+                <!-- Changed from input to textarea for auto-expanding -->
+                <textarea id="chatInput" placeholder="Message Lexorva..." rows="1"></textarea>
+                
                 <button id="sendButton">➤</button>
             </div>
         </div>
     </div>
 
-       <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="lexorva.js"></script> <!-- ✅ Add this line -->
+    <script src="lexorva.js"></script>
+
+    <script>
+    // Auto-expand textarea like ChatGPT
+    const chatInput = document.getElementById("chatInput");
+    chatInput.addEventListener("input", function() {
+        this.style.height = "auto";
+        this.style.height = (this.scrollHeight) + "px";
+    });
+    </script>
 </body>
 </html>
