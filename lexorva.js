@@ -1,4 +1,5 @@
 // ✅ FINAL Lexorva.js with Persistent File Memory + Faster Typewriter Speed
+// (Only changes: robust fetch + correct parsing of Flask { ok, data } envelope)
 
 document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
@@ -15,6 +16,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let uploadedFile = null;
     let storedFile = null;
+
+    // ---------- helpers (NEW) ----------
+    async function postJSON(path, body) {
+        const res = await fetch(`${BACKEND_URL}${path}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body || {})
+        });
+        const raw = await res.text(); // be resilient to non-JSON
+        let json = null;
+        try { json = raw ? JSON.parse(raw) : null; } catch {}
+        if (!res.ok) {
+            const msg = (json && json.errors && json.errors[0]?.message) || raw || `HTTP ${res.status}`;
+            throw new Error(msg);
+        }
+        return json ?? { raw };
+    }
+
+    function extractContent(payload) {
+        // Accept either bare object or Flask envelope { ok, data: {...} }
+        const d = (payload && (payload.data ?? payload)) || {};
+        // Try common fields in order
+        return (
+            d.result ||
+            d.response ||
+            d.markdown ||
+            (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ||
+            (typeof d === "string" ? d : "")
+        );
+    }
+    // -----------------------------------
 
     // Show file bubble when uploaded
     fileUploadInput.addEventListener("change", () => {
@@ -50,33 +82,35 @@ document.addEventListener("DOMContentLoaded", () => {
         startThinkingDots(thinkingDiv);
 
         try {
-            let response;
             let responseText;
 
             if (uploadedFile || storedFile) {
+                // keep upload behavior exactly as-is
                 const formData = new FormData();
                 formData.append("file", uploadedFile || storedFile);
                 formData.append("prompt", message);
 
-                response = await fetch(`${BACKEND_URL}/upload`, {
+                const res = await fetch(`${BACKEND_URL}/upload`, {
                     method: "POST",
                     body: formData
                 });
-
-                const data = await response.json();
-                responseText = data.result || "Document received. You may now ask questions about it.";
+                const raw = await res.text();
+                let json = null;
+                try { json = raw ? JSON.parse(raw) : null; } catch {}
+                if (!res.ok) {
+                    const msg = (json && json.errors && json.errors[0]?.message) || raw || `HTTP ${res.status}`;
+                    throw new Error(msg);
+                }
+                const payload = json ?? { raw };
+                const d = payload.data ?? payload;
+                responseText = d.result || d.response || "Document received. You may now ask questions about it.";
 
                 uploadedFile = null;
                 fileUploadInput.value = "";
             } else {
-                response = await fetch(`${BACKEND_URL}/proxy`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: message })
-                });
-
-                const data = await response.json();
-                responseText = data.result || data.response || (data.choices?.[0]?.message?.content) || "⚠️ Unexpected response from Lexorva.";
+                // ✅ fixed: use helper + correct envelope parsing
+                const payload = await postJSON("/proxy", { prompt: message });
+                responseText = extractContent(payload) || "⚠️ Unexpected response from Lexorva.";
             }
 
             stopThinkingDots(thinkingDiv);
@@ -85,7 +119,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (error) {
             stopThinkingDots(thinkingDiv);
-            typeMessage(thinkingDiv, "❌ Error: Could not connect to Lexorva backend.");
+            const msg = (error && error.message) ? error.message : "Could not connect to Lexorva backend.";
+            typeMessage(thinkingDiv, `❌ Error: ${msg}`);
+            // also log full error for debugging
+            try { console.error("[Lexorva] fetch error:", error); } catch {}
         }
     });
 
@@ -167,18 +204,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-
-
-
-// 📥 Download Report Button Logic
+// 📥 Download Report Button Logic (unchanged)
 function addDownloadButtonIfEligible(responseText) {
     const responseLower = responseText.toLowerCase();
     const isMultiPart = responseText.length > 600 || responseLower.includes("strategy") || responseLower.includes("legal plan") || responseLower.includes("recommended actions");
 
-    // Only trigger button if content qualifies
     if (!isMultiPart) return;
 
-    // Remove existing button if any
     const existingButton = document.getElementById("downloadReportButton");
     if (existingButton) existingButton.remove();
 
@@ -199,7 +231,6 @@ function addDownloadButtonIfEligible(responseText) {
         display: inline-block;
     `;
 
-    // Append to last AI message bubble
     const messageBubbles = document.querySelectorAll('.ai-response');
     const lastBubble = messageBubbles[messageBubbles.length - 1];
     if (lastBubble) lastBubble.appendChild(downloadButton);
