@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatHistory = document.getElementById("chatHistory");
     const fileUploadInput = document.getElementById("fileUpload");
 
-    const BACKEND_URL = "https://ailawsolutions.pythonanywhere.com";
+    const BACKEND_URL = "https://api.lexorva.pro";
 
     let uploadedFile = null;
     let storedFile = null;
