@@ -1,7 +1,7 @@
-
 {
   "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://ailawsolutions.pythonanywhere.com/$1" }
+    { "source": "/api/:path*", "destination": "https://api.lexorva.pro/:path*" }
   ]
 }
