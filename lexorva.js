@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatHistory = document.getElementById("chatHistory");
     const fileUploadInput = document.getElementById("fileUpload");
 
-    const BACKEND_URL = "/api";
+    const BACKEND_URL = "https://api.lexorva.pro";
 
     // --- ADDED: Hard-pin /api calls to production backend (no other changes needed) ---
     (() => {
