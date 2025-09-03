@@ -14,6 +14,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const BACKEND_URL = "/api";
 
+    // --- ADDED: Hard-pin /api calls to production backend (no other changes needed) ---
+    (() => {
+      const ABS_ORIGIN = "https://api.lexorva.pro";   // your Flask backend
+      const origFetch = window.fetch.bind(window);
+
+      window.fetch = function (input, init) {
+        try {
+          let url = typeof input === "string" ? input : (input && input.url) || "";
+
+          // Rewrite ONLY relative /api/* calls → https://api.lexorva.pro/*
+          if (url.startsWith("/api/")) {
+            url = ABS_ORIGIN + url.replace(/^\/api/, "");
+            if (typeof input === "string") {
+              input = url;
+            } else {
+              // Rebuild Request with new URL, preserving options
+              input = new Request(url, input);
+            }
+
+            // Ensure proper CORS defaults
+            init = init || {};
+            if (!("mode" in init)) init.mode = "cors";
+            if (!("credentials" in init)) init.credentials = "omit";
+          }
+        } catch (e) {
+          // fall through on any error and use original fetch
+        }
+        return origFetch(input, init);
+      };
+    })();
+
     let uploadedFile = null;
     let storedFile = null;
 
